@@ -696,20 +696,23 @@ class StockUtils(object):
     def getHYPMModel(self,code):
         '''行业排名'''
         res = getHtmlFromUrl(hypmUrl % code,utf8coding=True)
-        complie = re.compile('var hypmData=.*?;')
-        li = re.findall(complie,res)
-        if li and len(li):
-            s = li[0]
-            d = simplejson.loads(s[13:-1])
-            if d and d['Data'] and len(d['Data'])>=2:
-                name =  d['Data'][0]['Name']
-                array = d['Data']
-                rank = None
-                for dict in array:
-                    if dict['Name'] == u'行业排名':
-                        rank = dict
-                        return CompanyHYPMRankModel(code, name, rank['TotalMarketValue'], rank['Profit'],
-                                                    rank['PERation'], rank['PBRation'], rank['ROE'])
+        try:
+            complie = re.compile('var hypmData=.*?;')
+            li = re.findall(complie,res)
+            if li and len(li):
+                s = li[0]
+                d = simplejson.loads(s[13:-1])
+                if d and d['Data'] and len(d['Data'])>=2:
+                    name =  d['Data'][0]['Name']
+                    array = d['Data']
+                    rank = None
+                    for dict in array:
+                        if dict['Name'] == u'行业排名':
+                            rank = dict
+                            return CompanyHYPMRankModel(code, name, rank['TotalMarketValue'], rank['Profit'],
+                                                        rank['PERation'], rank['PBRation'], rank['ROE'])
+        except Exception:
+            print Exception.__name__,Exception.__module__
         return None
 
     @classmethod
@@ -1125,8 +1128,10 @@ def mainMethod():
         print k,util.getStockNameFromCode(k),v,szyjlString(szyjl(k)),szyjlRankString(rankModel), (u'现价:' +  price)
         model = szyjl(k)
         if model:
-            print util.roeStringForCode(k, model)[0]
-            print util.roeStringInYearsForCode(k,model)[0]
+            p = util.roeStringForCode(k, model)
+            if p:print p[0]
+            q = util.roeStringInYearsForCode(k,model)
+            if q:print q[0]
         else:pass
 
 
