@@ -1071,20 +1071,20 @@ def mainMethod():
             companyInfo = item.split(',')
             print companyInfo[0],companyInfo[1].ljust(7,' '), companyInfo[-4],u'至',companyInfo[-3],(companyInfo[4]).ljust(30,' '), companyInfo[5],(companyInfo[6] + u'万').ljust(13,' '),(u'占流通股的' +  (companyInfo[7] + '%')).ljust(15,' '),(u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15,' ')
 
-    # #行业报告
-    # print '\n==================================行业涨幅分析报告================================='
-    # hy = util.getIndustryReport()
-    # if hy and len(hy):
-    #     for item in hy:
-    #         print item.split(',')[10],item.split(',')[-1],'   ', item
-    #
-    #
-    # # #概念排行
-    # print '\n=================================概念涨幅排行====================================='
-    # lit = util.getIndustryRank()
-    # if lit and len(lit):
-    #     for item in lit:
-    #         print item
+    #行业报告
+    print '\n==================================行业涨幅分析报告================================='
+    hy = util.getIndustryReport()
+    if hy and len(hy):
+        for item in hy:
+            print item.split(',')[10],item.split(',')[-1],'   ', item
+
+
+    # #概念排行
+    print '\n=================================概念涨幅排行====================================='
+    lit = util.getIndustryRank()
+    if lit and len(lit):
+        for item in lit:
+            print item
 
 
     # #周k线图
