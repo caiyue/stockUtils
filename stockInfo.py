@@ -972,7 +972,7 @@ def mainMethod():
             for d in maxPriceList:
                 for k in d:
                     m = util.getSylDetailDataForCode(k)
-                    print k,m.name,'创新高次数:'+ d[k]
+                    print k,m.name,'创新高次数:'+ str(d[k])
             f = open(fileName, 'w')
             pickle.dump({'data':maxPriceList,'date':str(datetime.today())[0:10]},f)
             f.close()
