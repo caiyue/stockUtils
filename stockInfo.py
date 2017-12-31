@@ -920,9 +920,9 @@ def mainMethod():
 
 
     #例子。。。。。。。。。。。。。。，如果如果遍历这个A股，调用 # stocklist = util.getAllStockList()
-    pList = util.getStockPriceEachMonth('000001',True)#False 返回是每个月的数据，True 是年的数据
-    for i in pList:
-        print i.code,i.name,'时间:'+i.month,'开始价格:'+i.startPrice,'结束价格'+i.endPrice,'最高价:'+i.maxPrice,'最低价:'+i.minPrice
+    #pList = util.getStockPriceEachMonth('000001',True)#False 返回是每个月的数据，True 是年的数据
+    #for i in pList:
+    #   print i.code,i.name,'时间:'+i.month,'开始价格:'+i.startPrice,'结束价格'+i.endPrice,'最高价:'+i.maxPrice,'最低价:'+i.minPrice
 
 
 
