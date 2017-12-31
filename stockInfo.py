@@ -131,6 +131,15 @@ newStockList = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?t
 
 
 
+#========================================================================================
+#港股相关
+#========================================================================================
+#半年财报
+halfYearReportUrl = 'http://hkf10.eastmoney.com/F9HKStock/GetAnalysisSummaryData.do?securityCode=01636.HK&yearList=2017,2016,2015,2014&reportTypeList=1,5,3,6&dateSearchType=1&listedType=0,1&reportTypeInScope=1&reportType=0&rotate=0&seperate=0&order=desc&cashType=0&exchangeValue=0&customSelect=0&CurrencySelect=0'
+
+
+
+
 def getStockCodeFromHtmlString(string):
     if string and len(string):
         return string[16:22]
@@ -1003,11 +1012,11 @@ def mainMethod():
             niandu =  util.roeStringInYearsForCode(item.code, model)
             if jidu and niandu:
                 if  niandu[1]:
-                    print '=======================================高速增加,可以关注======================================='
+                    print '=======================================资产收益率教高,可以关注======================================='
                 if niandu[2]:
-                   print '=======================================高潜质企业,可以关注======================================='
+                   print '========================================利润增长率较高,可以关注======================================='
                 if niandu[3]:
-                    print '=======================================高附加值,可以关注======================================='
+                    print '=======================================产品高附加值,可以关注======================================='
                 if(niandu[1] or niandu[3]):
                     myStock.append(item)
                 print jidu[0]
@@ -1025,8 +1034,6 @@ def mainMethod():
             model = szyjl(i.code)
             if model:
                 print i.code, i.name, '机构持仓数:' + i.orgCount, '资产收益率:' + i.jzcsyl,'  ',szyjlString(model)
-
-                print '\n\n'
             else:continue
         print '\n\n'
 
