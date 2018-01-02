@@ -969,8 +969,12 @@ def mainMethod():
             model = szyjl(code)
             if not model: continue
             s1 =  model.code.ljust(8,' ') + model.name.ljust(6,' ') + szyjlString(model)
-            s2 =  util.roeStringForCode(code,model)[0]
-            s3 = util.roeStringInYearsForCode(code,model)[0]
+            m2 = util.roeStringForCode(code,model)
+            if m2:
+                s2 =  m2[0]
+            m3 = util.roeStringInYearsForCode(code,model)
+            if m3:
+                s3 = m3[0]
             if s1 and s2 and  s3:
                 mailString = mailString + s1 + s2 + s3 + '\n\n'
                 print s1
