@@ -131,6 +131,15 @@ newStockList = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?t
 
 
 
+#========================================================================================
+#港股相关
+#========================================================================================
+#半年财报
+halfYearReportUrl = 'http://hkf10.eastmoney.com/F9HKStock/GetAnalysisSummaryData.do?securityCode=01636.HK&yearList=2017,2016,2015,2014&reportTypeList=1,5,3,6&dateSearchType=1&listedType=0,1&reportTypeInScope=1&reportType=0&rotate=0&seperate=0&order=desc&cashType=0&exchangeValue=0&customSelect=0&CurrencySelect=0'
+
+
+
+
 def getStockCodeFromHtmlString(string):
     if string and len(string):
         return string[16:22]
@@ -912,9 +921,9 @@ def mainMethod():
 
 
     #例子。。。。。。。。。。。。。。，如果如果遍历这个A股，调用 # stocklist = util.getAllStockList()
-    pList = util.getStockPriceEachMonth('000001',True)#False 返回是每个月的数据，True 是年的数据
-    for i in pList:
-        print i.code,i.name,'时间:'+i.month,'开始价格:'+i.startPrice,'结束价格'+i.endPrice,'最高价:'+i.maxPrice,'最低价:'+i.minPrice
+    #pList = util.getStockPriceEachMonth('000001',True)#False 返回是每个月的数据，True 是年的数据
+    #for i in pList:
+    #   print i.code,i.name,'时间:'+i.month,'开始价格:'+i.startPrice,'结束价格'+i.endPrice,'最高价:'+i.maxPrice,'最低价:'+i.minPrice
 
 
 
@@ -973,7 +982,7 @@ def mainMethod():
             for d in maxPriceList:
                 for k in d:
                     m = util.getSylDetailDataForCode(k)
-                    print k,m.name,'创新高次数:'+ d[k]
+                    print k,m.name,'创新高次数:'+ str(d[k])
             f = open(fileName, 'w')
             pickle.dump({'data':maxPriceList,'date':str(datetime.today())[0:10]},f)
             f.close()
@@ -1004,11 +1013,11 @@ def mainMethod():
             niandu =  util.roeStringInYearsForCode(item.code, model)
             if jidu and niandu:
                 if  niandu[1]:
-                    print '=======================================高速增加,可以关注======================================='
+                    print '=======================================资产收益率教高,可以关注======================================='
                 if niandu[2]:
-                   print '=======================================高潜质企业,可以关注======================================='
+                   print '========================================利润增长率较高,可以关注======================================='
                 if niandu[3]:
-                    print '=======================================高附加值,可以关注======================================='
+                    print '=======================================产品高附加值,可以关注======================================='
                 if(niandu[1] or niandu[3]):
                     myStock.append(item)
                 print jidu[0]
@@ -1026,10 +1035,6 @@ def mainMethod():
             model = szyjl(i.code)
             if model:
                 print i.code, i.name, '机构持仓数:' + i.orgCount, '资产收益率:' + i.jzcsyl,'  ',szyjlString(model)
-                print util.roeStringForCode(i.code, model)[0]
-                print util.roeStringInYearsForCode(i.code, model)[0]
-                print util.getCompanyBussinessDetailString(i.code)
-                print '\n\n'
             else:continue
         print '\n\n'
 
@@ -1074,20 +1079,20 @@ def mainMethod():
             companyInfo = item.split(',')
             print companyInfo[0],companyInfo[1].ljust(7,' '), companyInfo[-4],u'至',companyInfo[-3],(companyInfo[4]).ljust(30,' '), companyInfo[5],(companyInfo[6] + u'万').ljust(13,' '),(u'占流通股的' +  (companyInfo[7] + '%')).ljust(15,' '),(u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15,' ')
 
-    # #行业报告
-    # print '\n==================================行业涨幅分析报告================================='
-    # hy = util.getIndustryReport()
-    # if hy and len(hy):
-    #     for item in hy:
-    #         print item.split(',')[10],item.split(',')[-1],'   ', item
-    #
-    #
-    # # #概念排行
-    # print '\n=================================概念涨幅排行====================================='
-    # lit = util.getIndustryRank()
-    # if lit and len(lit):
-    #     for item in lit:
-    #         print item
+    #行业报告
+    print '\n==================================行业涨幅分析报告================================='
+    hy = util.getIndustryReport()
+    if hy and len(hy):
+        for item in hy:
+            print item.split(',')[10],item.split(',')[-1],'   ', item
+
+
+    # #概念排行
+    print '\n=================================概念涨幅排行====================================='
+    lit = util.getIndustryRank()
+    if lit and len(lit):
+        for item in lit:
+            print item
 
 
     # #周k线图
