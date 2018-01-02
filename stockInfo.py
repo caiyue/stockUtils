@@ -394,7 +394,7 @@ class MostValueableCompanyInfo(CompanyInfo):
 
 class RoeModel(object):
     '''日期，roe，利润增长率,收入增长率，总收入，总利润'''
-    def __init__(self,date,roe,profitRate,incomeRate,income,profit,maolilv,jinglilv):
+    def __init__(self,date,roe,profitRate,incomeRate,income,profit,maolilv,jinglilv,zcfzl):
         super(RoeModel,self).__init__()
         self.dateOfRoe = date
         self.roe = roe
@@ -404,6 +404,7 @@ class RoeModel(object):
         self.profit = profit
         self.maolilv = maolilv
         self.jinglilv = jinglilv
+        self.zcfzl = zcfzl
 
 class  CompanyProfitRankModel(CompanyInfo):
     def __init__(self,code,name,profit):
@@ -541,7 +542,7 @@ class StockUtils(object):
         if isinstance(ROEList,list) and len(ROEList) > 0:
             cList = []
             for item in ROEList:
-                m = RoeModel(item['date'],item['jqjzcsyl'],item['gsjlrtbzz'],item['yyzsrtbzz'], item['yyzsr'],item['kfjlr'],item['mll'],item['jll'])
+                m = RoeModel(item['date'],item['jqjzcsyl'],item['gsjlrtbzz'],item['yyzsrtbzz'], item['yyzsr'],item['kfjlr'],item['mll'],item['jll'],item['zcfzl'])
                 cList.append(m)
             return cList
         else:
@@ -561,7 +562,7 @@ class StockUtils(object):
         if isinstance(ROEList,list) and len(ROEList) > 0:
             cList = []
             for item in ROEList:
-                m = RoeModel(item['date'],item['jqjzcsyl'],item['gsjlrtbzz'],item['yyzsrtbzz'], item['yyzsr'],item['kfjlr'],item['mll'],item['jll'])
+                m = RoeModel(item['date'],item['jqjzcsyl'],item['gsjlrtbzz'],item['yyzsrtbzz'], item['yyzsr'],item['kfjlr'],item['mll'],item['jll'],item['zcfzl'])
                 cList.append(m)
             return cList
         else:
@@ -573,7 +574,7 @@ class StockUtils(object):
         s = ''
         if li and len(li) > 0:
             for item in li:
-                    s += (u'季报:' + item.dateOfRoe).ljust(15,' ') + (u'净资产收益率:' + item.roe + '%').ljust(15,' ') + (u'收入同比增长率:' + item.incomeRate + '%').ljust(17,' ') + (u'净利润同比增长率:' + item.profitRate + '%').ljust(18,' ') + (u'总收入:' + item.income).ljust(12,' ')  + (u' 总利润:' + item.profit).ljust(12,' ') + (u'毛利率:' + item.maolilv + '%').ljust(13,' ') + (u'净利率:' + item.jinglilv + '%').ljust(13,' ')
+                    s += (u'季报:' + item.dateOfRoe).ljust(15,' ') + (u'净资产收益率:' + item.roe + '%').ljust(15,' ') + (u'收入同比增长率:' + item.incomeRate + '%').ljust(17,' ') + (u'净利润同比增长率:' + item.profitRate + '%').ljust(18,' ') + (u'总收入:' + item.income).ljust(12,' ')  + (u' 总利润:' + item.profit).ljust(12,' ') + (u'毛利率:' + item.maolilv + '%').ljust(13,' ') + (u'净利率:' + item.jinglilv + '%').ljust(13,' ') +(u'资产负债率:' + item.zcfzl + '%').ljust(13,' ')
                     s += '\n'
             return (s,False)
         else:
@@ -592,7 +593,7 @@ class StockUtils(object):
             jinglilvCount = 0
 
             for item in li:
-                s += (u'年报:' + item.dateOfRoe).ljust(15,' ') + (u'净资产收益率:' + item.roe + '%').ljust(15,' ') + (u'收入同比增长率:' + item.incomeRate + '%').ljust(17,' ') + (u'净利润同比增长率:' + item.profitRate + '%').ljust(18,' ') + (u'总收入:' + item.income).ljust(12,' ')  + (u' 总利润:' + item.profit).ljust(12,' ') + (u'毛利率:' + item.maolilv + '%').ljust(13,' ') + (u'净利率:' + item.jinglilv + '%').ljust(13,' ')
+                s += (u'年报:' + item.dateOfRoe).ljust(15,' ') + (u'净资产收益率:' + item.roe + '%').ljust(15,' ') + (u'收入同比增长率:' + item.incomeRate + '%').ljust(17,' ') + (u'净利润同比增长率:' + item.profitRate + '%').ljust(18,' ') + (u'总收入:' + item.income).ljust(12,' ')  + (u' 总利润:' + item.profit).ljust(12,' ') + (u'毛利率:' + item.maolilv + '%').ljust(13,' ') + (u'净利率:' + item.jinglilv + '%').ljust(13,' ') + (u'资产负债率:' + item.zcfzl + '%').ljust(13,' ')
                 s += '\n'
 
                 #投资收益率
