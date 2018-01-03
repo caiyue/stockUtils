@@ -1082,6 +1082,7 @@ def mainMethod():
     for stock in stockList:
         print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
         roeModel = util.getHYPMModel(stock)
+        if not roeModel:continue
         roeR = roeModel.roeRank
         if roeR == '-' or roeR == '--':
             continue
