@@ -1075,6 +1075,31 @@ def mainMethod():
     #         print util.getCompanyBussinessDetailString(item.code)
     #         print '\n'
 
+    #资产收益率排名行业前三的所有股票
+    print '\n====================================资产收益率行业前三====================================='
+    stockList = util.getAllStockList()
+    roeList = []
+    for stock in stockList:
+        print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
+        roeModel = util.getHYPMModel(stock)
+        if roeModel and  ('1|' in roeModel.roeRank or '2|' in roeModel.roeRank or '3|' in roeModel.roeRank):
+            sylR = roeModel.sylRank
+            if sylR == '-' or sylR == '--':
+                continue
+            else:
+                syl = sylR.split('|')[0]
+                if float(syl) <= 10:
+                    roeList.append(stock)
+                else:
+                    continue
+
+    if len(roeList):
+        for detailCode in roeList:
+            detailModel = util.getSylDetailDataForCode(detailCode)
+            print detailCode,detailModel.name,u'市值'+ detailModel.sz ,u'市盈率:' + detailModel.syl,u'换手率'+detailModel.hsl
+
+
+
     # #股东增持
     print '\n====================================股东增持====================================='
     gd = util.getStockholderHoldsStocks()
