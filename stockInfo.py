@@ -9,6 +9,7 @@ import  urllib2
 import  re
 import simplejson
 import  time
+import socket
 from datetime import datetime
 import os.path as fpath
 from bs4 import BeautifulSoup
@@ -929,6 +930,7 @@ def mainMethod():
 
     #
     print '\n========================================当前时间:%s===========================================' % datetime.today()
+    print '========================================主机名:%s===========================================' % socket.gethostname()
     print '\n===============================================近60天创新高======================================================'
     mh = util.get60DaysMaxStockList()
     print '===============================================共 %s 个======================================================' % str(len(mh))
