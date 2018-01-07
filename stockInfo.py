@@ -1083,6 +1083,8 @@ def mainMethod():
     roeList = []
     for stock in stockList:
         print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
+        if stock == '002901':
+            print 'dabo'
         roeModel = util.getHYPMModel(stock)
         if not roeModel:continue
         roeR = roeModel.roeRank
@@ -1096,7 +1098,7 @@ def mainMethod():
                     continue
                 else:
                     syl = sylR.split('|')[0]
-                    if float(syl) <= 5:
+                    if float(syl) <= 30:
                         roeList.append(stock)
                     else:
                         continue
