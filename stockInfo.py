@@ -1108,7 +1108,14 @@ def mainMethod():
     if len(roeList):
         for detailCode in roeList:
             detailModel = util.getSylDetailDataForCode(detailCode)
+            model = szyjl(detailCode)
+            if not model:continue
             print detailCode,detailModel.name,u'市值:'+ detailModel.sz + u'亿' ,u'市盈率:' + detailModel.syl,u'换手率'+detailModel.hsl + '%'
+            jidu = util.roeStringForCode(detailCode, model)
+            niandu = util.roeStringInYearsForCode(detailCode, model)
+            if jidu and niandu:
+                print jidu[0]
+                print niandu[0]
 
 
 
