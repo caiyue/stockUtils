@@ -97,6 +97,9 @@ ROEOfStockInYears = 'http://emweb.securities.eastmoney.com/PC_HSF10/FinanceAnaly
 #公司经营业务  sz000001
 bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConception/CoreConceptionAjax?code=%s'
 
+#公司主营业务比例
+companyBussinessPercentUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code=%s'
+
 #行业排名
 hypmUrl = 'http://data.eastmoney.com/stockdata/%s.html'
 
@@ -389,6 +392,18 @@ class   CompanyHYPMRankModel(CompanyInfo):
         self.sjlRank = sjlRank
         self.roeRank = roeRank
 
+class   CompanyBussinessPercentDetailModel(CompanyInfo):
+    '''主营业务收入、利润，收入占比、利润占比'''
+    def __init__(self,code,name,time,bussinessName,income,profit,incomePercent,profitPercent):
+        super(CompanyBussinessPercentDetailModel,self).__init__(code,name)
+        self.time = time
+        self.bussinessName = bussinessName
+        self.income = income
+        self.profit = profit
+        self.incomePercent = incomePercent
+        self.profitPercent = profitPercent
+
+
 class MostValueableCompanyInfo(CompanyInfo):
     '''最可投资价值股票,净资产收益率>15%，3年净利润复合增长率>10%'''
     def __init__(self,code,name,jzcsyl,fhjlrzzl,orgCount,sz):
@@ -510,6 +525,24 @@ class StockUtils(object):
             if li and len(li) > 2:
                 return li[0]['ydnr'] + '\n' + li[1]['ydnr']
         return None
+
+    def getCompanyBussinessPercentDetailForCode(self, code):
+        bussinessList = []
+        res = getHtmlFromUrl(companyBussinessPercentUrl % getMarketCode(code))
+        obj = getJsonObjOrigin(res)
+        if obj:
+            o = obj['zygcfx'][0]
+            if o:
+                li = o['hy']
+                if li and len(li) > 0:
+                    for d in li:
+                        m  = CompanyBussinessPercentDetailModel(code,None,d['rq'],d['zygc'],d['zysr'],d['zylr'],d['srbl'],d['lrbl'])
+                        if m:bussinessList.append(m)
+
+        return bussinessList
+
+
+
 
     @classmethod
     def getMostValueableStockList(self):
@@ -899,6 +932,18 @@ class StockUtils(object):
         return detail
 
 
+
+def bussinessPercentString(code):
+    s = ''
+    li  = StockUtils().getCompanyBussinessPercentDetailForCode(code)
+    if li and len(li) > 0:
+        for model in li:
+            s += model.bussinessName.ljust(13,' ') + (u'收入:' + model.income).ljust(13,' ') + (u'利润:' + model.profit).ljust(13,' ') + (u'收入占比:' + model.incomePercent).ljust(13,' ') + (u'利润占比:' + model.profitPercent).ljust(13,' ')
+            s += '\n'
+    if len(s) > 0:
+        return s
+    return None
+
 def szyjl(code):
     return  StockUtils().getSylDetailDataForCode(code)
 def szyjlRank(code):
@@ -980,6 +1025,9 @@ def mainMethod():
             if s1 and s2 and  s3:
                 mailString = mailString + s1 + s2 + s3 + '\n\n'
                 print s1
+                bussString = bussinessPercentString(code)
+                if bussString:
+                    print bussString
                 print s2
                 print s3
             else:pass
@@ -1128,11 +1176,11 @@ def mainMethod():
             print companyInfo[0],companyInfo[1].ljust(7,' '), companyInfo[-4],u'至',companyInfo[-3],(companyInfo[4]).ljust(30,' '), companyInfo[5],(companyInfo[6] + u'万').ljust(13,' '),(u'占流通股的' +  (companyInfo[7] + '%')).ljust(15,' '),(u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15,' ')
 
     #行业报告
-    print '\n==================================行业涨幅分析报告================================='
-    hy = util.getIndustryReport()
-    if hy and len(hy):
-        for item in hy:
-            print item.split(',')[10],item.split(',')[-1],'   ', item
+    # print '\n==================================行业涨幅分析报告================================='
+    # hy = util.getIndustryReport()
+    # if hy and len(hy):
+    #     for item in hy:
+    #         print item.split(',')[10],item.split(',')[-1],'   ', item
 
 
     # #概念排行
