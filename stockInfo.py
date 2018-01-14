@@ -938,7 +938,7 @@ def bussinessPercentString(code):
     li  = StockUtils().getCompanyBussinessPercentDetailForCode(code)
     if li and len(li) > 0:
         for model in li:
-            s += model.bussinessName.ljust(13,' ') + (u'收入:' + model.income).ljust(13,' ') + (u'利润:' + model.profit).ljust(13,' ') + (u'收入占比:' + model.incomePercent).ljust(13,' ') + (u'利润占比:' + model.profitPercent).ljust(13,' ')
+            s += model.bussinessName.ljust(13,' ') + (u'收入:' + model.income).ljust(13,' ') + (u'利润:' + model.profit).ljust(13,' ') + (u'收入占比:' + model.incomePercent).ljust(16,' ') + (u'利润占比:' + model.profitPercent).ljust(13,' ')
             s += '\n'
     if len(s) > 0:
         return s
@@ -1130,7 +1130,7 @@ def mainMethod():
     stockList = util.getAllStockList()
     roeList = []
     for stock in stockList:
-        print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
+        # print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
         if stock == '002901':
             print 'dabo'
         roeModel = util.getHYPMModel(stock)
