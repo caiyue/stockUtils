@@ -1074,6 +1074,8 @@ def mainMethod():
                     print '=======================================产品高附加值,可以关注======================================='
                 if(niandu[1] or niandu[3]):
                     myStock.append(item)
+                bussString = bussinessPercentString(item.code)
+                if bussString:print bussString
                 print jidu[0]
                 print niandu[0]
             else:continue
@@ -1160,6 +1162,8 @@ def mainMethod():
             jidu = util.roeStringForCode(detailCode, model)
             niandu = util.roeStringInYearsForCode(detailCode, model)
             if jidu and niandu:
+                bussString = bussinessPercentString(detailCode)
+                if bussString: print bussString
                 print jidu[0]
                 print niandu[0]
 
@@ -1231,6 +1235,8 @@ def mainMethod():
         print k,util.getStockNameFromCode(k),v,szyjlString(szyjl(k)),szyjlRankString(rankModel), (u'现价:' +  price)
         model = szyjl(k)
         if model:
+            bussString = bussinessPercentString(k)
+            if bussString: print bussString
             p = util.roeStringForCode(k, model)
             if p:print p[0]
             q = util.roeStringInYearsForCode(k,model)
