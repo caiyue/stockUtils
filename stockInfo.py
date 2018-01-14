@@ -1131,8 +1131,6 @@ def mainMethod():
     roeList = []
     for stock in stockList:
         # print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
-        if stock == '002901':
-            print 'dabo'
         roeModel = util.getHYPMModel(stock)
         if not roeModel:continue
         roeR = roeModel.roeRank
