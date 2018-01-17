@@ -1,7 +1,7 @@
-
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-#author:蔡董
+#coding=utf-8
+
+# author:蔡董
 #date:2017.8.16
 
 import  os
