@@ -512,7 +512,8 @@ class StockUtils(object):
     def get60DaysMaxStockList(self):
         '''最近5天创新高'''
         res = getHtmlFromUrl(SixtyDaysMaxPrice)
-
+        if not res:
+            return None
         part = re.compile('target="_blank">.*?</a></td>')
         li = re.findall(part,res)
         tu = [getStockCodeFromHtmlString(c) for c in li]
@@ -979,8 +980,9 @@ def mainMethod():
     print '========================================主机名:%s===========================================' % socket.gethostname()
     print '\n===============================================近60天创新高======================================================'
     mh = util.get60DaysMaxStockList()
-    print '===============================================共 %s 个======================================================' % str(len(mh))
     if mh and len(mh) > 0:
+        print '===============================================共 %s 个======================================================' % str(
+            len(mh))
         mailString = ('===================================当前日期%s==================================' % str(datetime.today())[0:10])
         maxPriceList = []
         needSync = False
