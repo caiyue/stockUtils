@@ -82,7 +82,7 @@ sylDetailSuffixUrl = '&token=4f1862fc3b5e77c150a2b985b12db0fd&cb=jQuery183041202
 #净资产收益率12%  3年利润增长率10%，利润同比增长率
 #mostValueableStockUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty=xgq&token=eastmoney&c=[cz_ylnl01(1|0.12)][cz_cznl06(1|0.1)][cz_jgcg01][cznl05(4|0.1)][cz19(1|100y)]&p=1&jn=DvMQgnCP&ps=100&r=1507563206241'
 #3年净利润增长率10以上，资产收益率大于10%（0.1,5）），市值超过200亿
-mostValueableStockUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty=xgq&token=eastmoney&c=[cznl06(1|0.1)][cz_jgcg01][cz_ylnl01(4|0.1,5|1.00)][cz19(4|1000000w)]&p=%s&jn=qVlwdjPQ&ps=100&s=cz_jgcg01&st=-1&r=1507621522335'
+mostValueableStockUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty=xgq&token=eastmoney&c=[cz_jgcg01][cz_ylnl01(4|0.20)][cz_ylnl04(1|0.3)][cz19(1|100y)]&p=%s&jn=fjnexJlG&ps=100&s=cz19(1|100y)&st=-1&r=1520242317534'
 
 
 #ROE 投资回报率
@@ -407,10 +407,10 @@ class   CompanyBussinessPercentDetailModel(CompanyInfo):
 
 class MostValueableCompanyInfo(CompanyInfo):
     '''最可投资价值股票,净资产收益率>15%，3年净利润复合增长率>10%'''
-    def __init__(self,code,name,jzcsyl,fhjlrzzl,orgCount,sz):
+    def __init__(self,code,name,jzcsyl,mlilv,orgCount,sz):
         super(MostValueableCompanyInfo,self).__init__(code,name)
         self.jzcsyl = jzcsyl
-        self.fhjlrzzl = fhjlrzzl
+        self.maolilv = mlilv
         self.orgCount = orgCount
         self.sz = sz
 
@@ -512,7 +512,8 @@ class StockUtils(object):
     def get60DaysMaxStockList(self):
         '''最近5天创新高'''
         res = getHtmlFromUrl(SixtyDaysMaxPrice)
-
+        if not res:
+            return None
         part = re.compile('target="_blank">.*?</a></td>')
         li = re.findall(part,res)
         tu = [getStockCodeFromHtmlString(c) for c in li]
@@ -559,11 +560,11 @@ class StockUtils(object):
                 if list and len(list):
                     for item in list:
                         stockInfo = item.split(',')
-                        jzcsyl = str(float(stockInfo[5].split('(')[0]) * 100) + '%'
-                        fhlrzzl = str(float(stockInfo[3].split('(')[0]) * 100) + '%'
-                        orgCount = stockInfo[4].split('(')[0]
+                        jzcsyl = str(float(stockInfo[4].split('(')[0]) * 100) + '%'
+                        mlilv = str(float(stockInfo[5].split('(')[0]) * 100) + '%'
+                        orgCount = stockInfo[3].split('(')[0]
                         sz = str(int(float(stockInfo[6])/10000/10000))
-                        cinfo = MostValueableCompanyInfo(stockInfo[1],stockInfo[2],jzcsyl,fhlrzzl,orgCount,sz)
+                        cinfo = MostValueableCompanyInfo(stockInfo[1],stockInfo[2],jzcsyl,mlilv,orgCount,sz)
                         cList.append(cinfo)
                     if len(list) < pageSize:break
                     #如果将要获取的页码比总共的页码大，那么直接退出
@@ -957,7 +958,7 @@ def szyjlRankString(model):
     return '\n' + u'市值排行:'+ model.szRank + u'  利润排行:'+model.profitRank + u'  市盈率排行:'+model.sjlRank + u'  市净率排行:'+model.sjlRank + u'  资产收益率排行:' +model.roeRank
 
 def mostValueableCompanyString(model):
-    return ('净资产收益率年增长率:'+model.jzcsyl).ljust(15,' ') + (u'  3年利润复合增长率:'+model.fhjlrzzl).ljust(21,' ') + ('  持仓机构数:' + model.orgCount)
+    return ('净资产收益率年增长率:'+model.jzcsyl).ljust(15,' ')  + ('  持仓机构数:' + model.orgCount)
 
 def percentToFloat(s):
     return float(s.strip("%"))
@@ -979,8 +980,9 @@ def mainMethod():
     print '========================================主机名:%s===========================================' % socket.gethostname()
     print '\n===============================================近60天创新高======================================================'
     mh = util.get60DaysMaxStockList()
-    print '===============================================共 %s 个======================================================' % str(len(mh))
     if mh and len(mh) > 0:
+        print '===============================================共 %s 个======================================================' % str(
+            len(mh))
         mailString = ('===================================当前日期%s==================================' % str(datetime.today())[0:10])
         maxPriceList = []
         needSync = False
