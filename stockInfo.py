@@ -157,7 +157,7 @@ def getFloatFromString(s):
 
 def getHtmlFromUrl(url,utf8coding=False):
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
         ret = urllib2.urlopen(req)
         res = None
@@ -511,7 +511,7 @@ class StockUtils(object):
 
     def get60DaysMaxStockList(self):
         '''最近5天创新高'''
-        res = getHtmlFromUrl(SixtyDaysMaxPrice)
+        res = getHtmlFromUrl(SixtyDaysMaxPrice,True)
         if not res:
             return None
         part = re.compile('target="_blank">.*?</a></td>')
@@ -933,6 +933,20 @@ class StockUtils(object):
         detail = CompanyKLineDataDetail(obj['code'],obj['name'],dataList)
         return detail
 
+    def jiduAndNianduAndszyl(self,detailCode):
+        detailModel = self.getSylDetailDataForCode(detailCode)
+        model = szyjl(detailCode)
+        if not model: return None
+        print detailCode, detailModel.name, u'市值:' + detailModel.sz + u'亿', u'市盈率:' + detailModel.syl, u'换手率' + detailModel.hsl + '%'
+        jidu = self.roeStringForCode(detailCode, model)
+        niandu = self.roeStringInYearsForCode(detailCode, model)
+        if jidu and niandu:
+            bussString = bussinessPercentString(detailCode)
+            if bussString:
+                print bussString
+                print jidu[0]
+                print niandu[0]
+
 
 
 def bussinessPercentString(code):
@@ -960,142 +974,76 @@ def szyjlRankString(model):
 def mostValueableCompanyString(model):
     return ('净资产收益率年增长率:'+model.jzcsyl).ljust(15,' ')  + ('  持仓机构数:' + model.orgCount)
 
-def percentToFloat(s):
-    return float(s.strip("%"))
+def  validateStock(code):
+    model = szyjl(code)
+    rankModel = szyjlRank(code)
+    if not model or not rankModel: return
+    #不需要过滤换手率以及市值，价值投资
+    jidu =  StockUtils().roeStringForCode(code,model)
+    niandu =  StockUtils().roeStringInYearsForCode(code, model)
+    if jidu and niandu:
+        if(niandu[1]  and niandu[3]):
+            if niandu[1]:
+                print '=======================================资产收益率教高,可以关注======================================='
+            if niandu[2]:
+                print '========================================利润增长率较高,可以关注======================================='
+            if niandu[3]:
+                print '=======================================产品高附加值,可以关注======================================='
+            print model.code + '   ' + model.name
+            print jidu[0]
+            print niandu[0]
+
 
 def mainMethod():
     util = StockUtils()
     sqlins = mysqlOp()
 
-
-    #例子。。。。。。。。。。。。。。，如果如果遍历这个A股，调用 # stocklist = util.getAllStockList()
-    #pList = util.getStockPriceEachMonth('000001',True)#False 返回是每个月的数据，True 是年的数据
-    #for i in pList:
-    #   print i.code,i.name,'时间:'+i.month,'开始价格:'+i.startPrice,'结束价格'+i.endPrice,'最高价:'+i.maxPrice,'最低价:'+i.minPrice
-
-
-
     #
     print '\n========================================当前时间:%s===========================================' % datetime.today()
     print '========================================主机名:%s===========================================' % socket.gethostname()
-    print '\n===============================================近60天创新高======================================================'
-    mh = util.get60DaysMaxStockList()
-    if mh and len(mh) > 0:
-        print '===============================================共 %s 个======================================================' % str(
-            len(mh))
-        mailString = ('===================================当前日期%s==================================' % str(datetime.today())[0:10])
-        maxPriceList = []
-        needSync = False
-        fileName = 'stockMaxFile'
-        #读取本地数据
-        if fpath.exists(fileName):
-            f = open(fileName,'rb')
-            allData = pickle.load(f)
-            maxPriceList =allData['data']
-            date = allData['date']
-            if str(datetime.today())[0:10] != date or  not date:
-                needSync = True
-            f.close()
-        else:
-            needSync = True
-            f = open(fileName, 'w')
-            f.close()
-        for code in mh:
-            if needSync:
-                if len(maxPriceList) > 0:
-                    maxCount = 0
-                    for d in maxPriceList:
-                        if d.has_key(code):
-                            maxCount = int(d[code]) + 1
-                            d[code] = maxCount
-                            break
-                        else:continue
-                            # maxPriceList.append({'code': code, 'maxPriceCount': '1'})
-                    if maxCount == 0:
-                        maxPriceList.append({code: '1'})
-                else:
-                    maxPriceList.append({code:'1'})
-            else:pass
-            model = szyjl(code)
-            if not model: continue
-            s1 =  model.code.ljust(8,' ') + model.name.ljust(6,' ') + szyjlString(model)
-            m2 = util.roeStringForCode(code,model)
-            if m2:
-                s2 =  m2[0]
-            m3 = util.roeStringInYearsForCode(code,model)
-            if m3:
-                s3 = m3[0]
-            if s1 and s2 and  s3:
-                mailString = mailString + s1 + s2 + s3 + '\n\n'
-                print s1
-                bussString = bussinessPercentString(code)
-                if bussString:
-                    print bussString
-                print s2
-                print s3
-            else:pass
-
-        if needSync:
-            for d in maxPriceList:
-                for k in d:
-                    m = util.getSylDetailDataForCode(k)
-                    print k,m.name,'创新高次数:'+ str(d[k])
-            f = open(fileName, 'w')
-            pickle.dump({'data':maxPriceList,'date':str(datetime.today())[0:10]},f)
-            f.close()
-        else:pass
-
-        # 发送邮件
-        try:
-            if mailString:sendMail(None,None,'stock60Days',mailString)
-        except Exception:
-            print Exception.__name__
-        finally:
-            print ''
-
-
-    #价值投资选股
-    print '\n===============================价值投资股票========================================'
-    th = util.getMostValueableStockList()
-    myStock = []
-    if th and len(th) > 0:
-        print '===============================共 %s 个========================================\n' % str(len(th))
-        for item in th:
-            model = szyjl(item.code)
-            rankModel = szyjlRank(item.code)
-            if not model or not rankModel: continue
-            #不需要过滤换手率以及市值，价值投资
-            print (u'第%s个:' % str(th.index(item) + 1)), item.name.ljust(6,' '),item.code.ljust(7,' '),mostValueableCompanyString(item),szyjlString(model),szyjlRankString(rankModel)
-            jidu =  util.roeStringForCode(item.code,model)
-            niandu =  util.roeStringInYearsForCode(item.code, model)
-            if jidu and niandu:
-                if  niandu[1]:
-                    print '=======================================资产收益率教高,可以关注======================================='
-                if niandu[2]:
-                   print '========================================利润增长率较高,可以关注======================================='
-                if niandu[3]:
-                    print '=======================================产品高附加值,可以关注======================================='
-                if(niandu[1] or niandu[3]):
-                    myStock.append(item)
-                bussString = bussinessPercentString(item.code)
-                if bussString:print bussString
-                print jidu[0]
-                print niandu[0]
-            else:continue
-
-    if len(myStock) > 0:
-        print '\n\n\n'
-        print '=======================================高成长企业列表，强烈关注============================================='
-        print '=======================================高成长企业列表，强烈关注============================================='
-        print '=======================================高成长企业列表，强烈关注============================================='
-        ret = sorted(myStock, key=lambda item: item.jzcsyl, reverse=True)
-        for i in ret:
-            if float(i.jzcsyl[0:-2]) / 100 <= float(0.12):continue
-            model = szyjl(i.code)
-            if model:
-                print i.code, i.name, '机构持仓数:' + i.orgCount, '资产收益率:' + i.jzcsyl,'  ',szyjlString(model)
-            else:continue
-        print '\n\n'
+    #
+    # #价值投资选股
+    # print '\n===============================价值投资股票========================================'
+    # th = util.getMostValueableStockList()
+    # myStock = []
+    # if th and len(th) > 0:
+    #     print '===============================共 %s 个========================================\n' % str(len(th))
+    #     for item in th:
+    #         model = szyjl(item.code)
+    #         rankModel = szyjlRank(item.code)
+    #         if not model or not rankModel: continue
+    #         #不需要过滤换手率以及市值，价值投资
+    #         print (u'第%s个:' % str(th.index(item) + 1)), item.name.ljust(6,' '),item.code.ljust(7,' '),mostValueableCompanyString(item),szyjlString(model),szyjlRankString(rankModel)
+    #         jidu =  util.roeStringForCode(item.code,model)
+    #         niandu =  util.roeStringInYearsForCode(item.code, model)
+    #         if jidu and niandu:
+    #             if  niandu[1]:
+    #                 print '=======================================资产收益率教高,可以关注======================================='
+    #             if niandu[2]:
+    #                print '========================================利润增长率较高,可以关注======================================='
+    #             if niandu[3]:
+    #                 print '=======================================产品高附加值,可以关注======================================='
+    #             if(niandu[1] or niandu[3]):
+    #                 myStock.append(item)
+    #             bussString = bussinessPercentString(item.code)
+    #             if bussString:print bussString
+    #             print jidu[0]
+    #             print niandu[0]
+    #         else:continue
+    #
+    # if len(myStock) > 0:
+    #     print '\n\n\n'
+    #     print '=======================================高成长企业列表，强烈关注============================================='
+    #     print '=======================================高成长企业列表，强烈关注============================================='
+    #     print '=======================================高成长企业列表，强烈关注============================================='
+    #     ret = sorted(myStock, key=lambda item: item.jzcsyl, reverse=True)
+    #     for i in ret:
+    #         if float(i.jzcsyl[0:-2]) / 100 <= float(0.12):continue
+    #         model = szyjl(i.code)
+    #         if model:
+    #             print i.code, i.name, '机构持仓数:' + i.orgCount, '资产收益率:' + i.jzcsyl,'  ',szyjlString(model)
+    #         else:continue
+    #     print '\n\n'
 
 
     # print '================================创新高绩优股========================================='
@@ -1149,26 +1097,30 @@ def mainMethod():
                     continue
                 else:
                     syl = sylR.split('|')[0]
-                    if float(syl) <= 30:
-                        roeList.append(stock)
+                    if float(syl) <= 65:
+                        c = stock
+                        model = szyjl(c)
+                        rankModel = szyjlRank(c)
+                        if not model or not rankModel: continue
+                        # print  model.name.ljust(6, ' '), model.code.ljust(7,
+                        #                                                                                          ' '), szyjlString(
+                        #     model), szyjlRankString(rankModel)
+                        validateStock(c)
                     else:
                         continue
             else:
                 continue
 
-    if len(roeList):
-        for detailCode in roeList:
-            detailModel = util.getSylDetailDataForCode(detailCode)
-            model = szyjl(detailCode)
-            if not model:continue
-            print detailCode,detailModel.name,u'市值:'+ detailModel.sz + u'亿' ,u'市盈率:' + detailModel.syl,u'换手率'+detailModel.hsl + '%'
-            jidu = util.roeStringForCode(detailCode, model)
-            niandu = util.roeStringInYearsForCode(detailCode, model)
-            if jidu and niandu:
-                bussString = bussinessPercentString(detailCode)
-                if bussString: print bussString
-                print jidu[0]
-                print niandu[0]
+    if(len(roeList) > 0):
+        for c in roeList:
+            model = szyjl(c)
+            rankModel = szyjlRank(c)
+            if not model or not rankModel: continue
+            print (u'第%s个:' % str(roeList.index(c) + 1)), model.name.ljust(6, ' '), model.code.ljust(7,' '), szyjlString(model), szyjlRankString(rankModel)
+            validateStock(c)
+
+
+
 
 
 
@@ -1188,12 +1140,6 @@ def mainMethod():
     #         print item.split(',')[10],item.split(',')[-1],'   ', item
 
 
-    # #概念排行
-    print '\n=================================概念涨幅排行====================================='
-    lit = util.getIndustryRank()
-    if lit and len(lit):
-        for item in lit:
-            print item
 
 
     # #周k线图
@@ -1203,51 +1149,51 @@ def mainMethod():
     #     week = util.getWeekKLineForCode(item)
     #     print week
 
-
-    #优质基金列表
-    print '\n=================================优质基金====================================='
-    fundList = util.getGoodFundList()
-    companyRank = {}
-    for i in fundList:
-        print i.code,(i.name).ljust(20,' '), ('一周收益:' + i.weekProfit).ljust(15,' '), ('月收益' +  i.oneMonthProfit).ljust(14,' '),('3个月收益:' + i.threeMonthProfit).ljust(17,' '),('半年收益:' + i.halfYearProfit).ljust(15,' '),('一年收益:' + i.oneYearProfit).ljust(15,' '),('3年收益:' +  i.threeYearProfit).ljust(15,' ')
-        companyList = util.getFundHoldCompanyList(i.code)
-        if companyList and len(companyList):
-            for code in companyList:
-                #code 最后一位是市场代码，沪市还是深市
-                c = code[0:-1]
-                model = szyjl(c)
-                if model:
-                    if companyRank.has_key(c):
-                        v = companyRank[c]
-                        companyRank[c] = str(int(v) + 1)
-                    else:
-                        companyRank[c] = "1"
-                else:
-                    continue
-                # print model.code,model.name
-    ret = sorted(companyRank.iteritems(), key=lambda item: int(item[1]), reverse=True)
-    print '\n================ ===============持仓机构数量====================================\n'
-    for item in ret:
-        k = item[0]
-        v = companyRank[k]
-        weekModel = util.getWeekKLineForCode(k)
-        rankModel = szyjlRank(k)
-        price = ''
-        if weekModel:
-            price =  (weekModel.priceList[-1]).endPrice
-        print k,util.getStockNameFromCode(k),v,szyjlString(szyjl(k)),szyjlRankString(rankModel), (u'现价:' +  price)
-        model = szyjl(k)
-        if model:
-            bussString = bussinessPercentString(k)
-            if bussString: print bussString
-            p = util.roeStringForCode(k, model)
-            if p:print p[0]
-            q = util.roeStringInYearsForCode(k,model)
-            if q:print q[0]
-        else:pass
-
-
-    print '\n\n'
+    #
+    # #优质基金列表
+    # print '\n=================================优质基金====================================='
+    # fundList = util.getGoodFundList()
+    # companyRank = {}
+    # for i in fundList:
+    #     print i.code,(i.name).ljust(20,' '), ('一周收益:' + i.weekProfit).ljust(15,' '), ('月收益' +  i.oneMonthProfit).ljust(14,' '),('3个月收益:' + i.threeMonthProfit).ljust(17,' '),('半年收益:' + i.halfYearProfit).ljust(15,' '),('一年收益:' + i.oneYearProfit).ljust(15,' '),('3年收益:' +  i.threeYearProfit).ljust(15,' ')
+    #     companyList = util.getFundHoldCompanyList(i.code)
+    #     if companyList and len(companyList):
+    #         for code in companyList:
+    #             #code 最后一位是市场代码，沪市还是深市
+    #             c = code[0:-1]
+    #             model = szyjl(c)
+    #             if model:
+    #                 if companyRank.has_key(c):
+    #                     v = companyRank[c]
+    #                     companyRank[c] = str(int(v) + 1)
+    #                 else:
+    #                     companyRank[c] = "1"
+    #             else:
+    #                 continue
+    #             # print model.code,model.name
+    # ret = sorted(companyRank.iteritems(), key=lambda item: int(item[1]), reverse=True)
+    # print '\n================ ===============持仓机构数量====================================\n'
+    # for item in ret:
+    #     k = item[0]
+    #     v = companyRank[k]
+    #     weekModel = util.getWeekKLineForCode(k)
+    #     rankModel = szyjlRank(k)
+    #     price = ''
+    #     if weekModel:
+    #         price =  (weekModel.priceList[-1]).endPrice
+    #     print k,util.getStockNameFromCode(k),v,szyjlString(szyjl(k)),szyjlRankString(rankModel), (u'现价:' +  price)
+    #     model = szyjl(k)
+    #     if model:
+    #         bussString = bussinessPercentString(k)
+    #         if bussString: print bussString
+    #         p = util.roeStringForCode(k, model)
+    #         if p:print p[0]
+    #         q = util.roeStringInYearsForCode(k,model)
+    #         if q:print q[0]
+    #     else:pass
+    #
+    #
+    # print '\n\n'
 
 if __name__ == '__main__':
     mainMethod()
