@@ -260,55 +260,6 @@ class CompanyInfo(object):
         self.code = code
         self.name = name
 
-class CompanyKLineDetailDataList(object):
-    def __init__(self,date,startPrice,endPrice,maxPrice,minPrice,tradeCount,tradeMoneyCount,increasePercent):
-        self.date = date
-        self.startPrice = startPrice
-        self.endPrice = endPrice
-        self.maxPrice = maxPrice
-        self.minPrice = minPrice
-        self.tradeCount = tradeCount
-        self.tradeMoneyCount = tradeMoneyCount
-        self.increasePercent = increasePercent
-
-class CompanyKLineDataDetail(CompanyInfo):
-    def __init__(self,code,name,priceList):
-        super(CompanyKLineDataDetail,self).__init__(code,name)
-        self.priceList = priceList
-
-
-class CompanyResearchReport(CompanyInfo):
-    def __init__(self,code,name ,startTime = None,desc = None,sum = None):
-        super(CompanyResearchReport,self).__init__(code,name)
-        self.time = startTime
-        self.desc  = desc
-        self.sum = sum
-
-class CompanyRecommandInfo(CompanyInfo):
-    def __init__(self,code,name,time = None,zqgs = None,reason = None,advice = None):
-        super(CompanyRecommandInfo,self).__init__(code,name)
-        self.time = time
-        self.org = zqgs
-        self.reason = reason
-        self.advice = advice
-
-class CompanyRecommandRankInfo(CompanyInfo):
-    def __init__(self,code,name,count,buyCount,addCount):
-        super(CompanyRecommandRankInfo,self).__init__(code,name)
-        self.count = count
-        self.buyCount = buyCount
-        self.addCount = addCount
-
-class StockEachMonthInfo(CompanyInfo):
-    '''每一天的数据行情'''
-    def __init__(self,code,name,month,startPrice,endPrice,maxPrice,minPrice):
-        super(StockEachMonthInfo,self).__init__(code,name)
-        self.month = month
-        self.startPrice = startPrice
-        self.endPrice = endPrice
-        self.maxPrice = maxPrice
-        self.minPrice = minPrice
-
 
 class CompanyValueInfo(CompanyInfo):
     def __init__(self,code,name,syl,sjl,sz,hsl):
@@ -319,15 +270,6 @@ class CompanyValueInfo(CompanyInfo):
         self.sz = sz
         self.hsl = hsl
 
-class   CompanyHYPMRankModel(CompanyInfo):
-    '''行业排名'''
-    def __init__(self,code,name,szRank,profitRank,sylRank,sjlRank,roeRank):
-        super(CompanyHYPMRankModel,self).__init__(code,name)
-        self.szRank = szRank
-        self.profitRank = profitRank
-        self.sylRank = sylRank
-        self.sjlRank = sjlRank
-        self.roeRank = roeRank
 
 class   CompanyBussinessPercentDetailModel(CompanyInfo):
     '''主营业务收入、利润，收入占比、利润占比'''
@@ -368,62 +310,12 @@ class RoeModel(object):
         self.jinglilv = jinglilv
         self.zcfzl = zcfzl
 
-class  CompanyProfitRankModel(CompanyInfo):
-    def __init__(self,code,name,profit):
-        super(CompanyProfitRankModel,self).__init__(code,name)
-        self.profit = profit
-
-
-
-class FundDetailModel(CompanyInfo):
-    def __init__(self,code,name,type,weekProfit,oneMonthProfit,threeMonthProfit,halfYearProfit,oneYearProfit,threeYearProfit):
-        super(FundDetailModel,self).__init__(code,name)
-        self.type = type
-        self.weekProfit = weekProfit + '%'
-        self.oneMonthProfit = oneMonthProfit + '%'
-        self.threeMonthProfit = threeMonthProfit + '%'
-        self.halfYearProfit = halfYearProfit + '%'
-        self.oneYearProfit = oneYearProfit + '%'
-        self.threeYearProfit = threeYearProfit + '%'
 
 
 class StockUtils(object):
     def __init__(self):
         super(StockUtils,self).__init__()
 
-    @classmethod
-    def getTodayMaxStockList(self):
-        '''当日创新高'''
-        res =  getHtmlFromUrl(todayMaxPriceUrl)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list =  companyListObj['Results']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    '''item 是字符串，应该分割处理'''
-                    stockInfo = item.split(',')
-                    cinfo = CompanyInfo(stockInfo[1],stockInfo[2])
-                    cList.append(cinfo)
-                return cList
-        return  None
-
-    @classmethod
-    def getThreeDaysMaxStockList(self):
-        '''最近三天创新高'''
-        res = getHtmlFromUrl(threeDaysMaxPriceUrl)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list =  companyListObj['Results']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    stockInfo = item.split(',')
-                    cinfo = CompanyInfo(stockInfo[1],stockInfo[2])
-                    cList.append(cinfo)
-                return cList
-
-        return  None
 
     @classmethod
     def getFiveDaysMaxStockList(self):
@@ -440,8 +332,6 @@ class StockUtils(object):
                     cList.append(cinfo)
                 return cList
         return  None
-
-
 
 
 
@@ -508,6 +398,7 @@ class StockUtils(object):
                 else:break
             else:break
         return cList
+
 
     @classmethod
     def getRoeModelListOfStockForCode(self,code):
@@ -608,94 +499,6 @@ class StockUtils(object):
         return (s,False,False,False)
 
 
-    @classmethod
-    def getIndustryReport(self):
-        '''行业调研'''
-        res = getHtmlFromUrl(hangyeReportUrl)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list = companyListObj['data']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    cList.append(item)
-                return cList
-        return None
-
-    @classmethod
-    def getCompanyResearchRank(self):
-        '''公司被调研次数排行'''
-        res = getHtmlFromUrl(dytjBaseUrl,True)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list = companyListObj['data']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    cinfo = CompanyResearchReport(item['CompanyCode'],item['CompanyName'], item['StartDate'],item['Description'],item['OrgSum'])
-                    cList.append(cinfo)
-                return cList
-        else:
-            return None
-
-
-    @classmethod
-    def getRcommandedCompanyList(cls):
-        '''券商推荐'''
-        res = getHtmlFromUrl(tjgsBaseUrl)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list = companyListObj['data']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    '''item 是字符串，应该分割处理'''
-                    info = CompanyRecommandInfo(item['secuFullCode'],
-                        item['secuName'],item['datetime'],item['insName'], item['title'],item['rate'])
-                    cList.append(info)
-                return cList
-        return None
-
-    @classmethod
-    def getRcommandRankList(self):
-        '''券商推荐次数排行'''
-        res = getHtmlFromUrl(reommendRankUrl)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list = companyListObj['data']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    li = item.split(',')
-                    info = CompanyRecommandRankInfo(li[1],
-                        li[2],li[5],li[6], li[7])
-                    cList.append(info)
-                return cList
-        return None
-
-
-    @classmethod
-    def getHYPMModel(self,code):
-        '''行业排名'''
-        res = getHtmlFromUrl(hypmUrl % code,utf8coding=True)
-        try:
-            complie = re.compile('var hypmData=.*?;')
-            li = re.findall(complie,res)
-            if li and len(li):
-                s = li[0]
-                d = simplejson.loads(s[13:-1])
-                if d and d['Data'] and len(d['Data'])>=2:
-                    name =  d['Data'][0]['Name']
-                    array = d['Data']
-                    rank = None
-                    for dict in array:
-                        if dict['Name'] == u'行业排名':
-                            rank = dict
-                            return CompanyHYPMRankModel(code, name, rank['TotalMarketValue'], rank['Profit'],
-                                                        rank['PERation'], rank['PBRation'], rank['ROE'])
-        except Exception:
-            print Exception.__name__,Exception.__module__
-        return None
 
     @classmethod
     def getStockholderHoldsStocks(self):
@@ -710,7 +513,6 @@ class StockUtils(object):
                 cList.append(item)
             return cList
         return None
-
 
 
 
@@ -865,6 +667,17 @@ def  validateStock(code):
 def mainMethod():
     util = StockUtils()
     sqlins = mysqlOp()
+
+    #--------------------------<条件删选权重 >-----------------------------------------------#
+    #--------------------------<收入增长率 > 40%  利润增长率 > 30%，不包括卖资产 >---------------#
+    #--------------------------<净利率 > 20% ,ROE 年度 >= 20%,第一个季度>= 5%，负债率 <=70%>----#
+
+    #-----------------<行业要么是高技术壁垒，独家的，要么市场份额大（格力，千千味业）>----------------#
+    #--------------------------<沪港通持股比例走势，是否平稳增加，买卖买卖数量级>-------------------#
+    #--------------------------<知名外资机构加仓、持仓>----------------------------------------#
+    #--------------------------<股价走势是否平稳>---------------------------------------------#
+
+
 
     # #股东增持
     print '\n====================================股东增持====================================='
