@@ -67,10 +67,6 @@ bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConcept
 #公司主营业务比例
 companyBussinessPercentUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code=%s'
 
-#行业排名
-hypmUrl = 'http://data.eastmoney.com/stockdata/%s.html'
-
-
 companyNameUrl = 'http://suggest.eastmoney.com/SuggestData/Default.aspx?name=sData_1510989642587&input=%s&type=1,2,3'
 
 
@@ -459,8 +455,8 @@ class StockUtils(object):
         if li and len(li) > 0:
             count = 0
             roeAll = 0
-            profitCount = 0
-            profitAll = 0
+            incomeCount = 0
+            incomeAll = 0
             jinglilv = 0
             jinglilvCount = 0
 
@@ -473,10 +469,10 @@ class StockUtils(object):
                     count = count + 1
                     roeAll = roeAll + float(item.roe)
 
-                #利润增长率
-                if item.profitRate != '--':
-                    profitCount = profitCount + 1
-                    profitAll = profitAll + float(item.profitRate)
+                #收入增长率
+                if item.incomeRate != '--':
+                    incomeCount = incomeCount + 1
+                    incomeAll = incomeAll + float(item.incomeRate)
 
                 #净利率
                 if item.jinglilv != '--':
@@ -491,7 +487,7 @@ class StockUtils(object):
                     return (s,True,True,valueableCompany)
                 elif count >=3 and getFloatFromString(li[0].roe) >= 20 and getFloatFromString(li[1].roe) >= 20 and getFloatFromString(li[2].roe) >= 20:
                     return (s,True,True,valueableCompany)
-                elif (profitCount > 0 and profitAll / profitCount >= 30)or (profitCount >=3 and getFloatFromString(li[0].profitRate) >= 30 and  getFloatFromString(li[1].profitRate) >= 30 and  getFloatFromString(li[2].profitRate) >= 30) or(profitCount >=2 and getFloatFromString(li[0].profitRate) >= 60 and  getFloatFromString(li[1].profitRate) >= 60) :
+                elif (incomeCount > 0 and incomeAll / incomeCount >= 30)or (incomeCount >=3 and getFloatFromString(li[0].incomeRate) >= 30 and  getFloatFromString(li[1].incomeRate) >= 30 and  getFloatFromString(li[2].incomeRate) >= 30) or(incomeCount >=2 and getFloatFromString(li[0].incomeRate) >= 60 and  getFloatFromString(li[1].incomeRate) >= 60) :
                     return (s,True,False,valueableCompany)
             else:
                 return (s,False,False,False)
@@ -632,8 +628,6 @@ def bussinessPercentString(code):
 
 def szyjl(code):
     return  StockUtils().getSylDetailDataForCode(code)
-def szyjlRank(code):
-    return StockUtils().getHYPMModel(code)
 
 def szyjlString(model):
     return u'市值:'+ model.sz +u'亿' + u'  市盈率:'+model.syl + u'  市净率:'+model.sjl + u'  换手率:'+model.hsl
@@ -693,90 +687,30 @@ def mainMethod():
 
     # #价值投资选股
     print '\n===============================价值投资股票========================================'
-    th = util.getMostValueableStockList()
+    th = util.getAllStockList()
     myStock = []
     if th and len(th) > 0:
         print '===============================共 %s 个========================================\n' % str(len(th))
         for item in th:
-            model = szyjl(item.code)
-            rankModel = szyjlRank(item.code)
-            if not model or not rankModel: continue
+            model = szyjl(item)
+            if not model: continue
             #不需要过滤换手率以及市值，价值投资
-            print (u'第%s个:' % str(th.index(item) + 1)), item.name.ljust(6,' '),item.code.ljust(7,' '),mostValueableCompanyString(item),szyjlString(model),szyjlRankString(rankModel)
-            jidu =  util.roeStringForCode(item.code,model)
-            niandu =  util.roeStringInYearsForCode(item.code, model)
+            print (u'第%s个: %s' % (str(th.index(item) + 1),model.name))
+            jidu =  util.roeStringForCode(item,model)
+            niandu =  util.roeStringInYearsForCode(item, model)
             if jidu and niandu:
                 if  niandu[1]:
                     print '=======================================资产收益率教高,可以关注======================================='
                 if niandu[2]:
-                   print '========================================利润增长率较高,可以关注======================================='
+                   print '========================================收入增长率较高,可以关注======================================='
                 if niandu[3]:
                     print '=======================================产品高附加值,可以关注======================================='
-                if(niandu[1] or niandu[3]):
-                    myStock.append(item)
-                bussString = bussinessPercentString(item.code)
+
+                bussString = bussinessPercentString(item)
                 if bussString:print bussString
                 print jidu[0]
                 print niandu[0]
             else:continue
-
-    if len(myStock) > 0:
-        print '\n\n\n'
-        print '=======================================高成长企业列表，强烈关注============================================='
-        print '=======================================高成长企业列表，强烈关注============================================='
-        print '=======================================高成长企业列表，强烈关注============================================='
-        ret = sorted(myStock, key=lambda item: item.jzcsyl, reverse=True)
-        for i in ret:
-            if float(i.jzcsyl[0:-2]) / 100 <= float(0.12):continue
-            model = szyjl(i.code)
-            if model:
-                print i.code, i.name, '机构持仓数:' + i.orgCount, '资产收益率:' + i.jzcsyl,'  ',szyjlString(model)
-            else:continue
-        print '\n\n'
-
-
-    # #资产收益率排名行业前三的所有股票
-    print '\n====================================资产收益率行业前三====================================='
-    stockList = util.getAllStockList()
-    roeList = []
-    for stock in stockList:
-        # print '第 %s/%s 个' % (str(stockList.index(stock)),str(len(stockList)))
-        roeModel = util.getHYPMModel(stock)
-        if not roeModel:continue
-        roeR = roeModel.roeRank
-        if roeR == '-' or roeR == '--':
-            continue
-        else:
-            roe = roeModel.roeRank.split('|')[0]
-            if float(roe) >0 and float(roe) <= 3:
-                sylR = roeModel.sylRank
-                if sylR == '-' or sylR == '--':
-                    continue
-                else:
-                    syl = sylR.split('|')[0]
-                    if float(syl) <= 65:
-                        c = stock
-                        model = szyjl(c)
-                        rankModel = szyjlRank(c)
-                        if not model or not rankModel: continue
-                        # print  model.name.ljust(6, ' '), model.code.ljust(7,
-                        #                                                                                          ' '), szyjlString(
-                        #     model), szyjlRankString(rankModel)
-                        validateStock(c)
-                    else:
-                        continue
-            else:
-                continue
-
-    if(len(roeList) > 0):
-        for c in roeList:
-            model = szyjl(c)
-            rankModel = szyjlRank(c)
-            if not model or not rankModel: continue
-            print (u'第%s个:' % str(roeList.index(c) + 1)), model.name.ljust(6, ' '), model.code.ljust(7,' '), szyjlString(model), szyjlRankString(rankModel)
-            validateStock(c)
-    #
-
 
 
 
