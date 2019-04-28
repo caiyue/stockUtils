@@ -409,7 +409,7 @@ class StockUtils(object):
         if isinstance(ROEList, list) and len(ROEList) > 0:
             cList = []
             for item in ROEList:
-                m = RoeModel(item['date'], item['jqjzcsyl'], item['gsjlrtbzz'], item['yyzsrtbzz'], item['yyzsr'], item['kfjlr'], item['mll'], item['jll'], item['zcfzl'])
+                m = RoeModel(item['date'], item['tbjzcsyl'], item['gsjlrtbzz'], item['yyzsrtbzz'], item['yyzsr'], item['kfjlr'], item['mll'], item['jll'], item['zcfzl'])
                 cList.append(m)
             return cList
         else:
@@ -434,7 +434,7 @@ class StockUtils(object):
             return  None
 
     @classmethod
-    def roeStringForCode(self,code,model):
+    def roeStringForCode(self, code, model):
         li = self.getRoeModelListOfStockForCode(code)
         s = ''
         if li and len(li) > 0:
@@ -446,12 +446,12 @@ class StockUtils(object):
             return None
 
 
-    def roeStringInYearsForCode(self,code,model):
+    def roeStringInYearsForCode(self, code, model):
         li = self.getRoeModelListOfStockInYearsForCode(code)
         s = ''
         if li and len(li) > 0:
             for item in li:
-                s += (u'年报:' + str(item.dateOfRoe)).ljust(15,' ') + (u'净资产收益率:' + str(item.roe) + '%').ljust(15,' ') + (u'收入同比增长率:' + str(item.incomeRate) + '%').ljust(17,' ') + (u'净利润同比增长率:' + str(item.profitRate) + '%').ljust(18,' ') + (u'总收入:' + str(item.income)).ljust(12,' ')  + (u' 总利润:' + str(item.profit)).ljust(12,' ') + (u'毛利率:' + str(item.maolilv) + '%').ljust(13,' ') + (u'净利率:' + str(item.jinglilv) + '%').ljust(13,' ') + (u'资产负债率:' + str(item.zcfzl) + '%').ljust(13,' ')
+                s += (u'年报:' + str(item.dateOfRoe)).ljust(15, ' ') + (u'净资产收益率:' + str(item.roe) + '%').ljust(15,' ') + (u'收入同比增长率:' + str(item.incomeRate) + '%').ljust(17,' ') + (u'净利润同比增长率:' + str(item.profitRate) + '%').ljust(18,' ') + (u'总收入:' + str(item.income)).ljust(12,' ')  + (u' 总利润:' + str(item.profit)).ljust(12,' ') + (u'毛利率:' + str(item.maolilv) + '%').ljust(13,' ') + (u'净利率:' + str(item.jinglilv) + '%').ljust(13,' ') + (u'资产负债率:' + str(item.zcfzl) + '%').ljust(13,' ')
                 s += '\n'
 
         return s
@@ -616,13 +616,13 @@ def mainMethod():
     # #股东增持
     print '\n====================================股东增持====================================='
     gd = util.getStockholderHoldsStocks()
-    # if gd and len(gd):
-    #     for item in gd:
-    #         companyInfo = item.split(',')
-    #         print companyInfo[0], companyInfo[1].ljust(7, ' '), companyInfo[-4], u'至', companyInfo[-3], (
-    #         companyInfo[4]).ljust(30, ' '), companyInfo[5], (companyInfo[6] + u'万').ljust(13, ' '), (
-    #                 u'占流通股的' + (companyInfo[7] + '%')).ljust(15, ' '), (
-    #                 u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15, ' ')
+    if gd and len(gd):
+         for item in gd:
+             companyInfo = item.split(',')
+             print companyInfo[0], companyInfo[1].ljust(7, ' '), companyInfo[-4], u'至', companyInfo[-3], (
+             companyInfo[4]).ljust(30, ' '), companyInfo[5], (companyInfo[6] + u'万').ljust(13, ' '), (
+                     u'占流通股的' + (companyInfo[7] + '%')).ljust(15, ' '), (
+                     u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15, ' ')
 
 
     # #价值投资选股
@@ -634,7 +634,7 @@ def mainMethod():
             model = szyjl(item)
             if not model: continue
             #不需要过滤换手率以及市值，价值投资
-            print (u'第%s个: %s' % (str(th.index(item) + 1), model.name))
+            print (u'第%s个: %s  %s' % (str(th.index(item) + 1), model.name, model.code))
             jidu = util.roeStringForCode(item, model)
             niandu = util.roeStringInYearsForCode(item, model)
 
