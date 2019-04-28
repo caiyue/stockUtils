@@ -55,10 +55,10 @@ mostValueableStockUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&s
 ROEOfStockUrl = 'http://data.eastmoney.com/DataCenter_V3/stockdata/cwzy.ashx?code=%s'
 
 #code = sh601318
-ROEOfStockUrl2 = 'http://emweb.securities.eastmoney.com/PC_HSF10/FinanceAnalysis/FinanceAnalysisAjax?code=%s&ctype=2'
+ROEOfStockUrl2 = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?type=2&code=%s'
 
 #年报
-ROEOfStockInYears = 'http://emweb.securities.eastmoney.com/PC_HSF10/FinanceAnalysis/MainTargetAjax?code=%s&type=1'
+ROEOfStockInYears = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?type=1&code=%s'
 
 
 #公司经营业务  sz000001
@@ -399,22 +399,21 @@ class StockUtils(object):
     @classmethod
     def getRoeModelListOfStockForCode(self,code):
         '''价值投资股票信息'''
-        url = ROEOfStockUrl2 % (getMarketCode(code,prefix=True))
-        res = getHtmlFromUrl(url,False)
+        url = ROEOfStockUrl2 % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url, False)
         #ROEList = getJsonList(res)
         obj = getJsonObjOrigin(res)
-        if not obj:return None
-        resu = obj['Result']
-        if not resu:return None
-        ROEList = resu['zyzb']
-        if isinstance(ROEList,list) and len(ROEList) > 0:
+        if not obj: return None
+
+        ROEList = obj
+        if isinstance(ROEList, list) and len(ROEList) > 0:
             cList = []
             for item in ROEList:
-                m = RoeModel(item['date'],item['jqjzcsyl'],item['gsjlrtbzz'],item['yyzsrtbzz'], item['yyzsr'],item['kfjlr'],item['mll'],item['jll'],item['zcfzl'])
+                m = RoeModel(item['date'], item['jqjzcsyl'], item['gsjlrtbzz'], item['yyzsrtbzz'], item['yyzsr'], item['kfjlr'], item['mll'], item['jll'], item['zcfzl'])
                 cList.append(m)
             return cList
         else:
-            return  None
+            return None
 
 
     def getRoeModelListOfStockInYearsForCode(self,code):
@@ -424,13 +423,11 @@ class StockUtils(object):
         #ROEList = getJsonList(res)
         obj = getJsonObjOrigin(res)
         if not obj:return None
-        resu = obj['Result']
-        if not resu:return None
-        ROEList = resu
+        ROEList = obj
         if isinstance(ROEList,list) and len(ROEList) > 0:
             cList = []
             for item in ROEList:
-                m = RoeModel(item['date'],item['jqjzcsyl'],item['gsjlrtbzz'],item['yyzsrtbzz'], item['yyzsr'],item['kfjlr'],item['mll'],item['jll'],item['zcfzl'])
+                m = RoeModel(item['date'], item['jqjzcsyl'], item['gsjlrtbzz'], item['yyzsrtbzz'], item['yyzsr'], item['kfjlr'], item['mll'], item['jll'], item['zcfzl'])
                 cList.append(m)
             return cList
         else:
@@ -442,9 +439,9 @@ class StockUtils(object):
         s = ''
         if li and len(li) > 0:
             for item in li:
-                    s += (u'季报:' + item.dateOfRoe).ljust(15,' ') + (u'净资产收益率:' + item.roe + '%').ljust(15,' ') + (u'收入同比增长率:' + item.incomeRate + '%').ljust(17,' ') + (u'净利润同比增长率:' + item.profitRate + '%').ljust(18,' ') + (u'总收入:' + item.income).ljust(12,' ')  + (u' 总利润:' + item.profit).ljust(12,' ') + (u'毛利率:' + item.maolilv + '%').ljust(13,' ') + (u'净利率:' + item.jinglilv + '%').ljust(13,' ') +(u'资产负债率:' + item.zcfzl + '%').ljust(13,' ')
+                    s += (u'季报:' + str(item.dateOfRoe)).ljust(15,' ') + (u'净资产收益率:' + str(item.roe) + '%').ljust(15,' ') + (u'收入同比增长率:' + str(item.incomeRate) + '%').ljust(17,' ') + (u'净利润同比增长率:' + str(item.profitRate) + '%').ljust(18,' ') + (u'总收入:' + str(item.income)).ljust(12,' ')  + (u' 总利润:' + str(item.profit)).ljust(12,' ') + (u'毛利率:' + str(item.maolilv) + '%').ljust(13,' ') + (u'净利率:' + str(item.jinglilv) + '%').ljust(13,' ') +(u'资产负债率:' + str(item.zcfzl) + '%').ljust(13,' ')
                     s += '\n'
-            return (s,False)
+            return s
         else:
             return None
 
@@ -453,47 +450,11 @@ class StockUtils(object):
         li = self.getRoeModelListOfStockInYearsForCode(code)
         s = ''
         if li and len(li) > 0:
-            count = 0
-            roeAll = 0
-            incomeCount = 0
-            incomeAll = 0
-            jinglilv = 0
-            jinglilvCount = 0
-
             for item in li:
-                s += (u'年报:' + item.dateOfRoe).ljust(15,' ') + (u'净资产收益率:' + item.roe + '%').ljust(15,' ') + (u'收入同比增长率:' + item.incomeRate + '%').ljust(17,' ') + (u'净利润同比增长率:' + item.profitRate + '%').ljust(18,' ') + (u'总收入:' + item.income).ljust(12,' ')  + (u' 总利润:' + item.profit).ljust(12,' ') + (u'毛利率:' + item.maolilv + '%').ljust(13,' ') + (u'净利率:' + item.jinglilv + '%').ljust(13,' ') + (u'资产负债率:' + item.zcfzl + '%').ljust(13,' ')
+                s += (u'年报:' + str(item.dateOfRoe)).ljust(15,' ') + (u'净资产收益率:' + str(item.roe) + '%').ljust(15,' ') + (u'收入同比增长率:' + str(item.incomeRate) + '%').ljust(17,' ') + (u'净利润同比增长率:' + str(item.profitRate) + '%').ljust(18,' ') + (u'总收入:' + str(item.income)).ljust(12,' ')  + (u' 总利润:' + str(item.profit)).ljust(12,' ') + (u'毛利率:' + str(item.maolilv) + '%').ljust(13,' ') + (u'净利率:' + str(item.jinglilv) + '%').ljust(13,' ') + (u'资产负债率:' + str(item.zcfzl) + '%').ljust(13,' ')
                 s += '\n'
 
-                #投资收益率
-                if item.roe != '--':
-                    count = count + 1
-                    roeAll = roeAll + float(item.roe)
-
-                #收入增长率
-                if item.incomeRate != '--':
-                    incomeCount = incomeCount + 1
-                    incomeAll = incomeAll + float(item.incomeRate)
-
-                #净利率
-                if item.jinglilv != '--':
-                    jinglilvCount = jinglilvCount + 1
-                    jinglilv = jinglilv + float(item.jinglilv)
-
-            valueableCompany = False
-            if jinglilv / jinglilvCount >= 20 or (getFloatFromString(li[0].jinglilv) >= 20 and getFloatFromString(li[1].jinglilv) >= 20):
-                valueableCompany = True
-            if roeSwitch:
-                if count > 0 and roeAll / count >= 20:
-                    return (s,True,True,valueableCompany)
-                elif count >=3 and getFloatFromString(li[0].roe) >= 20 and getFloatFromString(li[1].roe) >= 20 and getFloatFromString(li[2].roe) >= 20:
-                    return (s,True,True,valueableCompany)
-                elif (incomeCount > 0 and incomeAll / incomeCount >= 30)or (incomeCount >=3 and getFloatFromString(li[0].incomeRate) >= 30 and  getFloatFromString(li[1].incomeRate) >= 30 and  getFloatFromString(li[2].incomeRate) >= 30) or(incomeCount >=2 and getFloatFromString(li[0].incomeRate) >= 60 and  getFloatFromString(li[1].incomeRate) >= 60) :
-                    return (s,True,False,valueableCompany)
-            else:
-                return (s,False,False,False)
-
-        return (s,False,False,False)
-
+        return s
 
 
     @classmethod
@@ -610,8 +571,8 @@ class StockUtils(object):
             bussString = bussinessPercentString(detailCode)
             if bussString:
                 print bussString
-                print jidu[0]
-                print niandu[0]
+                print jidu
+                print niandu
 
 
 
@@ -640,78 +601,45 @@ def mostValueableCompanyString(model):
 
 def  validateStock(code):
     model = szyjl(code)
-    rankModel = szyjlRank(code)
-    if not model or not rankModel: return
-    #不需要过滤换手率以及市值，价值投资
+    if not model: return
     jidu =  StockUtils().roeStringForCode(code,model)
     niandu =  StockUtils().roeStringInYearsForCode(code, model)
-    if jidu and niandu:
-        if(niandu[1]  and niandu[3]):
-            if niandu[1]:
-                print '=======================================资产收益率教高,可以关注======================================='
-            if niandu[2]:
-                print '========================================利润增长率较高,可以关注======================================='
-            if niandu[3]:
-                print '=======================================产品高附加值,可以关注======================================='
-            print model.code + '   ' + model.name
-            print jidu[0]
-            print niandu[0]
+
+    print jidu
+    print niandu
 
 
 def mainMethod():
     util = StockUtils()
-    sqlins = mysqlOp()
-
-    #--------------------------<条件删选权重 >-----------------------------------------------#
-    #--------------------------<收入增长率 > 40%  利润增长率 > 30%，不包括卖资产 >---------------#
-    #--------------------------<净利率 > 20% ,ROE 年度 >= 20%,第一个季度>= 5%，负债率 <=70%>----#
-
-    #-----------------<行业要么是高技术壁垒，独家的，要么市场份额大（格力，千千味业）>----------------#
-    #--------------------------<沪港通持股比例走势，是否平稳增加，买卖买卖数量级>-------------------#
-    #--------------------------<知名外资机构加仓、持仓>----------------------------------------#
-    #--------------------------<股价走势是否平稳>---------------------------------------------#
-
 
 
     # #股东增持
     print '\n====================================股东增持====================================='
     gd = util.getStockholderHoldsStocks()
-    if gd and len(gd):
-        for item in gd:
-            companyInfo = item.split(',')
-            print companyInfo[0], companyInfo[1].ljust(7, ' '), companyInfo[-4], u'至', companyInfo[-3], (
-            companyInfo[4]).ljust(30, ' '), companyInfo[5], (companyInfo[6] + u'万').ljust(13, ' '), (
-                    u'占流通股的' + (companyInfo[7] + '%')).ljust(15, ' '), (
-                    u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15, ' ')
+    # if gd and len(gd):
+    #     for item in gd:
+    #         companyInfo = item.split(',')
+    #         print companyInfo[0], companyInfo[1].ljust(7, ' '), companyInfo[-4], u'至', companyInfo[-3], (
+    #         companyInfo[4]).ljust(30, ' '), companyInfo[5], (companyInfo[6] + u'万').ljust(13, ' '), (
+    #                 u'占流通股的' + (companyInfo[7] + '%')).ljust(15, ' '), (
+    #                 u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15, ' ')
 
 
     # #价值投资选股
     print '\n===============================价值投资股票========================================'
     th = util.getAllStockList()
-    myStock = []
     if th and len(th) > 0:
         print '===============================共 %s 个========================================\n' % str(len(th))
         for item in th:
             model = szyjl(item)
             if not model: continue
             #不需要过滤换手率以及市值，价值投资
-            print (u'第%s个: %s' % (str(th.index(item) + 1),model.name))
-            jidu =  util.roeStringForCode(item,model)
-            niandu =  util.roeStringInYearsForCode(item, model)
-            if jidu and niandu:
-                if  niandu[1]:
-                    print '=======================================资产收益率教高,可以关注======================================='
-                if niandu[2]:
-                   print '========================================收入增长率较高,可以关注======================================='
-                if niandu[3]:
-                    print '=======================================产品高附加值,可以关注======================================='
+            print (u'第%s个: %s' % (str(th.index(item) + 1), model.name))
+            jidu = util.roeStringForCode(item, model)
+            niandu = util.roeStringInYearsForCode(item, model)
 
-                bussString = bussinessPercentString(item)
-                if bussString:print bussString
-                print jidu[0]
-                print niandu[0]
-            else:continue
-
+            print jidu
+            print niandu
 
 
 if __name__ == '__main__':
