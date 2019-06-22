@@ -44,7 +44,7 @@ def mainMethod():
     for tr in tab.tbody.findAll('tr'):
         for td in tr.findAll('td'):
             value = td.findAll('div')[1]
-            print value.getText(
+            print value.getText()
 
 
 
