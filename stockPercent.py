@@ -31,14 +31,14 @@ def mysql_init():
     if cur:
         return cur
     else:
-        return  cur.cursor();
+        return cur.cursor();
 
 
 def savePercent(code, name, total, percent, date):
     if code and name and total and percent and date:
         # print code, name, total, percent
         sql = 'insert into %s(code,name,total,percent,date) VALUE  (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % ('stock', code, name, total, percent, date)
-        print sql
+        # print sql
         cur = mysql_init()
         cur.execute(sql)
 
@@ -52,7 +52,7 @@ def sendReq(currentDate, reqDate):
         "__VIEWSTATE": "/wEPDwUJNjIxMTYzMDAwZGQ79IjpLOM+JXdffc28A8BMMA9+yg==",
         "__VIEWSTATEGENERATOR": "EC4ACD6F",
         "__EVENTVALIDATION": "/wEdAAdtFULLXu4cXg1Ju23kPkBZVobCVrNyCM2j+bEk3ygqmn1KZjrCXCJtWs9HrcHg6Q64ro36uTSn/Z2SUlkm9HsG7WOv0RDD9teZWjlyl84iRMtpPncyBi1FXkZsaSW6dwqO1N1XNFmfsMXJasjxX85jz8PxJxwgNJLTNVe2Bh/bcg5jDf8=",
-        "today": currentDate,  #20190621
+        "today": currentDate,  # 20190621
         "sortBy": "stockcode",
         "sortDirection": "asc",
         "alertMsg": "",
@@ -60,15 +60,18 @@ def sendReq(currentDate, reqDate):
         "btnSearch": "搜寻"
     }
     data = urllib.urlencode(formate)
-    res = requests.post(url, data=data, headers=headers)
-    html = res.text
+    try:
+        res = requests.post(url, data=data, headers=headers)
+        html = res.text
+    except Exception as e:
+        print e
 
     soup = BeautifulSoup(html, 'lxml')
     tables = soup.findAll('table')
     tab = tables[1]
 
     index = 0
-    code =''
+    code = ''
     name = ''
     total = ''
     percent = ''
@@ -92,7 +95,7 @@ def sendReq(currentDate, reqDate):
                 index = 0 #重置index
         savePercent(code, name, total, percent, reqDate)
 
-
+    conn.commit(); # 提交到数据库
 
 def mainMethod():
 
