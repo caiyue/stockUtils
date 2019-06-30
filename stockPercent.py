@@ -42,7 +42,7 @@ def mysql_init():
 
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
-        print code, name, total, percent
+        # print code, name, total, percent
         sql = 'insert into %s(code,name,total,percent,date) VALUE  (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % ('stock', code, name, total, percent, hold_date)
         print sql
         cur = mysql_init()
@@ -139,16 +139,17 @@ def sendReq(startDate, endDate):
 def saveValueFromJson(json):
     if json and json['result']:
         data = json['result']['data']
-        datalist = data['s_list']
-        if datalist and len(datalist) > 0:
-            for item in datalist:
-                name = item['name']
-                code = item['symbol']
-                hold_num = item['hold_num']
-                hold_percent = item['hold_ratio']
-                hold_date = item['hold_date']
+        if isinstance(data, dict):
+            datalist = data['s_list']
+            if datalist and isinstance(datalist, list) and len(datalist) > 0:
+                for item in datalist:
+                    name = item['name']
+                    code = item['symbol']
+                    hold_num = item['hold_num']
+                    hold_percent = item['hold_ratio']
+                    hold_date = item['hold_date']
 
-                savePercent(code, name, hold_num, hold_percent, hold_date)
+                    savePercent(code, name, hold_num, hold_percent, hold_date)
         conn.commit()  # 提交数据库
     else:
         return
