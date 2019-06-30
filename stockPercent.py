@@ -17,6 +17,8 @@ import pickle,pprint
 from mysqlOperation import mysqlOp
 from send_email import sendMail
 import MySQLdb
+import matplotlib.pyplot as plt
+from matplotlib import pyplot
 
 conn = MySQLdb.connect(host='localhost',
                        port=3306,
@@ -40,13 +42,19 @@ def mysql_init():
         return cur.cursor()
 
 
+def executeSQL(sql):
+    if sql:
+        cusor = mysql_init()
+        cusor.execute(sql)
+        return cusor
+    else:
+        return
+
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
         # print code, name, total, percent
         sql = 'insert into %s(code,name,total,percent,date) VALUE  (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % ('stock', code, name, total, percent, hold_date)
-        print sql
-        cur = mysql_init()
-        cur.execute(sql)
+        executeSQL(sql)
 
 
 def stripString(res):
@@ -172,6 +180,68 @@ def getHtmlFromUrl(url,utf8coding=False):
             return None
     return res
 
+def returnPercent(tu):
+    if len(tu) == 5:
+        return tu[3]
+    else:
+        return 0
+
+def drawImage(data):
+    fig = plt.figure(figsize=(10, 6))
+    # unrate[]
+
+    index = 0
+    while index <= len(data):
+        needData = data[index: index + 2]
+
+        data1 = needData[0]
+        name1 = data1[0][1]
+        data2 = needData[1]
+        name2 = data2[0][1]
+
+        x = []
+        if len(data1) > len(data2):
+            x = map(lambda a: a[4], data1)
+        else:
+            x = map(lambda a: a[4], data2)
+
+        y1 = map(lambda a: float(returnPercent(a)), data1)
+        y2 = map(lambda a: float(returnPercent(a)), data2)
+
+        plt.plot(x, y1, marker='o', mec='r', mfc='w', label='y1')
+        plt.plot(x, y2, marker='o', mec='r', mfc='w', label='y2')
+        plt.legend()
+
+        plt.xlabel('Date')
+        plt.ylabel("Percent")
+        plt.title(name1 + '&' + name2)
+        pyplot.yticks([0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50])
+        plt.savefig('./Img/%s&%s' % (name1, name2), dpi=900)
+
+        index = index + 2
+
+
+
+def getSortedValue():
+    sql = 'select code, name, total, percent, date from stock order by name, date asc'
+    cusor = executeSQL(sql)
+    result = cusor.fetchall()
+    ret = []
+    codeNum = None
+    codeData = []
+    for i in result:
+        code = i[0]
+        if codeNum and codeNum != code:
+            ret.append(codeData)
+            codeData = []
+        else:
+            codeData.append(i)
+        codeNum = code
+
+    # ret
+    drawImage(ret)
+
+
 def mainMethod():
 
     # startDate = '2019/02/18'
@@ -194,8 +264,8 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
 
-    sendReq(fourMonthAgoDate, currentDate)
-
+    # sendReq(fourMonthAgoDate, currentDate)
+    getSortedValue()
 
 if __name__ == '__main__':
     mainMethod()
