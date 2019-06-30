@@ -78,6 +78,9 @@ def sendReq(startDate, endDate):
                 saveValueFromJson(shret)
             if szret:
                 saveValueFromJson(szret)
+
+            if not shret and not szret:
+                break
         else:
             break
 
