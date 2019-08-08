@@ -15,7 +15,7 @@ from datetime import datetime
 import os.path as fpath
 from bs4 import BeautifulSoup
 import pickle,pprint
-from mysqlOperation import mysqlOp
+#from mysqlOperation import mysqlOp
 from send_email import sendMail
 
 reload(sys)
