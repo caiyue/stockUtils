@@ -92,61 +92,6 @@ def sendReq(startDate, endDate):
         else:
             break
 
-    # formate = {
-    #     "__VIEWSTATE": VIEWSTATE,
-    #     "__VIEWSTATEGENERATOR": VIEWSTATEGENERATOR,
-    #     "__EVENTVALIDATION": EVENTVALIDATION,
-    #     "__VIEWSTATEENCRYPTED": "",
-    #     "today": currentDate,  # 20190621
-    #     "sortBy": "stockcode",
-    #     "sortDirection": "asc",
-    #     "alertMsg": "",
-    #     "txtShareholdingDate": reqDate,  # 2019/06/22
-    #     "btnSearch": "搜寻",
-    #     'btnSearch.x': "23",
-    #     'btnSearch.y': "12"
-    # }
-
-    # print '\n\n\nsend Req: ' + currentDate + ' ' + reqDate + ' ' + ' ' + VIEWSTATE + '  ' + VIEWSTATEGENERATOR + '   ' + EVENTVALIDATION
-    # data = urllib.urlencode(formate)
-
-    # try:
-    #     res = requests.post(url, data=data, headers=headers)
-    #     html = res.text
-    # except Exception as e:
-    #     print e
-
-    # soup = BeautifulSoup(html, 'lxml')
-    # tables = soup.findAll('table')
-    # tab = tables[1]
-    #
-    # index = 0
-    # code = ''
-    # name = ''
-    # total = ''
-    # percent = ''
-    #
-    # for tr in tab.tbody.findAll('tr'):
-    #     for td in tr.findAll('td'):
-    #         # value = td.findAll('div')
-    #         divValue = td.findAll('div')[1]
-    #         value = divValue.get_text()
-    #         if index == 0: # name
-    #             code = value
-    #             index = index + 1
-    #         elif index == 1:
-    #             name = value
-    #             index = index + 1
-    #         elif index == 2:
-    #             total = value
-    #             index = index + 1
-    #         elif index == 3:
-    #             percent = value
-    #             index = 0 #重置index
-    #     savePercent(code, name, total, percent, reqDate)
-    #
-    # conn.commit() # 提交到数据库
-
 def saveValueFromJson(json):
     if json and json['result']:
         data = json['result']['data']
@@ -239,7 +184,38 @@ def getSortedValue():
         codeNum = code
 
     # ret
-    drawImage(ret)
+    # drawImage(ret)
+
+
+    # print good stock
+    filterGood(ret)
+
+def filterGood(ret):
+    outArray = []
+    for item in ret:
+        if item and len(item) > 0:
+            lastDataItem = item[-1]
+            allCountArray = [int(x[2]) for x in item]
+            average = sum(allCountArray)/len(allCountArray)
+            start = allCountArray[0]
+            end = allCountArray[-1]
+            maxCount = max(allCountArray)
+            lastPercent = float(lastDataItem[3])
+            if start < end and end >= maxCount and lastPercent > 1.0:
+            # if start < end and end > average and lastPercent > 1.0:
+
+                outArray.append(lastDataItem)
+                # print lastDataItem[0], lastDataItem[1], str(lastPercent)+'%'
+
+    if outArray:
+        outArray = sorted(outArray, key=lambda x: x[3], reverse=True)
+        for item in outArray:
+            print item[0], item[1], item[3]
+
+
+
+
+
 
 
 def mainMethod():
@@ -260,9 +236,9 @@ def mainMethod():
     count = 90
     index = 0
     # while index <= count:
-    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
-    fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
-    fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
+    # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
+    # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
 
     # sendReq(fourMonthAgoDate, currentDate)
     getSortedValue()
