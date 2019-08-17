@@ -29,8 +29,6 @@ conn = MySQLdb.connect(host='localhost',
                        )
 
 
-# shurl = 'https://sc.hkexnews.hk/TuniS/www.hkexnews.hk/sdw/search/mutualmarket_c.aspx?t=sh'
-# szurl = 'https://sc.hkexnews.hk/TuniS/www.hkexnews.hk/sdw/search/mutualmarket_c.aspx?t=sz'
 shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
 szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
 
@@ -78,6 +76,7 @@ def sendReq(startDate, endDate):
         shres = stripString(getHtmlFromUrl(shReqUrl))
         szres = stripString(getHtmlFromUrl(szReqUrl))
 
+        print 'page:%d, shres:%s, szres:%s' % (page, shres, szres)
         if shres or szres:
             page = page + 1
             shret = simplejson.loads(shres[1: -1])
@@ -196,12 +195,12 @@ def filterGood(ret):
         if item and len(item) > 0:
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
-            average = sum(allCountArray)/len(allCountArray)
-            start = allCountArray[0]
-            end = allCountArray[-1]
+            averageCount = sum(allCountArray)/len(allCountArray)
+            startCount = allCountArray[0]
+            endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            if start < end and end >= maxCount and lastPercent > 1.0:
+            if startCount < endCount and (endCount >= maxCount and lastPercent >= 0.8) or (endCount > averageCount and lastPercent >= 1.0):
             # if start < end and end > average and lastPercent > 1.0:
 
                 outArray.append(lastDataItem)
@@ -209,8 +208,9 @@ def filterGood(ret):
 
     if outArray:
         outArray = sorted(outArray, key=lambda x: x[3], reverse=True)
+        print '共%d只增持股票' % len(outArray)
         for item in outArray:
-            print item[0], item[1], item[3]
+            print item[0], item[1], item[3], str(int(item[2])/10000) + '万股'
 
 
 
@@ -236,11 +236,11 @@ def mainMethod():
     count = 90
     index = 0
     # while index <= count:
-    # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
-    # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
-    # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
+    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
+    fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
 
-    # sendReq(fourMonthAgoDate, currentDate)
+    sendReq(fourMonthAgoDate, currentDate)
     getSortedValue()
 
 if __name__ == '__main__':
