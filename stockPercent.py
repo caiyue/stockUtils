@@ -6,15 +6,9 @@ import urllib2, urllib, requests
 import bs4;
 import re
 import simplejson
-import time
-import socket
 from datetime import datetime, timedelta
-import os.path as fpath
-from bs4 import BeautifulSoup
-import pickle,pprint
-from mysqlOperation import mysqlOp
-from send_email import sendMail
 import MySQLdb
+from stockInfo import StockUtils
 
 import sys
 reload(sys)
@@ -155,12 +149,15 @@ def getSortedValue():
         codeNum = code
 
     # print good stock
-    filterGood(ret)
+    return filterGood(ret)
 
 def filterGood(ret):
     outArray = []
     for item in ret:
         if item and len(item) > 0:
+            code = item[0][0]
+            if code == u'300003':
+                print 'aaa'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray)/len(allCountArray)
@@ -168,44 +165,42 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            if startCount < endCount and (endCount >= maxCount and lastPercent >= 0.8) or (endCount > averageCount and lastPercent >= 1.0):
-            # if start < end and end > average and lastPercent > 1.0:
-
+            isOk = (endCount >= maxCount and lastPercent >= 0.8) or (endCount > averageCount and lastPercent >= 1.0)
+            if startCount < endCount and isOk:
                 outArray.append(lastDataItem)
-                # print lastDataItem[0], lastDataItem[1], str(lastPercent)+'%'
 
+    return outArray
+
+def isGoodStock(code):
+    li = StockUtils().roeStringForCode(code, returnData=True)
+    if li:
+        # 最近的季报
+        recent = li[0]
+        roe = str(recent.roe)
+        incodeIncremnt = recent.incomeRate
+        profitIncrment = recent.profitRate
+        jll = recent.jinglilv
+
+        if float(roe) > 3 and float(incodeIncremnt) >= 30 and float(profitIncrment) > 20 and float(jll) >= 8:
+            return True
+        else:
+            return False
+
+def mainMethod():
+    currentTimeStamp = datetime.now()
+
+    # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
+    # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
+
+    # sendReq(fourMonthAgoDate, currentDate)
+
+    outArray = getSortedValue()
     if outArray:
         outArray = sorted(outArray, key=lambda x: x[3], reverse=True)
         print '共%d只增持股票' % len(outArray)
         for item in outArray:
-            print item[0], item[1], item[3], str(int(item[2])/10000) + '万股'
-
-
-
-def mainMethod():
-
-    # startDate = '2019/02/18'
-    # startTimeStamp = datetime.strptime(startDate, "%Y/%m/%d")
-    # timeStamp = startTimeStamp
-    # currentDate = datetime.now().strftime('%Y%m%d')
-    currentTimeStamp = datetime.now()
-
-    # html = getHtmlFromUrl(shurl)
-    # # print html
-    # VIEWSTATE = re.findall(r'<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="(.*?)" />', html, re.I)[0]
-    # VIEWSTATEGENERATOR = re.findall(r'<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="(.*?)" />', html, re.I)[0]
-    # EVENTVALIDATION = re.findall(r'<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="(.*?)" />',
-    #                              html, re.I)[0]
-
-    count = 90
-    index = 0
-    # while index <= count:
-    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
-    fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
-    fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
-
-    sendReq(fourMonthAgoDate, currentDate)
-    getSortedValue()
+            print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', '  业绩增长快' if isGoodStock(item[0]) else ''
 
 if __name__ == '__main__':
     mainMethod()

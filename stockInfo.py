@@ -434,9 +434,11 @@ class StockUtils(object):
             return  None
 
     @classmethod
-    def roeStringForCode(self, code, model):
+    def roeStringForCode(self, code, returnData=False):
         li = self.getRoeModelListOfStockForCode(code)
         s = ''
+        if returnData:
+            return li
         if li and len(li) > 0:
             for item in li:
                     s += (u'季报:' + str(item.dateOfRoe)).ljust(15,' ') + (u'净资产收益率:' + str(item.roe) + '%').ljust(15,' ') + (u'收入同比增长率:' + str(item.incomeRate) + '%').ljust(17,' ') + (u'净利润同比增长率:' + str(item.profitRate) + '%').ljust(18,' ') + (u'总收入:' + str(item.income)).ljust(12,' ')  + (u' 总利润:' + str(item.profit)).ljust(12,' ') + (u'毛利率:' + str(item.maolilv) + '%').ljust(13,' ') + (u'净利率:' + str(item.jinglilv) + '%').ljust(13,' ') +(u'资产负债率:' + str(item.zcfzl) + '%').ljust(13,' ')
@@ -446,7 +448,7 @@ class StockUtils(object):
             return None
 
 
-    def roeStringInYearsForCode(self, code, model):
+    def roeStringInYearsForCode(self, code):
         li = self.getRoeModelListOfStockInYearsForCode(code)
         s = ''
         if li and len(li) > 0:
@@ -565,8 +567,8 @@ class StockUtils(object):
         model = szyjl(detailCode)
         if not model: return None
         print detailCode, detailModel.name, u'市值:' + detailModel.sz + u'亿', u'市盈率:' + detailModel.syl, u'换手率' + detailModel.hsl + '%'
-        jidu = self.roeStringForCode(detailCode, model)
-        niandu = self.roeStringInYearsForCode(detailCode, model)
+        jidu = self.roeStringForCode(detailCode)
+        niandu = self.roeStringInYearsForCode(detailCode)
         if jidu and niandu:
             bussString = bussinessPercentString(detailCode)
             if bussString:
@@ -602,7 +604,7 @@ def mostValueableCompanyString(model):
 def  validateStock(code):
     model = szyjl(code)
     if not model: return
-    jidu =  StockUtils().roeStringForCode(code,model)
+    jidu =  StockUtils().roeStringForCode(code)
     niandu =  StockUtils().roeStringInYearsForCode(code, model)
 
     print jidu
@@ -635,8 +637,8 @@ def mainMethod():
             if not model: continue
             #不需要过滤换手率以及市值，价值投资
             print (u'第%s个: %s  %s' % (str(th.index(item) + 1), model.name, model.code))
-            jidu = util.roeStringForCode(item, model)
-            niandu = util.roeStringInYearsForCode(item, model)
+            jidu = util.roeStringForCode(item)
+            niandu = util.roeStringInYearsForCode(item)
 
             print jidu
             print niandu
