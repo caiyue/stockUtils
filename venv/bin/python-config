@@ -1,4 +1,4 @@
-#!/Users/caiyue/stockUtils/venv/bin/python
+#!/Users/caiyue/Desktop/stock/stockUtils/venv/bin/python
 
 import sys
 import getopt
