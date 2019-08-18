@@ -156,8 +156,6 @@ def filterGood(ret):
     for item in ret:
         if item and len(item) > 0:
             code = item[0][0]
-            if code == u'300003':
-                print 'aaa'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray)/len(allCountArray)
@@ -197,7 +195,7 @@ def mainMethod():
 
     outArray = getSortedValue()
     if outArray:
-        outArray = sorted(outArray, key=lambda x: x[3], reverse=True)
+        outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '共%d只增持股票' % len(outArray)
         for item in outArray:
             print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', '  业绩增长快' if isGoodStock(item[0]) else ''
