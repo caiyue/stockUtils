@@ -163,7 +163,7 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount and lastPercent >= 0.8) or (endCount > averageCount and lastPercent >= 1.0)
+            isOk = (endCount >= maxCount and lastPercent >= 0.5) or (endCount >= averageCount * 0.9 and lastPercent >= 0.8)
             if startCount < endCount and isOk:
                 outArray.append(lastDataItem)
 
@@ -175,9 +175,9 @@ def isGoodStock(code):
         # 最近的季报
         recent = li[0]
         roe = str(recent.roe)
-        incodeIncremnt = recent.incomeRate
-        profitIncrment = recent.profitRate
-        jll = recent.jinglilv
+        incodeIncremnt = recent.incomeRate if recent.incomeRate != '--' else '0'
+        profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
+        jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         if float(roe) > 3 and float(incodeIncremnt) >= 30 and float(profitIncrment) > 20 and float(jll) >= 8:
             return True
@@ -190,7 +190,7 @@ def mainMethod():
     # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
     # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
-
+    #
     # sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
@@ -199,6 +199,7 @@ def mainMethod():
         print '共%d只增持股票' % len(outArray)
         for item in outArray:
             print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', '  业绩增长快' if isGoodStock(item[0]) else ''
+
 
 if __name__ == '__main__':
     mainMethod()
