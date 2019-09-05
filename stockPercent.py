@@ -1,5 +1,5 @@
 # !/usr/bin/python
-# coding=utf-8
+#-*-coding:utf-8 -*-
 import  os
 import  sys
 import urllib2, urllib, requests
@@ -184,6 +184,18 @@ def isGoodStock(code):
         else:
             return False
 
+
+def descForCode(ret):
+    code = ret[0]
+    percent = ret[1]
+    if code == 1:
+        return '研发占比高%.5s' % percent
+    elif code == 2:
+        return '研发占比较高%.5s' % percent
+    elif code == 3:
+        return '研发占比很高%.5s' % percent
+    return ''
+
 def mainMethod():
     currentTimeStamp = datetime.now()
 
@@ -198,8 +210,9 @@ def mainMethod():
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '共%d只增持股票' % len(outArray)
         for item in outArray:
-            print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', '  业绩增长快' if isGoodStock(item[0]) else ''
-
+            developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
+            profit = '业绩增长快' if isGoodStock(item[0]) else ''
+            print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', profit, developPercent
 
 if __name__ == '__main__':
     mainMethod()

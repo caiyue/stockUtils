@@ -1,15 +1,15 @@
 #!/usr/bin/python
-#coding=utf-8
+#-*-coding:utf-8 -*-
 
 # author:蔡董
 #date:2017.8.16
 
-import  os
-import  sys
-import  urllib2
-import  re
+import os
+import sys
+import urllib2
+import re
 import simplejson
-import  time
+import time
 import socket
 from datetime import datetime
 import os.path as fpath
@@ -60,6 +60,9 @@ ROEOfStockUrl2 = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?typ
 #年报
 ROEOfStockInYears = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?type=1&code=%s'
 
+#利润表
+profitUrl =  'http://f10.eastmoney.com/NewFinanceAnalysis/lrbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
+
 
 #公司经营业务  sz000001
 bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConception/CoreConceptionAjax?code=%s'
@@ -107,8 +110,10 @@ def hasHTML(obj):
 
 
 def getJsonObj(obj):
-    if not obj:return None
-    if hasHTML(obj):return None
+    if not obj:
+        return None
+    if hasHTML(obj):
+        return None
     #"var moJuuzHq="{"Results":["2,300672,国科微,是","2,300676,华大基因,是","1,603612,索通发展,是","1,603707,健友股份,是","2,002888,惠威科技,是","2,300678,中科信息,是","2,002889,东方嘉盛,是","1,603860,中公高科,是","2,300685,艾德生物,是","2,300687,赛意信息,是","1,603880,南卫股份,是","2,300689,澄天伟业,是","1,603602,纵横通信,是","2,300688,创业黑马,是","1,603721,中广天择,是","2,300691,联合光电,是","1,601326,秦港股份,是","1,603776,永安行,是","2,002892,科力尔,是","1,603129,春风动力,是","1,603557,起步股份,是"],"AllCount":"21","PageCount":"1","AtPage":"1","PageSize":"40","ErrMsg":"","UpdateTime":"2017/8/19 13:37:03","TimeOut":"3ms"}"
     # newobj = obj.split('=')[1]  #//必须要将前面的= 去掉
     # return  simplejson.loads(newobj)
@@ -118,13 +123,16 @@ def getJsonObj(obj):
 
 def getJsonObjOrigin(obj):
     if not obj:return None
-    if hasHTML(obj): return None
+    if hasHTML(obj):
+        return None
     o = None
 
     try:
         o = simplejson.loads(obj)
-    except Exception:
-        print  Exception.__name__,Exception
+        if isinstance(o, unicode):
+            o = simplejson.loads(o)
+    except Exception, e:
+        print Exception.__name__,e
     return o
 
 def getFundCompanyListJsonObjFrom(obj):
@@ -394,6 +402,37 @@ class StockUtils(object):
                 else:break
             else:break
         return cList
+
+    def getDevelopPercentOfCost(self, code):
+        '''研发占比'''
+        url = profitUrl % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url, False)
+        obj = getJsonObjOrigin(res)
+
+        if not obj:
+            return 0, 0
+        else:
+            if isinstance(obj, list) and len(obj) > 0:
+                item = obj[0]
+                allExpense = item['TOTALOPERATEEXP']
+                RDExpense = item['RDEXP']
+                SaleExpense = item['SALEEXP']
+                InvestIncome = item['INVESTINCOME']
+
+                if not RDExpense or len(RDExpense) == 0 or RDExpense == '--':
+                    return 0, 0
+                if not allExpense or len(allExpense) == 0 or allExpense == '--':
+                    return 0, 0
+
+                percent = float(RDExpense) * 1.0 / float(allExpense)
+                if percent >= 0.2:
+                    return 3, percent
+                elif percent >= 0.1:
+                    return 2, percent
+                elif percent >= 0.08:
+                    return 1, percent
+        return 0, 0
+
 
 
     @classmethod
