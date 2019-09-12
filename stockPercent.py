@@ -50,6 +50,8 @@ def savePercent(code, name, total, percent, hold_date):
 
 
 def stripString(res):
+    if not res:
+        return None
     par = re.compile('\(.*?\)')
     li = re.findall(par, res)
     if li:
