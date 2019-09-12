@@ -113,7 +113,7 @@ def getHtmlFromUrl(url,utf8coding=False):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
-        ret = urllib2.urlopen(req)
+        ret = urllib2.urlopen(req, timeout=10)
         res = None
         if utf8coding:
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
@@ -199,11 +199,11 @@ def descForCode(ret):
 def mainMethod():
     currentTimeStamp = datetime.now()
 
-    # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
-    # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
-    # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
-    #
-    # sendReq(fourMonthAgoDate, currentDate)
+    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
+    fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
+
+    sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     if outArray:
