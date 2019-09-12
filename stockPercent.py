@@ -73,7 +73,7 @@ def sendReq(startDate, endDate):
         szres = stripString(getHtmlFromUrl(szReqUrl))
 
         print 'page:%d, shres:%s, szres:%s' % (page, shres, szres)
-        if shres or szres:
+        if shres and szres:
             page = page + 1
             shret = simplejson.loads(shres[1: -1])
             szret = simplejson.loads(szres[1: -1])
