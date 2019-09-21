@@ -168,7 +168,7 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount * 0.8 and lastPercent >= 1.0) or (endCount < startCount and lastPercent > 6.0)
+            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 1.0) or (endCount < startCount and lastPercent > 6.0)
             if isOk:
                 outArray.append(lastDataItem)
 
@@ -215,8 +215,7 @@ def mainMethod():
     outArray = getSortedValue()
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
-        print '外资持仓：共%d只增持股票' % len(outArray)
-        print '业绩高速增长的股票如下:\n'
+        print '业绩高速增长的股票如下:'
         for item in outArray:
             # 调试用
             # if item[0] == '600276':
@@ -225,6 +224,16 @@ def mainMethod():
             if isgood:
                 developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
                 print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', developPercent
+
+        print '\n\n外资增持：共%d只增持股票' % len(outArray)
+        for item in outArray:
+            developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
+            print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent
+
+
+
+
+
 
 if __name__ == '__main__':
     mainMethod()
