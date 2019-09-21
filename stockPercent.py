@@ -159,7 +159,7 @@ def filterGood(ret):
         if item and len(item) > 0:
             code = item[0][0]
             # 调试用
-            # if code == '300750':
+            # if code == '002901':
             #     print 'a'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
@@ -168,7 +168,7 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount * 0.9 and lastPercent >= 0.5) or (endCount >= averageCount * 0.8 and lastPercent >= 1.0) or (endCount < startCount and lastPercent > .0)
+            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount * 0.8 and lastPercent >= 1.0) or (endCount < startCount and lastPercent > 6.0)
             if isOk:
                 outArray.append(lastDataItem)
 
@@ -186,7 +186,7 @@ def isGoodStock(code):
 
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
-        if float(roe) > 4 and float(incodeIncremnt) >= 25 and float(profitIncrment) > 10 and float(jll) >= 13:
+        if float(roe) > 4 and float(incodeIncremnt) >= 25 and float(profitIncrment) > 12 and float(jll) >= 13:
             return True
         else:
             return False
