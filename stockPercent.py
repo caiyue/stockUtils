@@ -158,6 +158,9 @@ def filterGood(ret):
     for item in ret:
         if item and len(item) > 0:
             code = item[0][0]
+            # 调试用
+            # if code == '300750':
+            #     print 'a'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray)/len(allCountArray)
@@ -165,13 +168,14 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount and lastPercent >= 0.5) or (endCount >= averageCount * 0.9 and lastPercent >= 0.8)
-            if startCount < endCount and isOk:
+            isOk = (endCount >= maxCount * 0.9 and lastPercent >= 0.5) or (endCount >= averageCount * 0.8 and lastPercent >= 1.0) or (endCount < startCount and lastPercent > .0)
+            if isOk:
                 outArray.append(lastDataItem)
 
     return outArray
 
 def isGoodStock(code):
+    # 获取的是单个季度的数据  例如6.30的财报只是3个月的，而不是6个月的 这里分析单个季度的数据
     li = StockUtils().roeStringForCode(code, returnData=True)
     if li:
         # 最近的季报
@@ -179,9 +183,10 @@ def isGoodStock(code):
         roe = str(recent.roe)
         incodeIncremnt = recent.incomeRate if recent.incomeRate != '--' else '0'
         profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
+
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
-        if float(roe) > 3 and float(incodeIncremnt) >= 30 and float(profitIncrment) > 20 and float(jll) >= 8:
+        if float(roe) > 4 and float(incodeIncremnt) >= 25 and float(profitIncrment) > 10 and float(jll) >= 13:
             return True
         else:
             return False
@@ -200,21 +205,26 @@ def descForCode(ret):
 
 def mainMethod():
     currentTimeStamp = datetime.now()
-
-    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
-    fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
-    fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
-
-    sendReq(fourMonthAgoDate, currentDate)
+    #
+    # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
+    # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
+    #
+    # sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
-        print '共%d只增持股票' % len(outArray)
+        print '外资持仓：共%d只增持股票' % len(outArray)
+        print '业绩高速增长的股票如下:\n'
         for item in outArray:
-            developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-            profit = '业绩增长快' if isGoodStock(item[0]) else ''
-            print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', profit, developPercent
+            # 调试用
+            # if item[0] == '600276':
+            #     print 'a'
+            isgood = isGoodStock(item[0])
+            if isgood:
+                developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
+                print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', developPercent
 
 if __name__ == '__main__':
     mainMethod()
