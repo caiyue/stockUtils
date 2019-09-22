@@ -159,8 +159,8 @@ def filterGood(ret):
         if item and len(item) > 0:
             code = item[0][0]
             # 调试用
-            # if code == '002901':
-            #     print 'a'
+            if code == debugCode():
+                print 'a'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray)/len(allCountArray)
@@ -186,7 +186,13 @@ def isGoodStock(code):
 
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
-        if float(roe) > 4 and float(incodeIncremnt) >= 25 and float(profitIncrment) > 12 and float(jll) >= 13:
+        if float(roe) > 4 \
+                and float(jll) >= 13 \
+                and \
+                (
+                        (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 12)
+                        or (float(incodeIncremnt) >= 21 and float(profitIncrment) >= 28))\
+                :
             return True
         else:
             return False
@@ -203,13 +209,16 @@ def descForCode(ret):
         return '研发占比很高%.5s' % percent
     return ''
 
+def debugCode():
+    return '002916'
+
 def mainMethod():
     currentTimeStamp = datetime.now()
     #
     # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
     # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
-    #
+
     # sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
@@ -218,8 +227,8 @@ def mainMethod():
         print '业绩高速增长的股票如下:'
         for item in outArray:
             # 调试用
-            # if item[0] == '600276':
-            #     print 'a'
+            if item[0] == debugCode():
+                print 'aaaa'
             isgood = isGoodStock(item[0])
             if isgood:
                 developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
