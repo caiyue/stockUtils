@@ -174,10 +174,11 @@ def filterGood(ret):
                 for item in lastDataItem:
                     newTuple = newTuple + (item,)
                 # 添加外资持股比例一直递增标记
-                if startCount < averageCount and endCount > averageCount:
-                    newTuple = newTuple + (True,)
-                else:
-                    newTuple = newTuple + (False,)
+                # if startCount < averageCount and endCount > averageCount:
+                #     newTuple = newTuple + (True,)
+                # else:
+                #     newTuple = newTuple + (False,)
+
                 outArray.append(newTuple)
 
     return outArray
@@ -250,13 +251,16 @@ def mainMethod():
             isgood = isGoodStock(item[0])
             if isgood:
                 developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-                print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', developPercent
+                print item[0], item[1], item[3], \
+                    str(int(item[2])/10000) + '万股',\
+                    '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])),\
+                    developPercent
 
         # 外资持股比例排行
         print '\n\n外资持股排行,共%s个' % len(outArray)
         for item in outArray:
             developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-            print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent ,'外资持股数量创新高' if (item[4]) else ''
+            print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent
 
 
 
