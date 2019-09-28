@@ -11,7 +11,7 @@ import re
 import simplejson
 import time
 import socket
-from datetime import datetime
+import datetime
 import os.path as fpath
 from bs4 import BeautifulSoup
 import pickle,pprint
@@ -50,6 +50,9 @@ sylDetailSuffixUrl = '&token=4f1862fc3b5e77c150a2b985b12db0fd&cb=jQuery183041202
 #3年净利润增长率10以上，资产收益率大于10%（0.1,5）），市值超过200亿
 mostValueableStockUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty=xgq&token=eastmoney&c=[cz_jgcg01][cz_ylnl01(4|0.20)][cz_ylnl04(1|0.3)][cz19(1|100y)]&p=%s&jn=fjnexJlG&ps=100&s=cz19(1|100y)&st=-1&r=1520242317534'
 
+
+#半年内公司评级
+companyCommentList = 'http://reportapi.eastmoney.com/report/list?cb=datatable7259366&pageNo=1&pageSize=100&code=%s&industryCode=*&industry=*&rating=*&ratingchange=*&beginTime=%s&endTime=%s&fields=&qType=0&_=1569424249615'
 
 #ROE 投资回报率
 ROEOfStockUrl = 'http://data.eastmoney.com/DataCenter_V3/stockdata/cwzy.ashx?code=%s'
@@ -205,7 +208,7 @@ def getJsonObj5(obj):
 def getJsonObj6(obj):
     if not obj: return None
     if hasHTML(obj): return None
-    partern = re.compile("\(.*?\)")
+    partern = re.compile("\({.*?}\)")
     list = re.findall(partern, obj)
     try:
         if list and len(list) > 0:
@@ -345,7 +348,7 @@ class StockUtils(object):
         if not res:
             return None
         part = re.compile('target="_blank">.*?</a></td>')
-        li = re.findall(part,res)
+        li = re.findall(part, res)
         tu = [getStockCodeFromHtmlString(c) for c in li]
         return  list(tu)
 
@@ -433,6 +436,26 @@ class StockUtils(object):
                     return 1, percent
         return 0, 0
 
+
+    @classmethod
+    def getCommentNumberIn3MonthsForCode(self, code):
+        '''3个月内评级'''
+        currentTimeStamp = datetime.datetime.now()
+        startTime = datetime.datetime.strftime(currentTimeStamp - datetime.timedelta(days=90), "%Y-%m-%d")
+        endTime = datetime.datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+
+        url = companyCommentList % (code, startTime, endTime)
+        res = getHtmlFromUrl(url, False)
+        obj = getJsonObj6(res)
+        ret = []
+        if obj:
+            data = obj['data']
+            if data and len(data):
+                for item in data:
+                    if item['emRatingName'] == u'增持' or item['emRatingName'] == u'买入' or item['lastEmRatingName'] == u'增持' or item['lastEmRatingName'] == u'买入':
+                        ret.append(item)
+
+        return len(ret)
 
 
     @classmethod

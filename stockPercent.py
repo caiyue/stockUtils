@@ -170,7 +170,15 @@ def filterGood(ret):
             lastPercent = float(lastDataItem[3])
             isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 1.0) or (endCount < startCount and lastPercent > 6.0)
             if isOk:
-                outArray.append(lastDataItem)
+                newTuple = ()
+                for item in lastDataItem:
+                    newTuple = newTuple + (item,)
+                # 添加外资持股比例一直递增标记
+                if startCount < averageCount and endCount > averageCount:
+                    newTuple = newTuple + (True,)
+                else:
+                    newTuple = newTuple + (False,)
+                outArray.append(newTuple)
 
     return outArray
 
@@ -210,21 +218,30 @@ def descForCode(ret):
     return ''
 
 def debugCode():
-    return '002916'
+    return ''
 
 def mainMethod():
-    currentTimeStamp = datetime.now()
+    # currentTimeStamp = datetime.now()
     #
     # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
     # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
-
+    #
     # sendReq(fourMonthAgoDate, currentDate)
 
+    # 机构评级数量排行
     outArray = getSortedValue()
+    sortArray = []
+    for item in outArray:
+        sortArray.append({'code': item[0], 'name': item[1], 'count': StockUtils().getCommentNumberIn3MonthsForCode(item[0])})
+    sortArray = sorted(sortArray, key=lambda x: float(x['count']), reverse=True)
+    for item in sortArray:
+        print item['code'], item['name'], item['count']
+
+
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
-        print '业绩高速增长的股票如下:'
+        print '\n外资持股增长+业绩高速增长如下:'
         for item in outArray:
             # 调试用
             if item[0] == debugCode():
@@ -234,12 +251,11 @@ def mainMethod():
                 developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
                 print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', developPercent
 
-        print '\n\n外资增持：共%d只增持股票' % len(outArray)
+        # 外资持股比例排行
+        print '\n\n外资持股排行' % len(outArray)
         for item in outArray:
             developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-            print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent
-
-
+            print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent ,'外资持股数量创新高' if (item[4]) else ''
 
 
 
