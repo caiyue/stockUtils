@@ -440,8 +440,12 @@ class StockUtils(object):
     @classmethod
     def getCommentNumberIn3MonthsForCode(self, code):
         '''3个月内评级'''
+        if code == '300347':
+            print 'a'
         currentTimeStamp = datetime.datetime.now()
-        startTime = datetime.datetime.strftime(currentTimeStamp - datetime.timedelta(days=90), "%Y-%m-%d")
+
+        # 100天内
+        startTime = datetime.datetime.strftime(currentTimeStamp - datetime.timedelta(days=(90+10)), "%Y-%m-%d")
         endTime = datetime.datetime.strftime(currentTimeStamp, "%Y-%m-%d")
 
         url = companyCommentList % (code, startTime, endTime)
