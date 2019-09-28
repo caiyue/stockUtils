@@ -253,7 +253,7 @@ def mainMethod():
                 print item[0], item[1], item[3], str(int(item[2])/10000) + '万股', developPercent
 
         # 外资持股比例排行
-        print '\n\n外资持股排行' % len(outArray)
+        print '\n\n外资持股排行,共%s个' % len(outArray)
         for item in outArray:
             developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
             print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent ,'外资持股数量创新高' if (item[4]) else ''
