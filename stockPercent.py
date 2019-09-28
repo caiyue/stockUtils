@@ -229,14 +229,15 @@ def mainMethod():
     #
     # sendReq(fourMonthAgoDate, currentDate)
 
-    # 机构评级数量排行
+    # 机构评级数量排行,最近3个月至少10个买入/增持推荐
     outArray = getSortedValue()
     sortArray = []
     for item in outArray:
         sortArray.append({'code': item[0], 'name': item[1], 'count': StockUtils().getCommentNumberIn3MonthsForCode(item[0])})
     sortArray = sorted(sortArray, key=lambda x: float(x['count']), reverse=True)
     for item in sortArray:
-        print item['code'], item['name'], item['count']
+        if item['count'] >= 10:
+            print item['code'], item['name'], item['count']
 
 
     if outArray:
