@@ -160,7 +160,7 @@ def filterGood(ret):
             code = item[0][0]
             # 调试用
             if code == debugCode():
-                print 'a'
+                print 'aaaa'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray)/len(allCountArray)
@@ -168,18 +168,9 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 1.0) or (endCount < startCount and lastPercent > 6.0)
+            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 0.5) or (endCount < startCount and lastPercent > 1.0)
             if isOk:
-                newTuple = ()
-                for item in lastDataItem:
-                    newTuple = newTuple + (item,)
-                # 添加外资持股比例一直递增标记
-                # if startCount < averageCount and endCount > averageCount:
-                #     newTuple = newTuple + (True,)
-                # else:
-                #     newTuple = newTuple + (False,)
-
-                outArray.append(newTuple)
+                outArray.append(lastDataItem)
 
     return outArray
 
@@ -219,7 +210,7 @@ def descForCode(ret):
     return ''
 
 def debugCode():
-    return ''
+    return '002912'
 
 def mainMethod():
     # currentTimeStamp = datetime.now()
@@ -232,14 +223,6 @@ def mainMethod():
 
     # 机构评级数量排行,最近3个月至少10个买入/增持推荐
     outArray = getSortedValue()
-    # sortArray = []
-    # for item in outArray:
-        # sortArray.append({'code': item[0], 'name': item[1], 'count': StockUtils().getCommentNumberIn3MonthsForCode(item[0])})
-    # sortArray = sorted(sortArray, key=lambda x: float(x['count']), reverse=True)
-    # for item in sortArray:
-    #     if item['count'] >= 10:
-    #         print item['code'], item['name'], item['count']
-
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长如下:'
@@ -260,9 +243,6 @@ def mainMethod():
         for item in outArray:
             developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
             print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent
-
-
-
 
 if __name__ == '__main__':
     mainMethod()
