@@ -235,11 +235,11 @@ def mainMethod():
     # sortArray = []
     # for item in outArray:
         # sortArray.append({'code': item[0], 'name': item[1], 'count': StockUtils().getCommentNumberIn3MonthsForCode(item[0])})
-    sortArray = sorted(sortArray, key=lambda x: float(x['count']), reverse=True)
+    # sortArray = sorted(sortArray, key=lambda x: float(x['count']), reverse=True)
     # for item in sortArray:
     #     if item['count'] >= 10:
     #         print item['code'], item['name'], item['count']
-    
+
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长如下:'
