@@ -236,9 +236,9 @@ def mainMethod():
     for item in outArray:
         sortArray.append({'code': item[0], 'name': item[1], 'count': StockUtils().getCommentNumberIn3MonthsForCode(item[0])})
     sortArray = sorted(sortArray, key=lambda x: float(x['count']), reverse=True)
-    for item in sortArray:
-        if item['count'] >= 10:
-            print item['code'], item['name'], item['count']
+    # for item in sortArray:
+    #     if item['count'] >= 10:
+    #         print item['code'], item['name'], item['count']
 
 
     if outArray:
