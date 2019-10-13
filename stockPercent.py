@@ -197,6 +197,12 @@ def isGoodStock(code):
         else:
             return False
 
+def printInfo(item):
+    developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
+    print item[0], item[1], item[3], \
+        str(int(item[2]) / 10000) + '万股', \
+        '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
+        developPercent
 
 def descForCode(ret):
     code = ret[0]
@@ -223,6 +229,7 @@ def mainMethod():
 
     # 机构评级数量排行,最近3个月至少10个买入/增持推荐
     outArray = getSortedValue()
+    otherDevelopHighArray = []
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长如下:'
@@ -231,18 +238,22 @@ def mainMethod():
             if item[0] == debugCode():
                 print 'aaaa'
             isgood = isGoodStock(item[0])
+            developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
             if isgood:
-                developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-                print item[0], item[1], item[3], \
-                    str(int(item[2])/10000) + '万股',\
-                    '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])),\
-                    developPercent
+                printInfo(item)
+            elif developPercentHigh[0] >= 1:
+                otherDevelopHighArray.append(item)
+        #其他研发比例高的企业
+        print '\n其他研发较高企业：'
+        for item in otherDevelopHighArray:
+            printInfo(item)
 
         # 外资持股比例排行
         print '\n\n外资持股排行,共%s个' % len(outArray)
         for item in outArray:
             developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
             print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent
+
 
 if __name__ == '__main__':
     mainMethod()
