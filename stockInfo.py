@@ -29,6 +29,8 @@ fiveDaysMaxPriceUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty
 #60日新高
 SixtyDaysMaxPrice = 'http://data.10jqka.com.cn/rank/cxg/board/4/field/stockcode/order/asc/ajax/1/'
 
+#股东数
+GuDongcount = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
 
 #东方财富网-股东增持
 gdzcBaseUrl = 'http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=100&page=1&js=var%20ukjJZiRW&param=&sortRule=-1&sortType=BDJZ&tabid=jzc&code=&name=&rt=50102353'
@@ -251,14 +253,14 @@ def getMarketCode(code,prefix = False):
     ret = getMarketId(code)
     if prefix:
         if ret == '1':
-            return  'sh' + code
+            return 'sh' + code
         else:
-            return  'sz' + code
+            return 'sz' + code
     else:
         if ret == '1':
-            return  code + '.SH'
+            return code + '.SH'
         else:
-            return  code + '.SZ'
+            return code + '.SZ'
 
 
 class CompanyInfo(object):
@@ -524,6 +526,20 @@ class StockUtils(object):
 
         return s
 
+
+    def getGuDongCount(self, code):
+        url = GuDongcount % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url)
+        count = getJsonObjOrigin(res)
+        countLi = count['gdrs']
+        ret = [x['gdrs'] for x in countLi]
+        if ret:
+            if len(ret) > 4:
+                return ret[0:4];
+            else:
+                return ret;
+        else:
+            return [];
 
     @classmethod
     def getStockholderHoldsStocks(self):

@@ -198,11 +198,12 @@ def isGoodStock(code):
             return False
 
 def printInfo(item):
+    GuDongcount = StockUtils().getGuDongCount(item[0])
     developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
     print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent
+        developPercent, GuDongcount
 
 def descForCode(ret):
     code = ret[0]
