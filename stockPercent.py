@@ -158,9 +158,6 @@ def filterGood(ret):
     for item in ret:
         if item and len(item) > 0:
             code = item[0][0]
-            # 调试用
-            if code == debugCode():
-                print 'aaaa'
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray)/len(allCountArray)
@@ -203,7 +200,7 @@ def printInfo(item):
     print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, GuDongcount
+        developPercent,  ' 股东数:' + str(GuDongcount)
 
 def descForCode(ret):
     code = ret[0]
@@ -215,9 +212,6 @@ def descForCode(ret):
     elif code == 3:
         return '研发占比很高%.5s' % percent
     return ''
-
-def debugCode():
-    return '002912'
 
 def mainMethod():
     # currentTimeStamp = datetime.now()
@@ -236,8 +230,6 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长如下:'
         for item in outArray:
             # 调试用
-            if item[0] == debugCode():
-                print 'aaaa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
             if isgood:
