@@ -200,7 +200,7 @@ def printInfo(item):
     print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent,  ' 股东数:' + str(GuDongcount)
+        developPercent, '筹码非常集中' + str(GuDongcount[0]) if GuDongcount[1] else ''
 
 def descForCode(ret):
     code = ret[0]
