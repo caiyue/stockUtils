@@ -196,17 +196,18 @@ def isGoodStock(code):
 
 def printInfo(item, onlyCode=False):
     if onlyCode:
+        GuDongcount = StockUtils().getGuDongCount(item)
         name = StockUtils().getStockNameFromCode(item)
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item))
         count = StockUtils().getQFIICount(item)
-        countStr = '总:' + str(count[0]) + ' 社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) \
+        countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        print item, name, developPercent, countStr
+        print item, name, developPercent, countStr, ' 筹码非常集中' + str(GuDongcount[0]) if GuDongcount[1] else ''
     else:
         GuDongcount = StockUtils().getGuDongCount(item[0])
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
         count = StockUtils().getQFIICount(item[0])
-        countStr = '总:' + str(count[0]) + ' 社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) \
+        countStr = '总:' + str(count[0]) + ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】'\
             if count[0] > 0 else ''
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
