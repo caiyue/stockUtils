@@ -32,6 +32,10 @@ SixtyDaysMaxPrice = 'http://data.10jqka.com.cn/rank/cxg/board/4/field/stockcode/
 #股东数
 GuDongcount = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
 
+# QFII以及保险、社保数量
+qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1&ps=100&jsObj=NMfupkBs&stat=0&code=%s'
+
+
 #东方财富网-股东增持
 gdzcBaseUrl = 'http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=100&page=1&js=var%20ukjJZiRW&param=&sortRule=-1&sortType=BDJZ&tabid=jzc&code=&name=&rt=50102353'
 
@@ -151,7 +155,6 @@ def getFundCompanyListJsonObjFrom(obj):
             return simplejson.loads(s)
 
     return None
-
 
 def getJsonList(obj):
     '''解析列表,[ 开头'''
@@ -543,7 +546,37 @@ class StockUtils(object):
             else:
                 return ret, ok
         else:
-            return [], false
+            return [], False
+
+    def find_all(self, s2, s):
+        index_list = []
+        index = s.find(s2)
+        while index != -1:
+            index_list.append(index)
+            index = s.find(s2, index + 1)
+
+        if len(index_list) > 0:
+            return index_list
+        else:
+            return []
+
+    def getQFIICount(self, code):
+        count = 0
+        url = qfiicount % code
+        res = str(getHtmlFromUrl(url))
+        # qfii
+        a1 = self.find_all('TypeCode":"2', res)
+        # 社保
+        a2 = self.find_all('TypeCode":"3', res)
+        # 券商
+        a3 = self.find_all('TypeCode":"4', res)
+        # 保险
+        a4 = self.find_all('TypeCode":"5', res)
+        # 信托
+        a5 = self.find_all('TypeCode":"6', res)
+
+        count = len(a1) + len(a2) + len(a3) + len(a4) + len(a5)
+        return count, len(a2), len(a1), len(a4), len(a3), len(a5)
 
     @classmethod
     def getStockholderHoldsStocks(self):

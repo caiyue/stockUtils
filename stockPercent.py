@@ -177,30 +177,41 @@ def isGoodStock(code):
     if li:
         # 最近的季报
         recent = li[0]
-        roe = str(recent.roe)
+        roe = str(recent.roe if recent.roe != '--' else 0)
         incodeIncremnt = recent.incomeRate if recent.incomeRate != '--' else '0'
         profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
 
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         if float(roe) > 4 \
-                and float(jll) >= 13 \
+                and float(jll) >= 15 \
                 and \
                 (
-                        (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 12)
-                        or (float(incodeIncremnt) >= 21 and float(profitIncrment) >= 28))\
+                        (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
+                        or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 28))\
                 :
             return True
         else:
             return False
 
-def printInfo(item):
-    GuDongcount = StockUtils().getGuDongCount(item[0])
-    developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-    print item[0], item[1], item[3], \
+def printInfo(item, onlyCode=False):
+    if onlyCode:
+        name = StockUtils().getStockNameFromCode(item)
+        developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item))
+        count = StockUtils().getQFIICount(item)
+        countStr = '社保:' + str(count[1]) + ' QFII:' + str(count[2]) + ' 保险:' + str(count[3]) + ' 券商:' + str(count[4]) + ' 信托:' + str(count[5]) \
+            if count[0] > 0 else ''
+        print item, name, developPercent, countStr
+    else:
+        GuDongcount = StockUtils().getGuDongCount(item[0])
+        developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
+        count = StockUtils().getQFIICount(item[0])
+        countStr = '社保:' + str(count[1]) + ' QFII:' + str(count[2]) + ' 保险:' + str(count[3]) + ' 券商:' + str(count[4]) + ' 信托:' + str(count[5]) \
+            if count[0] > 0 else ''
+        print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, '筹码非常集中' + str(GuDongcount[0]) if GuDongcount[1] else ''
+        developPercent, countStr, ' 筹码非常集中' + str(GuDongcount[0]) if GuDongcount[1] else ''
 
 def descForCode(ret):
     code = ret[0]
@@ -224,7 +235,9 @@ def mainMethod():
 
     # 机构评级数量排行,最近3个月至少10个买入/增持推荐
     outArray = getSortedValue()
+    codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
+
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长如下:'
@@ -233,19 +246,28 @@ def mainMethod():
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
             if isgood:
-                printInfo(item)
+                printInfo(item, False)
             elif developPercentHigh[0] >= 1:
                 otherDevelopHighArray.append(item)
         #其他研发比例高的企业
-        print '\n其他研发较高企业：'
+        print '\n外资增持+业绩增速/净利率一般:：'
         for item in otherDevelopHighArray:
-            printInfo(item)
+            printInfo(item, False)
 
         # 外资持股比例排行
         print '\n\n外资持股排行,共%s个' % len(outArray)
         for item in outArray:
-            developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-            print item[0], item[1], item[3], str(int(item[2]) / 10000) + '万股', developPercent
+            printInfo(item, False)
+
+    print '\n外资暂无持股，但是业绩很好的股票：'
+    codes = StockUtils().getAllStockList()
+    for code in codes:
+        if code in codeArray:
+            continue
+        else:
+            ret = isGoodStock(code)
+            if ret:
+                printInfo(code, True)
 
 
 if __name__ == '__main__':
