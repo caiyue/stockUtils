@@ -184,7 +184,7 @@ def isGoodStock(code):
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         if float(roe) > 4 \
-                and float(jll) >= 15 \
+                and float(jll) >= 20 \
                 and \
                 (
                         (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
