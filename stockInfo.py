@@ -539,7 +539,7 @@ class StockUtils(object):
         ret = map(lambda x: round(float(x[0:-1]), 2) * 10000 if '万' in x else float(x), ret)
         if ret:
             ok = False
-            if ret[0] <= ret[1] <= ret[2] <= ret[3] or (ret[0] < ret[1] and ret[0] <= 15000) or ret[0] <= 10000:
+            if (len(ret) > 1 and ret[0] < ret[1] and ret[0] <= 15000) or ret[0] <= 10000:
                 ok = True
             if len(ret) > 4:
                 return ret[0:4], ok
