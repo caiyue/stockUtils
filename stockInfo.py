@@ -22,13 +22,6 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-#5日新高
-fiveDaysMaxPriceUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty=xgq&token=eastmoney&c=[hqzb05(1|5)]&p=1&jn=JODmOFXH&ps=100&s=hqzb05(1|5)&st=-1&r=1507347434465'
-
-
-#60日新高
-SixtyDaysMaxPrice = 'http://data.10jqka.com.cn/rank/cxg/board/4/field/stockcode/order/asc/ajax/1/'
-
 #股东数
 GuDongcount = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
 
@@ -39,6 +32,9 @@ qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1
 #东方财富网-股东增持
 gdzcBaseUrl = 'http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=100&page=1&js=var%20ukjJZiRW&param=&sortRule=-1&sortType=BDJZ&tabid=jzc&code=&name=&rt=50102353'
 
+
+# 高管增持
+ggzcBaseUrl = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=GG&sty=GGC&p=1&ps=30&js=var%20FYdmhZlt={pages:(pc),data:[(x)]}&rt=52531718'
 
 #沪深A股价格相关数据
 xxsjPrefixUrl = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=C._A&sty=FCOIATA&sortType=C&sortRule=-1&page='
@@ -237,6 +233,19 @@ def getJsonObj7(obj):
     except Exception:
         print s
 
+def getHoldChangeFromRes(obj):
+    par = re.compile('data:\[.*?\]')
+    list = re.findall(par,obj)
+    if list and len(list) > 0:
+        s = list[0]
+        if s and len(s) > 5:
+            try:
+                return simplejson.loads(s[5:])
+            except Exception:
+                print obj
+
+    return None
+
 def getCompanyListFromJsonObj(obj):
     return  None
 
@@ -327,35 +336,6 @@ class RoeModel(object):
 class StockUtils(object):
     def __init__(self):
         super(StockUtils,self).__init__()
-
-
-    @classmethod
-    def getFiveDaysMaxStockList(self):
-        '''最近5天创新高'''
-        res = getHtmlFromUrl(fiveDaysMaxPriceUrl)
-        companyListObj = getJsonObj(res)
-        if companyListObj:
-            list =  companyListObj['Results']
-            cList = []
-            if list and len(list):
-                for item in list:
-                    stockInfo = item.split(',')
-                    cinfo = CompanyInfo(stockInfo[1],stockInfo[2])
-                    cList.append(cinfo)
-                return cList
-        return  None
-
-
-
-    def get60DaysMaxStockList(self):
-        '''最近5天创新高'''
-        res = getHtmlFromUrl(SixtyDaysMaxPrice,True)
-        if not res:
-            return None
-        part = re.compile('target="_blank">.*?</a></td>')
-        li = re.findall(part, res)
-        tu = [getStockCodeFromHtmlString(c) for c in li]
-        return  list(tu)
 
     def getCompanyBussinessDetailString(self,code):
         res = getHtmlFromUrl((bussinessDetailUrl % getMarketCode(code)))
@@ -581,7 +561,7 @@ class StockUtils(object):
     @classmethod
     def getStockholderHoldsStocks(self):
         '''股东增持'''
-        res = getHtmlFromUrl(gdzcBaseUrl,True)
+        res = getHtmlFromUrl(gdzcBaseUrl, True)
         companyList = getJsonObj2(res)
         if companyList and len(companyList):
             cList = []
@@ -593,9 +573,26 @@ class StockUtils(object):
         return None
 
 
+    @classmethod
+    def getGGZCStock(cls, code):
+        url = ggzcBaseUrl + '&code=' + code
+        res = getHtmlFromUrl(url, False)
+        li = getHoldChangeFromRes(res)
+        total = -1
+        if not li or len(li) == 0: return False
+        for s in li:
+            stockList = s.split(',')
+            if stockList and stockList[5] and len(stockList[5]) >= 4:
+                year = int(stockList[5][0:4])
+                if 2019 != year and 2018 != year:
+                    break
+                num = int(stockList[6])
+                total += num
+
+        return total >= -1
 
     @classmethod
-    def getDetailStockInfo(self,page):
+    def getDetailStockInfo(self, page):
         '''资金流入排行'''
         res = getHtmlFromUrl(xxsjPrefixUrl + str(page) + xxsjSuffix)
         companyListObj = getJsonObj4(res)
@@ -634,41 +631,6 @@ class StockUtils(object):
             startPage += 1
         return stockList
 
-    def getGoodFundList(self):
-        fl = []
-        res = getHtmlFromUrl(goodFundUrl)
-        fundList = getJsonObj7(res)
-        if fundList:
-            for item in fundList['datas']:
-                fundArray = item.split(',')
-                m = FundDetailModel(fundArray[0],fundArray[1],fundArray[3], fundArray[5],fundArray[6],fundArray[7],fundArray[8],fundArray[4],fundArray[11])
-                fl.append(m)
-        return fl
-
-
-    def getStockListFromFund(self,fundCode):
-        fl = []
-        res = getHtmlFromUrl(fundHoldCompanyList % fundCode)
-        compnanyList = getCompanyListFromJsonObj(res)
-        return compnanyList
-
-    def getFundHoldCompanyList(self,fundCode):
-        res = getHtmlFromUrl(fundHoldCompanyList % fundCode)
-        return getFundCompanyListJsonObjFrom(res)
-
-    @classmethod
-    def getInflowRankForPage(self,page):
-        '''资金流入排行'''
-
-        url = zjlrPrefix + str(page) + zjlrSuffix
-        res = getHtmlFromUrl(url)
-        companyListObj = getJsonObj3(res)
-        if companyListObj and len(companyListObj):
-            cList = []
-            for item in companyListObj:
-                cList.append(item)
-            return cList
-        return None
     @classmethod
     def getSylDetailDataForCode(self,code):
         '''市盈率、市值相关数据'''
