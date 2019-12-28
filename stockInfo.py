@@ -622,7 +622,7 @@ class StockUtils(object):
 
             return total >= -1
         except Exception, e:
-            print e
+            print e, code
 
     @classmethod
     def getDetailStockInfo(self, page):
