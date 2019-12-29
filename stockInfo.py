@@ -428,8 +428,6 @@ class StockUtils(object):
     @classmethod
     def getCommentNumberIn3MonthsForCode(self, code):
         '''3个月内评级'''
-        if code == '300347':
-            print 'a'
         currentTimeStamp = datetime.datetime.now()
 
         # 100天内

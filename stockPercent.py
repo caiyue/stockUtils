@@ -188,7 +188,7 @@ def isGoodStock(code):
                 and \
                 (
                         (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
-                        or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 28))\
+                        or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 25))\
                 :
             return True
         else:
@@ -258,9 +258,9 @@ def mainMethod():
             printInfo(item, False)
 
         # 外资持股比例排行
-        print '\n\n外资持股排行,共%s个' % len(outArray)
-        for item in outArray:
-            printInfo(item, False)
+        #print '\n\n外资持股排行,共%s个' % len(outArray)
+        #for item in outArray:
+        #    printInfo(item, False)
 
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = StockUtils().getAllStockList()
