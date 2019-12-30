@@ -547,9 +547,9 @@ class StockUtils(object):
 
                 if f >= 150 and f < 200:
                     return je, '人均持股高'
-                elif float(s) >= 200 and f < 300:
+                elif f >= 200 and f < 300:
                     return je, '人均持股很高'
-                elif float(s) >= 300:
+                elif f >= 300:
                     return je, '人均持股极高'
                 return je, ''
 
