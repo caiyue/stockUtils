@@ -34,7 +34,7 @@ gdzcBaseUrl = 'http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=100&p
 
 
 # 高管增持
-ggzcBaseUrl = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=GG&sty=GGC&p=1&ps=30&js=var%20FYdmhZlt={pages:(pc),data:[(x)]}&rt=52531718'
+ggzcBaseUrl = 'http://f10.eastmoney.com/CompanyManagement/CompanyManagementAjax?code=%s'
 
 #沪深A股价格相关数据
 xxsjPrefixUrl = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=C._A&sty=FCOIATA&sortType=C&sortRule=-1&page='
@@ -575,20 +575,22 @@ class StockUtils(object):
 
     @classmethod
     def getGGZCStock(cls, code):
-        url = ggzcBaseUrl + '&code=' + code
+        url = ggzcBaseUrl % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url, False)
-        li = getHoldChangeFromRes(res)
+        obj = getJsonObjOrigin(res)
         total = -1
-        if not li or len(li) == 0: return False
+        if not obj: return False
+        li = obj['RptShareHeldChangeList']
+        if not li or len(li) ==0 : return
         for s in li:
-            stockList = s.split(',')
-            if stockList and stockList[5] and len(stockList[5]) >= 4:
-                year = int(stockList[5][0:4])
-                if 2019 != year and 2018 != year:
-                    break
-                num = int(stockList[6])
-                total += num
+            year = s['rq']
+            count = s['bdsl']
 
+            if '2018' in year or '2019' in year:
+                num = int(count)
+                total += num
+            else:
+                break
         return total >= -1
 
     @classmethod
