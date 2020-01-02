@@ -188,11 +188,7 @@ def isGoodStock(code):
                 and \
                 (
                         (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
-<<<<<<< HEAD
                         or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20))\
-=======
-                        or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 25))\
->>>>>>> 18517115c36abbe42c7807742b3283870ad7c8de
                 :
             return True
         else:
