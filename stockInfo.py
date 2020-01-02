@@ -25,6 +25,9 @@ sys.setdefaultencoding('utf8')
 #股东数
 GuDongcount = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
 
+#人均持股金额
+averageHolding = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
+
 # QFII以及保险、社保数量
 qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1&ps=100&jsObj=NMfupkBs&stat=0&code=%s'
 
@@ -425,8 +428,6 @@ class StockUtils(object):
     @classmethod
     def getCommentNumberIn3MonthsForCode(self, code):
         '''3个月内评级'''
-        if code == '300347':
-            print 'a'
         currentTimeStamp = datetime.datetime.now()
 
         # 100天内
@@ -527,6 +528,32 @@ class StockUtils(object):
                 return ret, ok
         else:
             return [], False
+
+    def getAverageHolding(self, code):
+        url = averageHolding % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url)
+        obj = getJsonObjOrigin(res)
+        if obj:
+            holdings = obj['gdrs']
+            if holdings and len(holdings) > 0:
+                hold = holdings[0]
+                je = hold['rjcgje']
+                f = 0
+                if '万' in je:
+                    s = je[0: -1]
+                    f = float(s)
+                elif float(je) > 0:
+                    f = float(je) / 10000.0
+
+                if f >= 150 and f < 200:
+                    return je, '人均持股高'
+                elif f >= 200 and f < 300:
+                    return je, '人均持股很高'
+                elif f >= 300:
+                    return je, '人均持股极高'
+                return je, ''
+
+        return 0
 
     def find_all(self, s2, s):
         index_list = []

@@ -188,7 +188,11 @@ def isGoodStock(code):
                 and \
                 (
                         (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
+<<<<<<< HEAD
                         or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20))\
+=======
+                        or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 25))\
+>>>>>>> 18517115c36abbe42c7807742b3283870ad7c8de
                 :
             return True
         else:
@@ -196,16 +200,16 @@ def isGoodStock(code):
 
 def printInfo(item, onlyCode=False):
     if onlyCode:
-        GuDongcount = StockUtils().getGuDongCount(item)
+        averageHoliding = StockUtils().getAverageHolding(item)
         name = StockUtils().getStockNameFromCode(item)
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item))
         ggzc = StockUtils().getGGZCStock(item)
         count = StockUtils().getQFIICount(item)
         countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        print item, name, developPercent, countStr, '高管增持' if ggzc else '', ' 筹码非常集中' + str(GuDongcount[0]) if GuDongcount[1] else ''
+        print item, name, developPercent, countStr, '高管增持' if ggzc else '',  ' ', averageHoliding[1]
     else:
-        GuDongcount = StockUtils().getGuDongCount(item[0])
+        averageHoliding = StockUtils().getAverageHolding(item[0])
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
         ggzc = StockUtils().getGGZCStock(item[0])
         count = StockUtils().getQFIICount(item[0])
@@ -214,7 +218,7 @@ def printInfo(item, onlyCode=False):
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, countStr, '高管增持' if ggzc else '', ' 筹码非常集中' + str(GuDongcount[0]) if GuDongcount[1] else ''
+        developPercent, countStr, '高管增持' if ggzc else '', ' ', averageHoliding[1]
 
 def descForCode(ret):
     code = ret[0]
@@ -230,11 +234,11 @@ def descForCode(ret):
 def mainMethod():
     currentTimeStamp = datetime.now()
     #
-    # currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
-    # fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
-    # fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
+    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
+    fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    # sendReq(fourMonthAgoDate, currentDate)
+    #sendReq(fourMonthAgoDate, currentDate)
 
     # 机构评级数量排行,最近3个月至少10个买入/增持推荐
     outArray = getSortedValue()
@@ -258,9 +262,9 @@ def mainMethod():
             printInfo(item, False)
 
         # 外资持股比例排行
-        print '\n\n外资持股排行,共%s个' % len(outArray)
-        for item in outArray:
-            printInfo(item, False)
+        #print '\n\n外资持股排行,共%s个' % len(outArray)
+        #for item in outArray:
+        #    printInfo(item, False)
 
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = StockUtils().getAllStockList()
