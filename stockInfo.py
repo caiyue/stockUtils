@@ -539,7 +539,9 @@ class StockUtils(object):
                 hold = holdings[0]
                 je = hold['rjcgje']
                 f = 0
-                if '万' in je:
+ 		if je == '--':
+		    f = 0
+                elif '万' in je:
                     s = je[0: -1]
                     f = float(s)
                 elif float(je) > 0:
