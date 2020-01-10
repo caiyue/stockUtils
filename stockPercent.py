@@ -248,7 +248,7 @@ def mainMethod():
             # 调试用
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
-            if isgood:
+            if isgood and developPercentHigh[0] >= 1:
                 printInfo(item, False)
             elif developPercentHigh[0] >= 1:
                 otherDevelopHighArray.append(item)
@@ -269,7 +269,8 @@ def mainMethod():
             continue
         else:
             ret = isGoodStock(code)
-            if ret:
+            developPercentHigh = StockUtils().getDevelopPercentOfCost(code)
+            if ret and developPercentHigh[0] >= 1:
                 printInfo(code, True)
 
 
