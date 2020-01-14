@@ -184,7 +184,7 @@ def isGoodStock(code):
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         if float(roe) > 4 \
-                and float(jll) >= 20 \
+                and float(jll) >= 18 \
                 and \
                 (
                         (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
@@ -243,7 +243,7 @@ def mainMethod():
 
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
-        print '\n外资持股增长+业绩高速增长如下:'
+        print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
             isgood = isGoodStock(item[0])
@@ -252,15 +252,7 @@ def mainMethod():
                 printInfo(item, False)
             elif developPercentHigh[0] >= 1:
                 otherDevelopHighArray.append(item)
-        #其他研发比例高的企业
-        print '\n外资增持+业绩增速/净利率一般:：'
-        for item in otherDevelopHighArray:
-            printInfo(item, False)
 
-        # 外资持股比例排行
-        #print '\n\n外资持股排行,共%s个' % len(outArray)
-        #for item in outArray:
-        #    printInfo(item, False)
 
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = StockUtils().getAllStockList()
@@ -272,6 +264,11 @@ def mainMethod():
             developPercentHigh = StockUtils().getDevelopPercentOfCost(code)
             if ret and developPercentHigh[0] >= 1:
                 printInfo(code, True)
+
+    # 其他研发比例高的企业
+    print '\n外资增持+业绩增速/净利率一般:'
+    for item in otherDevelopHighArray:
+        printInfo(item, False)
 
 
 if __name__ == '__main__':

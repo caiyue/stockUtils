@@ -36,7 +36,10 @@ qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1
 gdzcBaseUrl = 'http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=100&page=1&js=var%20ukjJZiRW&param=&sortRule=-1&sortType=BDJZ&tabid=jzc&code=&name=&rt=50102353'
 
 
-# 高管增持
+#最近高管增持列表
+adminStockChange = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=GG&sty=GGMX&p=%s&ps=100&js=var%20uDUKLfrC={pages:(pc),data:[(x)]}&rt=52626553'
+
+#个股高管增持情况
 ggzcBaseUrl = 'http://f10.eastmoney.com/CompanyManagement/CompanyManagementAjax?code=%s'
 
 #沪深A股价格相关数据
@@ -601,6 +604,17 @@ class StockUtils(object):
             return cList
         return None
 
+    def getAdminStockChange(self):
+        ret = []
+        for page in [1, 2, 3]:
+            res = getHtmlFromUrl(adminStockChange % page)
+            objs = getJsonObj2(res)
+            if obj:
+                for o in objs:
+
+                    ret.append()
+
+
 
     @classmethod
     def getGGZCStock(cls, code):
@@ -726,34 +740,34 @@ def  validateStock(code):
 def mainMethod():
     util = StockUtils()
 
+    #高管增持
 
     # #股东增持
-    print '\n====================================股东增持====================================='
+    # print '\n====================================股东增持====================================='
     gd = util.getStockholderHoldsStocks()
-    if gd and len(gd):
-         for item in gd:
-             companyInfo = item.split(',')
-             print companyInfo[0], companyInfo[1].ljust(7, ' '), companyInfo[-4], u'至', companyInfo[-3], (
-             companyInfo[4]).ljust(30, ' '), companyInfo[5], (companyInfo[6] + u'万').ljust(13, ' '), (
-                     u'占流通股的' + (companyInfo[7] + '%')).ljust(15, ' '), (
-                     u'市值: ' + util.getSylDetailDataForCode(companyInfo[0]).sz + u'亿').ljust(15, ' ')
+    # if gd and len(gd):
+    #      for item in gd:
+    #          companyInfo = item.split(',')
+    #          print companyInfo[0], companyInfo[1].ljust(7, ' '), companyInfo[-4], u'至', companyInfo[-3], (
+    #          companyInfo[4]).ljust(30, ' '), companyInfo[5], (companyInfo[6] + u'万').ljust(13, ' '), (
+    #                  u'占流通股的' + (companyInfo[7] + '%')).ljust(15, ' ')
 
 
     # #价值投资选股
-    print '\n===============================价值投资股票========================================'
-    th = util.getAllStockList()
-    if th and len(th) > 0:
-        print '===============================共 %s 个========================================\n' % str(len(th))
-        for item in th:
-            model = szyjl(item)
-            if not model: continue
-            #不需要过滤换手率以及市值，价值投资
-            print (u'第%s个: %s  %s' % (str(th.index(item) + 1), model.name, model.code))
-            jidu = util.roeStringForCode(item)
-            niandu = util.roeStringInYearsForCode(item)
-
-            print jidu
-            print niandu
+    # print '\n===============================价值投资股票========================================'
+    # th = util.getAllStockList()
+    # if th and len(th) > 0:
+    #     print '===============================共 %s 个========================================\n' % str(len(th))
+    #     for item in th:
+    #         model = szyjl(item)
+    #         if not model: continue
+    #         #不需要过滤换手率以及市值，价值投资
+    #         print (u'第%s个: %s  %s' % (str(th.index(item) + 1), model.name, model.code))
+    #         jidu = util.roeStringForCode(item)
+    #         niandu = util.roeStringInYearsForCode(item)
+    #
+    #         print jidu
+    #         print niandu
 
 
 if __name__ == '__main__':
