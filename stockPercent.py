@@ -203,7 +203,7 @@ def printInfo(item, onlyCode=False):
         count = StockUtils().getQFIICount(item)
         countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        print item, name, developPercent, countStr, '高管增持' if ggzc else '',  ' ', averageHoliding[1]
+        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1]
     else:
         averageHoliding = StockUtils().getAverageHolding(item[0])
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
@@ -214,7 +214,7 @@ def printInfo(item, onlyCode=False):
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, countStr, '高管增持' if ggzc else '', ' ', averageHoliding[1]
+        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', averageHoliding[1]
 
 def descForCode(ret):
     code = ret[0]

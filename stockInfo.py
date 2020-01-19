@@ -624,12 +624,12 @@ class StockUtils(object):
         total = -1
         if not obj: return False
         li = obj['RptShareHeldChangeList']
-        if not li or len(li) ==0 : return
+        if not li or len(li) == 0 : return
         for s in li:
             year = s['rq']
             count = s['bdsl']
 
-            if '2018' in year or '2019' in year:
+            if '2018' in year or '2019' or '2020' in year:
                 num = int(count)
                 total += num
             else:
