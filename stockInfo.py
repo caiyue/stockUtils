@@ -46,10 +46,8 @@ ggzcBaseUrl = 'http://f10.eastmoney.com/CompanyManagement/CompanyManagementAjax?
 xxsjPrefixUrl = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=C._A&sty=FCOIATA&sortType=C&sortRule=-1&page='
 xxsjSuffix = '&pageSize=100&js=var%20quote_123%3d{rank:[(x)],pages:(pc)}&token=7bc05d0d4c3c22ef9fca8c2a912d779c&jsName=quote_123&_g=0.681840105810047'
 
-#沪深A股市盈率、市净率、市值相关数据
-sylDetailPrefixUrl = 'http://nuff.eastmoney.com/EM_Finance2015TradeInterface/JS.ashx?id='
-sylDetailSuffixUrl = '&token=4f1862fc3b5e77c150a2b985b12db0fd&cb=jQuery183041202991002070233_1505234287664&_=1505234288231'
-
+#换手率
+hslUrl = 'http://push2.eastmoney.com/api/qt/stock/get?ut=fa5fd1943c7b386f172d6893dbfba10b&invt=2&fltt=2&fields=f43,f57,f58,f169,f170,f46,f44,f51,f168,f47,f164,f163,f116,f60,f45,f52,f50,f48,f167,f117,f71,f161,f49,f530,f135,f136,f137,f138,f139,f141,f142,f144,f145,f147,f148,f140,f143,f146,f149,f55,f62,f162,f92,f173,f104,f105,f84,f85,f183,f184,f185,f186,f187,f188,f189,f190,f191,f192,f107,f111,f86,f177,f78,f110,f262,f263,f264,f267,f268,f250,f251,f252,f253,f254,f255,f256,f257,f258,f266,f269,f270,f271,f273,f274,f275,f127,f199,f128,f193,f196,f194,f195,f197,f80,f280,f281,f282,f284,f285,f286,f287&secid=%s&cb=jQuery1124007973482264905063_1579700999918&_=1579700999919'
 
 #净资产收益率12%  3年利润增长率10% 100亿市值以上
 #mostValueableStockUrl = 'http://xuanguapi.eastmoney.com/Stock/JS.aspx?type=xgq&sty=xgq&token=eastmoney&c=[cz_ylnl01(1|0.12)][cz_cznl06(1|0.1)][cz20(1|100y)]&p=1&jn=pUnYlfVk&ps=100&s=cz20(1|100y)&st=-1&r=1507352123438'
@@ -173,6 +171,20 @@ def getJsonObj2(obj):
     if list and len(list) > 0:
         s = list[0]
         sepString = s.split(':')[1]
+        return simplejson.loads(sepString)
+    else:
+        return None
+
+
+def getJsonObj2s(obj):
+    if not obj: return None
+    if hasHTML(obj): return None
+    partern = re.compile("data\":{.*?}}")
+    list = re.findall(partern, obj)
+    if list and len(list) > 0:
+        s = list[0]
+        sepString = s[6:]
+        sepString = sepString[0: -1]
         return simplejson.loads(sepString)
     else:
         return None
@@ -677,15 +689,15 @@ class StockUtils(object):
         return stockList
 
     @classmethod
-    def getSylDetailDataForCode(self,code):
+    def getHslForCode(self,code):
         '''市盈率、市值相关数据'''
-        url = sylDetailPrefixUrl + code + getMarketId(code)+sylDetailSuffixUrl
+        url = hslUrl % (getMarketId(code) + '.' + code)
         res = getHtmlFromUrl(url)
-        valueList =  getJsonObj5(res)
-        if valueList and len(valueList) > 0:
-           return CompanyValueInfo(valueList[1],valueList[2],valueList[-15],valueList[-10],str(long(valueList[-7])/10000/10000), valueList[-16]+'%')
-        return None
-
+        obj = getJsonObj2s(res)
+        if not obj:
+            return 0
+        else:
+            return obj['f168']
 
 
     def jiduAndNianduAndszyl(self,detailCode):

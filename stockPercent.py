@@ -166,7 +166,7 @@ def filterGood(ret):
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
             isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 0.5) or (endCount < startCount and lastPercent > 1.0)
-            if isOk:
+            if True:
                 outArray.append(lastDataItem)
 
     return outArray
@@ -194,8 +194,18 @@ def isGoodStock(code):
         else:
             return False
 
+def hslDesc(hsl):
+    if hsl == 0:
+        return ''
+    elif  1.6 > hsl > 1.0:
+        return '换手率很低'
+    elif hsl <= 1.0:
+        return '换手率极低'
+
+
 def printInfo(item, onlyCode=False):
     if onlyCode:
+        hsl = StockUtils().getHslForCode(item)
         averageHoliding = StockUtils().getAverageHolding(item)
         name = StockUtils().getStockNameFromCode(item)
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item))
@@ -203,8 +213,9 @@ def printInfo(item, onlyCode=False):
         count = StockUtils().getQFIICount(item)
         countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1]
+        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1], hslDesc(hsl)
     else:
+        hsl = StockUtils().getHslForCode(item[0])
         averageHoliding = StockUtils().getAverageHolding(item[0])
         developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
         ggzc = StockUtils().getGGZCStock(item[0])
@@ -214,7 +225,7 @@ def printInfo(item, onlyCode=False):
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', averageHoliding[1]
+        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', averageHoliding[1], hslDesc(hsl)
 
 def descForCode(ret):
     code = ret[0]
