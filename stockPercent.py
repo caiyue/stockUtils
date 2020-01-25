@@ -165,8 +165,8 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 0.5) or (endCount < startCount and lastPercent > 1.0)
-            if True:
+            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 0.5) or (endCount < startCount and lastPercent >= 0.5)
+            if isOk:
                 outArray.append(lastDataItem)
 
     return outArray
@@ -180,11 +180,10 @@ def isGoodStock(code):
         roe = str(recent.roe if recent.roe != '--' else 0)
         incodeIncremnt = recent.incomeRate if recent.incomeRate != '--' else '0'
         profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
-
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         if float(roe) > 4 \
-                and float(jll) >= 18 \
+                and float(jll) >= 17 \
                 and \
                 (
                         (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
