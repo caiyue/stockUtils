@@ -749,7 +749,7 @@ def mainMethod():
     for gd in ret:
         companyInfo = gd.split(',')
         if companyInfo[6] != '-' and float(companyInfo[6]) > 0:
-            print companyInfo[2], companyInfo[9].ljust(7, ' '), '增持: ', companyInfo[6], '增持后: ', companyInfo[7], (
+            print companyInfo[2], companyInfo[9].ljust(7, ' '), companyInfo[5], ' 增持: ', companyInfo[6], '增持后: ', companyInfo[7], (
             companyInfo[-2]).ljust(10, ' ')
 
 
