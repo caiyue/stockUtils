@@ -165,7 +165,7 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount * 0.85 and lastPercent >= 0.5) or (endCount >= averageCount and lastPercent >= 0.5) or (endCount < startCount and lastPercent >= 0.5)
+            isOk = (endCount >= maxCount * 0.80 and lastPercent >= 0.2) or (endCount >= averageCount and lastPercent >= 0.2) or (endCount < startCount and lastPercent >= 0.2)
             if isOk:
                 outArray.append(lastDataItem)
 
@@ -182,14 +182,15 @@ def isGoodStock(code):
         profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
-        if float(roe) > 4 \
-                and float(jll) >= 17 \
-                and \
-                (
-                        (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15)
-                        or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20))\
-                :
-            return True
+        if float(roe) > 4:
+            if (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15) or (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
+                if float(jll) >= 20:
+                    return True
+            elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30:
+                if float(jll) >= 15:
+                    return True
+            else:
+                return False
         else:
             return False
 
@@ -258,6 +259,8 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
+            if item[0] == '601100':
+                print  'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
             if isgood and developPercentHigh[0] >= 1:
