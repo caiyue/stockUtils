@@ -240,7 +240,28 @@ def descForCode(ret):
         return '研发占比很高%.5s' % percent
     return ''
 
+
+def princleple():
+    print '''
+    买入类型
+    1、产品净利率 >= 18 %
+    2、年资产收益率 >= 15 %
+    3、研发占比 >= 5 % 越高越好
+    4、收入增长率 >= 20 %
+    5、利润增长率 >= 20 %
+    6、必须是行业龙头
+    7、换手率 <= 3.0 % 越低越好
+    8、没有大规模的高管减持行为，可以小量减持
+    9、外资持股比例持续增长或者大比例持股 (可选)
+    10、负债率 <= 50 （可选）
+
+    买入时机：
+    1、下跌阶段：地量，说明卖盘已经没有，可以准备建仓
+    卖出时机：
+    1、上涨阶段：天量卖出，表示所有的上扬力量已经出尽，后期上扬没有资金跟进
+    '''
 def mainMethod():
+    princleple()
     currentTimeStamp = datetime.now()
     #
     currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
