@@ -677,7 +677,7 @@ class StockUtils(object):
                     # code1  name2   zhangfu5, startPrice10，max11，min12
                     code = str(array[1])
                     stockList.append(code)
-            if len(li) < pageSize:
+            if li and len(li) < pageSize:
                 break
             startPage += 1
         return stockList
