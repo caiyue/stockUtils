@@ -249,7 +249,7 @@ def princleple():
     3、研发占比 >= 5 % 越高越好
     4、收入增长率 >= 20 %
     5、利润增长率 >= 20 %
-    6、必须是行业龙头
+    6、必须是行业龙头,根据竞争对手对比来确认
     7、换手率 <= 3.0 % 越低越好
     8、没有大规模的高管减持行为，可以小量减持
     9、外资持股比例持续增长或者大比例持股 (可选)
@@ -280,7 +280,7 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
-            if item[0] == '601100':
+            if item[0] == '603387':
                 print  'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
