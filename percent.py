@@ -5,6 +5,7 @@ import requests
 import urllib2
 import re
 import json
+# 晶晶同学的伟大发现，少了一个s误我2年啦
 url = 'https://www.hkexnews.hk/sdw/search/mutualmarket_c.aspx'
 
 def get_hiddenvalue(url):
