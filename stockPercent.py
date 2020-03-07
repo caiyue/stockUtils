@@ -201,7 +201,7 @@ def isGoodStock(code):
 def hslDesc(hsl):
     if hsl == 0:
         return ''
-    elif 1.7 > hsl > 1.0:
+    elif 2.0 > hsl > 1.0:
         return '换手率很低'
     elif hsl <= 1.0:
         return '换手率极低'
