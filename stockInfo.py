@@ -549,18 +549,17 @@ class StockUtils(object):
             if holdings and len(holdings) > 0:
                 hold = holdings[0]
                 je = hold['rjcgje']
-                f = 0
- 		if je == '--':
-		    f = 0
+                if je == '--':
+                    f = 0
                 elif '万' in je:
                     s = je[0: -1]
                     f = float(s)
                 elif float(je) > 0:
                     f = float(je) / 10000.0
 
-                if f >= 150 and f < 200:
+                if 200 > f >= 150:
                     return je, '人均持股高'
-                elif f >= 200 and f < 300:
+                elif 300 > f >= 200:
                     return je, '人均持股很高'
                 elif f >= 300:
                     return je, '人均持股极高'

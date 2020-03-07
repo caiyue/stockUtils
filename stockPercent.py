@@ -44,7 +44,8 @@ def executeSQL(sql):
 
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
-        sql = 'insert into %s(code,name,total,percent,date) value (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % ('stock', code, name, total, percent, hold_date)
+        sql = 'insert into %s(code,name,total,percent,date) value (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % \
+              ('stock', code, name, total, percent, hold_date)
         print sql
         executeSQL(sql)
 
