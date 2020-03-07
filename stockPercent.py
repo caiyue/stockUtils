@@ -187,7 +187,7 @@ def isGoodStock(code):
                 if float(jll) >= 20:
                     return True
             elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30:
-                if float(jll) >= 15:
+                if float(jll) >= 18:
                     return True
             else:
                 return False
@@ -244,14 +244,17 @@ def descForCode(ret):
 def princleple():
     print '''
     买入类型
-    1、产品净利率 >= 18 %
+    1、产品净利率 >= 20 %
     2、年资产收益率 >= 15 %
     3、研发占比 >= 5 % 越高越好
+    
     4、收入增长率 >= 20 %
-    5、利润增长率 >= 20 %，业务利润需要是90%以上
-    6、必须是行业龙头,根据竞争对手对比来确认
-    7、换手率 <= 3.0 % 越低越好
+    5、利润增长率 >= 20 %，业务利润需要是90%以上,不能存在很高投资收益
+    6、必须是行业龙头,根据竞争对手对比来确认，只买龙头、龙头
+    
+    7、换手率 <= 3.0 % 越低越好，人均持股金额高，筹码趋于集中
     8、没有大规模的高管减持行为，可以小量减持
+    
     9、外资持股比例持续增长或者大比例持股 (可选)
     10、负债率 <= 50 （可选）
 
