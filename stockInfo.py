@@ -531,9 +531,11 @@ class StockUtils(object):
         if res:
             obj = getJsonObjOrigin(res)
             if obj and len(obj) > 0:
-                num = obj[0]['CONSTRUCTIONPROGRESS']
-                if num  and len(num) > 0 and num != '-':
-                    return float(num) >= 70000000
+                o = obj[0]
+                if o:
+                    num = o['CONSTRUCTIONPROGRESS']
+                    if num and len(num) > 0 and num != '-':
+                        return float(num) >= 60000000
 
     def getGuDongCount(self, code):
         url = GuDongcount % (getMarketCode(code, prefix=True))
