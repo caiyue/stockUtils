@@ -219,7 +219,8 @@ def printInfo(item, onlyCode=False):
         count = StockUtils().getQFIICount(item)
         countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1], hslDesc(hsl)
+        inProgressProject = '在建工程较多' if StockUtils().inprogressProject(item[0]) else ''
+        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1], hslDesc(hsl), inProgressProject
     else:
         hsl = StockUtils().getHslForCode(item[0])
         averageHoliding = StockUtils().getAverageHolding(item[0])
@@ -228,10 +229,11 @@ def printInfo(item, onlyCode=False):
         count = StockUtils().getQFIICount(item[0])
         countStr = '总:' + str(count[0]) + ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】'\
             if count[0] > 0 else ''
+        inProgressProject = '在建工程较多' if StockUtils().inprogressProject(item[0]) else ''
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', averageHoliding[1], hslDesc(hsl)
+        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', averageHoliding[1], hslDesc(hsl), inProgressProject
 
 def descForCode(ret):
     code = ret[0]
@@ -261,6 +263,7 @@ def princleple():
     9、没有大规模的高管减持行为，可以小量减持
     
     10、外资持股比例持续增长或者大比例持股 (可选)
+    11、在建工程较多，说明扩张速度较快
 
     买入时机：
     1、下跌阶段：地量，说明卖盘已经没有，可以准备建仓
@@ -287,7 +290,7 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
-            if item[0] == '603387':
+            if item[0] == '603429':
                 print  'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
