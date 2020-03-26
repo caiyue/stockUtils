@@ -291,7 +291,7 @@ def mainMethod():
         for item in outArray:
             # 调试用
             if item[0] == '603429':
-                print  'aa'
+                print 'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
             if isgood and developPercentHigh[0] >= 1:

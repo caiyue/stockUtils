@@ -530,7 +530,7 @@ class StockUtils(object):
         res = getHtmlFromUrl(url)
         if res:
             obj = getJsonObjOrigin(res)
-            if obj and len(obj) > 0:
+            if obj and isinstance(obj, list) and len(obj) > 0:
                 o = obj[0]
                 if o:
                     num = o['CONSTRUCTIONPROGRESS']
