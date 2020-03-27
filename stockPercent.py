@@ -219,7 +219,7 @@ def printInfo(item, onlyCode=False):
         count = StockUtils().getQFIICount(item)
         countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        inProgressProject = '在建工程较多' if StockUtils().inprogressProject(item[0]) else ''
+        inProgressProject = '在建工程较多' if StockUtils().inprogressProject(item) else ''
         print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1], hslDesc(hsl), inProgressProject
     else:
         hsl = StockUtils().getHslForCode(item[0])
