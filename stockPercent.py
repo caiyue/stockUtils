@@ -213,7 +213,7 @@ def printInfo(item, onlyCode=False):
     su = StockUtils()
     if onlyCode:
         hsl = su.getHslForCode(item)
-        averageHoliding = su.getAverageHolding(item)
+        # averageHoliding = su.getAverageHolding(item)
         name = su.getStockNameFromCode(item)
         developPercent = descForCode(su.getDevelopPercentOfCost(item))
         ggzc = su.getGGZCStock(item)
@@ -223,10 +223,10 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
         print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', \
-            averageHoliding[1], hslDesc(hsl), inProgressProject, cashIncrease
+            hslDesc(hsl), inProgressProject, cashIncrease
     else:
         hsl = su.getHslForCode(item[0])
-        averageHoliding = su.getAverageHolding(item[0])
+        # averageHoliding = su.getAverageHolding(item[0])
         developPercent = descForCode(su.getDevelopPercentOfCost(item[0]))
         ggzc = su.getGGZCStock(item[0])
         count = su.getQFIICount(item[0])
@@ -238,7 +238,7 @@ def printInfo(item, onlyCode=False):
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(su.getCommentNumberIn3MonthsForCode(item[0])), \
         developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', \
-            averageHoliding[1], hslDesc(hsl), inProgressProject, cashIncrease
+            hslDesc(hsl), inProgressProject, cashIncrease
 
 def descForCode(ret):
     code = ret[0]
@@ -298,7 +298,7 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
-            if item[0] == '603429':
+            if item[0] == '300699':
                 print 'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
