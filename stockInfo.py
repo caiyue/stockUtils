@@ -659,9 +659,10 @@ class StockUtils(object):
         res = getHtmlFromUrl(url, False)
         obj = getJsonObjOrigin(res)
         total = -1
-        if not obj: return False
+        if not obj: return True
         li = obj['RptShareHeldChangeList']
-        if not li or len(li) == 0 : return
+        if not li or len(li) == 0 :
+            return True
         for s in li:
             year = s['rq']
             count = s['bdsl']

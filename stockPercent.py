@@ -301,7 +301,7 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
-            if item[0] == '300699':
+            if item[0] == '603658':
                 print 'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
