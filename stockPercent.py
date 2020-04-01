@@ -185,7 +185,8 @@ def isGoodStock(code):
         profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
-        if float(roe) > 4:
+        # roe 在4个季度有周期性，这里取偏低的中间值
+        if float(roe) >= 3.5:
             if (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15) or \
                     (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
                 if float(jll) >= 20:
@@ -288,7 +289,6 @@ def mainMethod():
     #
     #sendReq(fourMonthAgoDate, currentDate)
 
-    # 机构评级数量排行,最近3个月至少10个买入/增持推荐
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
