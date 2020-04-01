@@ -22,8 +22,11 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-#在建工程
+#单季度在建工程
 inprogressProject = 'http://f10.eastmoney.com/NewFinanceAnalysis/zcfzbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
+
+#报告期内现金流变动
+cashChange = 'http://f10.eastmoney.com/NewFinanceAnalysis/xjllbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
 
 #股东数
 GuDongcount = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
@@ -524,7 +527,7 @@ class StockUtils(object):
 
         return s
 
-    '''超过6000w的在建工程'''
+    '''超过5500w的在建工程'''
     def inprogressProject(self, code):
         url = inprogressProject % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
@@ -535,7 +538,21 @@ class StockUtils(object):
                 if o:
                     num = o['CONSTRUCTIONPROGRESS']
                     if num and len(num) > 0 and num != '-':
-                        return float(num) >= 60000000
+                        return float(num) >= 55000000
+
+
+    '''现金流增长3000w以上'''
+    def cashIncrease(self, code):
+        url = cashChange % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url)
+        if res:
+            obj = getJsonObjOrigin(res)
+            if obj and isinstance(obj, list) and len(obj) > 0:
+                o = obj[0]
+                if o:
+                    num = o['NICASHEQUI']
+                    if num and len(num) > 0 and num != '-':
+                        return float(num) >= 30000000
 
     def getGuDongCount(self, code):
         url = GuDongcount % (getMarketCode(code, prefix=True))

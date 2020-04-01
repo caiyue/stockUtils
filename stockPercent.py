@@ -210,30 +210,35 @@ def hslDesc(hsl):
 
 
 def printInfo(item, onlyCode=False):
+    su = StockUtils()
     if onlyCode:
-        hsl = StockUtils().getHslForCode(item)
-        averageHoliding = StockUtils().getAverageHolding(item)
-        name = StockUtils().getStockNameFromCode(item)
-        developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item))
-        ggzc = StockUtils().getGGZCStock(item)
-        count = StockUtils().getQFIICount(item)
+        hsl = su.getHslForCode(item)
+        averageHoliding = su.getAverageHolding(item)
+        name = su.getStockNameFromCode(item)
+        developPercent = descForCode(su.getDevelopPercentOfCost(item))
+        ggzc = su.getGGZCStock(item)
+        count = su.getQFIICount(item)
         countStr = '总:' + str(count[0]) +  ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】' \
             if count[0] > 0 else ''
-        inProgressProject = '在建工程较多' if StockUtils().inprogressProject(item) else ''
-        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', averageHoliding[1], hslDesc(hsl), inProgressProject
+        inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
+        cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
+        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', \
+            averageHoliding[1], hslDesc(hsl), inProgressProject, cashIncrease
     else:
-        hsl = StockUtils().getHslForCode(item[0])
-        averageHoliding = StockUtils().getAverageHolding(item[0])
-        developPercent = descForCode(StockUtils().getDevelopPercentOfCost(item[0]))
-        ggzc = StockUtils().getGGZCStock(item[0])
-        count = StockUtils().getQFIICount(item[0])
+        hsl = su.getHslForCode(item[0])
+        averageHoliding = su.getAverageHolding(item[0])
+        developPercent = descForCode(su.getDevelopPercentOfCost(item[0]))
+        ggzc = su.getGGZCStock(item[0])
+        count = su.getQFIICount(item[0])
         countStr = '总:' + str(count[0]) + ' 【社:' + str(count[1]) + ' Q:' + str(count[2]) + ' 保:' + str(count[3]) + ' 券:' + str(count[4]) + ' 信:' + str(count[5]) + '】'\
             if count[0] > 0 else ''
-        inProgressProject = '在建工程较多' if StockUtils().inprogressProject(item[0]) else ''
+        inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
+        cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
-        '评级数:' + str(StockUtils().getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', averageHoliding[1], hslDesc(hsl), inProgressProject
+        '评级数:' + str(su.getCommentNumberIn3MonthsForCode(item[0])), \
+        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', \
+            averageHoliding[1], hslDesc(hsl), inProgressProject, cashIncrease
 
 def descForCode(ret):
     code = ret[0]
