@@ -527,18 +527,24 @@ class StockUtils(object):
 
         return s
 
-    '''超过5500w的在建工程'''
+    '''最近3个季度平均超过5500w的在建工程'''
     def inprogressProject(self, code):
         url = inprogressProject % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
         if res:
             obj = getJsonObjOrigin(res)
             if obj and isinstance(obj, list) and len(obj) > 0:
-                o = obj[0]
-                if o:
-                    num = o['CONSTRUCTIONPROGRESS']
+                total = 0
+                #最近三个季度平均5500w的在建项目
+                arr = obj[0: 3] if len(obj) >= 3 else obj
+                for item in arr:
+                    num = item['CONSTRUCTIONPROGRESS']
                     if num and len(num) > 0 and num != '-':
-                        return float(num) >= 55000000
+                        total += float(num)
+                    else:
+                        total += 0
+            return total/len(arr) >= 55000000
+        return False
 
 
     '''现金流增长3000w以上'''
@@ -652,7 +658,6 @@ class StockUtils(object):
                     ret.append()
 
 
-
     @classmethod
     def getGGZCStock(cls, code):
         url = ggzcBaseUrl % (getMarketCode(code, prefix=True))
@@ -661,7 +666,7 @@ class StockUtils(object):
         total = -1
         if not obj: return True
         li = obj['RptShareHeldChangeList']
-        if not li or len(li) == 0 :
+        if not li or len(li) == 0:
             return True
         for s in li:
             year = s['rq']
