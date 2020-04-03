@@ -534,16 +534,20 @@ class StockUtils(object):
         if res:
             obj = getJsonObjOrigin(res)
             if obj and isinstance(obj, list) and len(obj) > 0:
+                maxValue = 0
                 total = 0
                 #最近三个季度平均5500w的在建项目
                 arr = obj[0: 3] if len(obj) >= 3 else obj
                 for item in arr:
                     num = item['CONSTRUCTIONPROGRESS']
                     if num and len(num) > 0 and num != '-':
-                        total += float(num)
+                        n = float(num)
+                        total += n
+                        if n > maxValue:
+                            maxValue = float(num)
                     else:
                         total += 0
-            return total/len(arr) >= 55000000
+            return maxValue >= 55000000 or total/len(arr) >= 55000000
         return False
 
 
@@ -672,7 +676,7 @@ class StockUtils(object):
             year = s['rq']
             count = s['bdsl']
 
-            if '2018' in year or '2019' or '2020' in year:
+            if '2019' or '2020' in year:
                 num = int(count)
                 total += num
             else:

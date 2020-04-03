@@ -186,7 +186,7 @@ def isGoodStock(code):
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         # roe 在4个季度有周期性，这里取偏低的中间值
-        if float(roe) >= 3.5:
+        if float(roe) >= 4:
             if (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15) or \
                     (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
                 if float(jll) >= 20:
@@ -301,7 +301,7 @@ def mainMethod():
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
         for item in outArray:
             # 调试用
-            if item[0] == '603658':
+            if item[0] == '300572':
                 print 'aa'
             isgood = isGoodStock(item[0])
             developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
