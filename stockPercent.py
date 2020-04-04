@@ -191,11 +191,13 @@ def isGoodStock(code):
                     (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
                 if float(jll) >= 20:
                     return True
-            elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30:
-                if float(jll) >= 18:
-                    return True
+            elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 18:
+                return True
             else:
                 return False
+        elif float(incodeIncremnt) >= 25 and float(profitIncrment) >= 25 and float(jll) >= 25:
+            return True
+
         else:
             return False
 
