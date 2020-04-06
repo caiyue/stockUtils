@@ -222,8 +222,8 @@ def printInfo(item, onlyCode=False):
             if count[0] > 0 else ''
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
-        print item, name, developPercent, countStr, '高管增持/不变' if ggzc else '',  ' ', \
-            hslDesc(hsl), inProgressProject, cashIncrease
+        print item, name, developPercent, countStr, hslDesc(hsl), '高管增持/不变' if ggzc else '',  ' ', \
+            inProgressProject, cashIncrease
     else:
         hsl = su.getHslForCode(item[0])
         # averageHoliding = su.getAverageHolding(item[0])
@@ -237,8 +237,8 @@ def printInfo(item, onlyCode=False):
         print item[0], item[1], item[3], \
         str(int(item[2]) / 10000) + '万股', \
         '评级数:' + str(su.getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, countStr, '高管增持/不变' if ggzc else '', ' ', \
-            hslDesc(hsl), inProgressProject, cashIncrease
+        developPercent, countStr, hslDesc(hsl), '高管增持/不变' if ggzc else '', ' ', \
+            inProgressProject, cashIncrease
 
 def descForCode(ret):
     code = ret[0]
@@ -275,7 +275,7 @@ def princleple():
     13、外资持股比例持续增长或者大比例持股 (可选)
     
      ============================================
-    ｜【高管增持/不变  、在建工程较多、 现金流增长较多】｜
+    ｜【高管增持/不变[或者换手率极低]  、在建工程较多、 现金流增长较多】｜
      ============================================
 
     买入时机：
@@ -296,6 +296,7 @@ def mainMethod():
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
+
 
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
