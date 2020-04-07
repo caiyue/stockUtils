@@ -189,9 +189,9 @@ def isGoodStock(code):
         if float(roe) >= 4:
             if (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15) or \
                     (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
-                if float(jll) >= 20:
+                if float(jll) >= 15:
                     return True
-            elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 18:
+            elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 12:
                 return True
             else:
                 return False
@@ -260,7 +260,7 @@ def princleple():
     3、研发占比 >= 5 % 越高越好
     4、负债率 <= 50 （可选）
     
-    5、必须是行业龙头,根据竞争对手对比来确认，只买龙头、龙头
+    5、必须是行业龙头,根据竞争对手对比来确认，只买龙头、龙头【市占率>= 15】
     6、收入增长率 >= 20 %
     7、利润增长率 >= 20 %，业务利润需要是90%以上,不能存在很高投资收益
     
