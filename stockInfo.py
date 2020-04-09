@@ -437,7 +437,7 @@ class StockUtils(object):
                     return 3, percent
                 elif percent >= 0.1:
                     return 2, percent
-                elif percent >= 0.05:
+                elif percent >= 0.04:
                     return 1, percent
         return 0, 0
 
@@ -589,25 +589,18 @@ class StockUtils(object):
         if obj:
             holdings = obj['gdrs']
             if holdings and len(holdings) > 0:
-                hold = holdings[0]
-                je = hold['rjcgje']
-                if je == '--':
-                    f = 0
-                elif '万' in je:
-                    s = je[0: -1]
-                    f = float(s)
-                elif float(je) > 0:
-                    f = float(je) / 10000.0
+                jes = map(lambda x: x['rjcgje'], holdings)
+                ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x)), jes)
 
-                if 200 > f >= 150:
-                    return je, '人均持股高'
-                elif 300 > f >= 200:
-                    return je, '人均持股很高'
-                elif f >= 300:
-                    return je, '人均持股极高'
-                return je, ''
+                if ret and len(ret) > 0:
+                    if len(ret) == 1:
+                        return ret[0] >= 120, ret[0]
+                    elif len(ret) == 2:
+                        return ret[0] >= 120 or (ret[1] * 1.4 <= ret[0] and ret[1] >= 60), ret[0]
+                    else:
+                        return ret[0] >= 120 or ((ret[1] * 1.4 <= ret[0] or ret[2] * 1.4 <= ret[1]) and ret[2] >= 60), ret[0]
 
-        return 0
+        return False, 0
 
     def find_all(self, s2, s):
         index_list = []
