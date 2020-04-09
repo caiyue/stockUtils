@@ -594,11 +594,11 @@ class StockUtils(object):
 
                 if ret and len(ret) > 0:
                     if len(ret) == 1:
-                        return ret[0] >= 120, ret[0]
+                        return ret[0] >= 70, ret[0]
                     elif len(ret) == 2:
-                        return ret[0] >= 120 or (ret[1] * 1.4 <= ret[0] and ret[1] >= 60), ret[0]
+                        return ret[0] >= 70 or (ret[1] * 1.4 <= ret[0] and ret[1] >= 50), ret[0]
                     else:
-                        return ret[0] >= 120 or ((ret[1] * 1.4 <= ret[0] or ret[2] * 1.4 <= ret[1]) and ret[2] >= 60), ret[0]
+                        return ret[0] >= 70 or ((ret[1] * 1.4 <= ret[0] or ret[2] * 1.4 <= ret[1]) and ret[2] >= 50), ret[0]
 
         return False, 0
 
