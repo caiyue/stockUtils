@@ -590,7 +590,7 @@ class StockUtils(object):
             holdings = obj['gdrs']
             if holdings and len(holdings) > 0:
                 jes = map(lambda x: x['rjcgje'], holdings)
-                ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x)), jes)
+                ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x) / 10000), jes)
 
                 limit = 65
                 low = 40
@@ -691,9 +691,11 @@ class StockUtils(object):
         return None
 
     def getStockNameFromCode(self,code):
-        res = getHtmlFromUrl(companyNameUrl % code,utf8coding=True)
+        res = getHtmlFromUrl(companyNameUrl % code, utf8coding=True)
         pa = re.compile('=.*?;')
-        li = re.findall(pa,res)
+        if not isinstance(res, str):
+            return None
+        li = re.findall(pa, res)
         if li and len(li):
             s = li[0]
             ret = (s[1:-1]).split(',')

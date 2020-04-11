@@ -326,14 +326,21 @@ def mainMethod():
             if ret and developPercentHigh[0] >= 1:
                 printInfo(code, True)
 
-    ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
-    print ret
-
     # 其他研发比例高的企业
     print '\n外资增持+业绩增速/净利率一般:'
     for item in otherDevelopHighArray:
         printInfo(item, False)
 
+    print '\n人均持股金额排行：'
+    ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
+    for item in ret:
+        code = item['code']
+        count = item['count']
+        if count >= 65:
+            name = StockUtils().getStockNameFromCode(code)
+            print code, name, item['count'], 'W'
+        else:
+            pass
 
 if __name__ == '__main__':
     mainMethod()
