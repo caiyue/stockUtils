@@ -105,7 +105,7 @@ def getHtmlFromUrl(url,utf8coding=False):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
-        ret = urllib2.urlopen(req)
+        ret = urllib2.urlopen(req, timeout=10)
         res = None
         if utf8coding:
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
@@ -592,13 +592,15 @@ class StockUtils(object):
                 jes = map(lambda x: x['rjcgje'], holdings)
                 ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x)), jes)
 
+                limit = 65
+                low = 40
                 if ret and len(ret) > 0:
                     if len(ret) == 1:
-                        return ret[0] >= 70, ret[0]
+                        return ret[0] >= limit, ret[0]
                     elif len(ret) == 2:
-                        return ret[0] >= 70 or (ret[1] * 1.4 <= ret[0] and ret[1] >= 50), ret[0]
+                        return ret[0] >= limit or (ret[1] * 1.5 <= ret[0] and ret[1] >= low), ret[0]
                     else:
-                        return ret[0] >= 70 or ((ret[1] * 1.4 <= ret[0] or ret[2] * 1.4 <= ret[1]) and ret[2] >= 50), ret[0]
+                        return ret[0] >= limit or ((ret[1] * 1.5 <= ret[0] or ret[2] * 1.5 <= ret[1]) and ret[2] >= low), ret[0]
 
         return False, 0
 

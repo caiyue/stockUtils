@@ -245,6 +245,14 @@ def descForCode(ret):
         return '研发占比很高%.5s' % percent
     return ''
 
+ranks = []
+def holdingRank(code):
+    if code:
+        holdings = StockUtils().getAverageHolding(code)
+        ranks.append({
+            'code': code,
+            'count': holdings[1]
+        })
 
 def princleple():
     print '''
@@ -291,7 +299,6 @@ def mainMethod():
     codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
 
-
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
@@ -310,6 +317,7 @@ def mainMethod():
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = StockUtils().getAllStockList()
     for code in codes:
+        holdingRank(code)
         if code in codeArray:
             continue
         else:
@@ -317,6 +325,9 @@ def mainMethod():
             developPercentHigh = StockUtils().getDevelopPercentOfCost(code)
             if ret and developPercentHigh[0] >= 1:
                 printInfo(code, True)
+
+    ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
+    print ret
 
     # 其他研发比例高的企业
     print '\n外资增持+业绩增速/净利率一般:'
