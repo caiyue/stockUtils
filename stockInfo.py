@@ -34,6 +34,10 @@ GuDongcount = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchA
 #人均持股金额
 averageHolding = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
 
+
+#十大流通股东
+sdltgd = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
+
 # QFII以及保险、社保数量
 qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1&ps=100&jsObj=NMfupkBs&stat=0&code=%s'
 
@@ -690,7 +694,7 @@ class StockUtils(object):
             return cList
         return None
 
-    def getStockNameFromCode(self,code):
+    def getStockNameFromCode(self, code):
         res = getHtmlFromUrl(companyNameUrl % code, utf8coding=True)
         pa = re.compile('=.*?;')
         if not isinstance(res, str):
@@ -703,6 +707,21 @@ class StockUtils(object):
                 return ret[4]
         else:
             return None
+
+    def sdltgdTotalPercent(self, code):
+        percent = 0
+        res = getHtmlFromUrl(sdltgd % getMarketCode(code))
+        obj = getJsonObjOrigin(res)
+        li = obj['gdrs']
+        if li and len(li) > 0:
+            for item in li:
+                o = item['qsdltgdcghj']
+                if '--' or '-' in o:
+                    percent = 0
+                else:
+                    percent = float(o)
+                    break
+        return percent
 
     def getAllStockList(self):
         stockList = []

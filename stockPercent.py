@@ -338,7 +338,8 @@ def mainMethod():
         count = item['count']
         if count >= 65:
             name = StockUtils().getStockNameFromCode(code)
-            print code, name, item['count'], 'W'
+            sdltPercent = StockUtils().sdltgdTotalPercent(code)
+            print code, name, item['count'], 'W', '十大流通股总计:', sdltPercent if sdltPercent >= 20 else ''
         else:
             pass
 
