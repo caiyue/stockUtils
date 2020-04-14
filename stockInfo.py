@@ -716,7 +716,7 @@ class StockUtils(object):
         if li and len(li) > 0:
             for item in li:
                 o = item['qsdltgdcghj']
-                if '--' or '-' in o:
+                if '--' in o or '-' in o:
                     percent = 0
                 else:
                     percent = float(o)
