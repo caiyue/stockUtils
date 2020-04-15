@@ -293,7 +293,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    #sendReq(fourMonthAgoDate, currentDate)
+    sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
@@ -339,9 +339,10 @@ def mainMethod():
         if count >= 65:
             name = StockUtils().getStockNameFromCode(code)
             sdltPercent = StockUtils().sdltgdTotalPercent(code)
-            print code, name, item['count'], 'W', '十大流通股总计:' + sdltPercent if sdltPercent >= 20 else ''
+            print code, name, item['count'], 'W', '十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else ''
         else:
             pass
+
 
 if __name__ == '__main__':
     mainMethod()
