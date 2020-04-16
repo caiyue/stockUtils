@@ -712,6 +712,8 @@ class StockUtils(object):
         percent = 0
         res = getHtmlFromUrl(sdltgd % getMarketCode(code))
         obj = getJsonObjOrigin(res)
+        if not obj:
+            return percent
         li = obj['gdrs']
         if li and len(li) > 0:
             for item in li:
