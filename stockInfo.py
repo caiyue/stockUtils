@@ -596,7 +596,7 @@ class StockUtils(object):
                 jes = map(lambda x: x['rjcgje'], holdings)
                 ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x) / 10000), jes)
 
-                limit = 65
+                limit = 50
                 low = 40
                 if ret and len(ret) > 0:
                     if len(ret) == 1:
