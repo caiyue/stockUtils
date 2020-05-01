@@ -596,15 +596,15 @@ class StockUtils(object):
                 jes = map(lambda x: x['rjcgje'], holdings)
                 ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x) / 10000), jes)
 
-                limit = 50
-                low = 40
+                limit = 40
+                low = 20
                 if ret and len(ret) > 0:
                     if len(ret) == 1:
                         return ret[0] >= limit, ret[0]
                     elif len(ret) == 2:
-                        return ret[0] >= limit or (ret[1] * 1.5 <= ret[0] and ret[1] >= low), ret[0]
+                        return ret[0] >= limit or (ret[1] * 1.5 <= ret[0] and ret[1] >= low), ret[0], ret[1]
                     else:
-                        return ret[0] >= limit or ((ret[1] * 1.5 <= ret[0] or ret[2] * 1.5 <= ret[1]) and ret[2] >= low), ret[0]
+                        return ret[0] >= limit or ((ret[1] * 1.5 <= ret[0] or ret[2] * 1.5 <= ret[1]) and ret[2] >= low), ret[0], ret[1], ret[2]
 
         return False, 0
 

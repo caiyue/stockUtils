@@ -202,11 +202,11 @@ def hslDesc(hsl):
     if hsl == 0:
         return ''
     elif 2.0 > hsl > 1.0:
-        return '换手率很低'
+        return ' 换手率很低'
     elif hsl <= 1.0:
-        return '换手率极低'
+        return ' 换手率极低'
     else:
-        return ''
+        return hsl
 
 
 def printInfo(item, onlyCode=False):
@@ -251,7 +251,8 @@ def holdingRank(code):
         holdings = StockUtils().getAverageHolding(code)
         ranks.append({
             'code': code,
-            'count': holdings[1]
+            'count': holdings[1],
+            'counts': holdings[1:]
         })
 
 def princleple():
@@ -293,7 +294,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    sendReq(fourMonthAgoDate, currentDate)
+    #sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
@@ -336,10 +337,13 @@ def mainMethod():
     for item in ret:
         code = item['code']
         count = item['count']
-        if count >= 50:
+        counts = item['counts']
+
+        if count >= 40:
             name = StockUtils().getStockNameFromCode(code)
+            hsl = StockUtils().getHslForCode(code)
             sdltPercent = StockUtils().sdltgdTotalPercent(code)
-            print code, name, item['count'], 'W', '十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else ''
+            print code, name, item['count'], 'W', counts, '十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
         else:
             pass
 
