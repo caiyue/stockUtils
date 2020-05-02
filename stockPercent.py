@@ -343,7 +343,7 @@ def mainMethod():
             name = StockUtils().getStockNameFromCode(code)
             hsl = StockUtils().getHslForCode(code)
             sdltPercent = StockUtils().sdltgdTotalPercent(code)
-            print code, name, item['count'], 'W', counts, '十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
+            print code, name, item['count'], 'W  ', counts, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
         else:
             pass
 
