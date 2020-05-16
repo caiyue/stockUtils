@@ -339,13 +339,17 @@ def mainMethod():
         count = item['count']
         counts = item['counts']
 
-        if count >= 40:
+        if count >= 20:
             name = StockUtils().getStockNameFromCode(code)
             hsl = StockUtils().getHslForCode(code)
             sdltPercent = StockUtils().sdltgdTotalPercent(code)
-            print code, name, item['count'], 'W  ', counts, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
-        else:
-            pass
+            commentCount = StockUtils().getCommentNumberIn3MonthsForCode(code)
+            isCollect = len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] or counts[0] >= 100
+            if isCollect:
+                countDesc = '筹码逐渐集中' if isCollect else ''
+                print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ',  counts, countDesc, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
+            else:
+                pass
 
 
 if __name__ == '__main__':
