@@ -441,7 +441,7 @@ class StockUtils(object):
                     return 3, percent
                 elif percent >= 0.1:
                     return 2, percent
-                elif percent >= 0.04:
+                elif percent >= 0.05:
                     return 1, percent
         return 0, 0
 
@@ -596,8 +596,8 @@ class StockUtils(object):
                 jes = map(lambda x: x['rjcgje'], holdings)
                 ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x) / 10000), jes)
 
-                limit = 40
-                low = 20
+                limit = 20
+                low = 10
                 if ret and len(ret) > 0:
                     if len(ret) == 1:
                         return ret[0] >= limit, ret[0]
@@ -676,7 +676,7 @@ class StockUtils(object):
             count = s['bdsl']
 
             if '2019' or '2020' in year:
-                num = int(count)
+                num = float(count)
                 total += num
             else:
                 break
