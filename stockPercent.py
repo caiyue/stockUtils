@@ -345,7 +345,7 @@ def mainMethod():
             sdltPercent = StockUtils().sdltgdTotalPercent(code)
             commentCount = StockUtils().getCommentNumberIn3MonthsForCode(code)
             isCollect = len(counts) >= 3 and counts[0] >= counts[1] >= counts[2]
-            if isCollect and commentCount > 0:
+            if isCollect and commentCount > 3:
                 countDesc = '筹码逐渐集中' if isCollect else ''
                 print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ',  counts, countDesc, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
             else:
