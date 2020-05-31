@@ -249,11 +249,13 @@ ranks = []
 def holdingRank(code):
     if code:
         holdings = StockUtils().getAverageHolding(code)
-        ranks.append({
-            'code': code,
-            'count': holdings[1],
-            'counts': holdings[1:]
-        })
+        if holdings and len(holdings) > 0:
+            ranks.append({
+                'code': code,
+                'count': holdings[0], #最近的持股金额
+                'je': holdings[1], #数组
+                'counts': holdings[2] #数组
+            })
 
 def princleple():
     print '''
@@ -336,20 +338,20 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
     for item in ret:
         code = item['code']
-        count = item['count']
+        je = item['je']
         counts = item['counts']
 
-        if count >= 20:
-            name = StockUtils().getStockNameFromCode(code)
-            hsl = StockUtils().getHslForCode(code)
-            sdltPercent = StockUtils().sdltgdTotalPercent(code)
-            commentCount = StockUtils().getCommentNumberIn3MonthsForCode(code)
-            isCollect = len(counts) >= 3 and counts[0] >= counts[1] >= counts[2]
-            if isCollect and commentCount > 3:
-                countDesc = '筹码逐渐集中' if isCollect else ''
-                print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ',  counts, countDesc, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
-            else:
-                pass
+        name = StockUtils().getStockNameFromCode(code)
+        hsl = StockUtils().getHslForCode(code)
+        sdltPercent = StockUtils().sdltgdTotalPercent(code)
+        commentCount = StockUtils().getCommentNumberIn3MonthsForCode(code)
+        isCollect = (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2]) or \
+                    (len(je) >=3 and je[0] >= je[1] >= je[2])
+        if isCollect and commentCount > 3:
+            countDesc = '筹码逐渐集中' if isCollect else ''
+            print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ',  counts, countDesc, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
+        else:
+            pass
 
 
 if __name__ == '__main__':
