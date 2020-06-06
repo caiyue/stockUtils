@@ -253,8 +253,8 @@ def holdingRank(code):
             ranks.append({
                 'code': code,
                 'count': holdings[0], #最近的持股金额
-                'je': holdings[1], #数组
-                'counts': holdings[2] #数组
+                'je': holdings[1], #人均总额
+                'counts': holdings[2] #人均数据
             })
 
 def princleple():
@@ -291,6 +291,7 @@ def princleple():
 def mainMethod():
     princleple()
     currentTimeStamp = datetime.now()
+    su = StockUtils();
     #
     currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
@@ -310,7 +311,7 @@ def mainMethod():
             if item[0] == '300572':
                 print 'aa'
             isgood = isGoodStock(item[0])
-            developPercentHigh = StockUtils().getDevelopPercentOfCost(item[0])
+            developPercentHigh = su.getDevelopPercentOfCost(item[0])
             if isgood and developPercentHigh[0] >= 1:
                 printInfo(item, False)
             elif developPercentHigh[0] >= 1:
@@ -325,7 +326,7 @@ def mainMethod():
             continue
         else:
             ret = isGoodStock(code)
-            developPercentHigh = StockUtils().getDevelopPercentOfCost(code)
+            developPercentHigh = su.getDevelopPercentOfCost(code)
             if ret and developPercentHigh[0] >= 1:
                 printInfo(code, True)
 
@@ -341,15 +342,17 @@ def mainMethod():
         je = item['je']
         counts = item['counts']
 
-        name = StockUtils().getStockNameFromCode(code)
-        hsl = StockUtils().getHslForCode(code)
-        sdltPercent = StockUtils().sdltgdTotalPercent(code)
-        commentCount = StockUtils().getCommentNumberIn3MonthsForCode(code)
-        isCollect = (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2]) or \
-                    (len(je) >=3 and je[0] >= je[1] >= je[2])
+
+        name = su.getStockNameFromCode(code)
+        hsl = su.getHslForCode(code)
+        sdltPercent = su.sdltgdTotalPercent(code)
+        commentCount = su.getCommentNumberIn3MonthsForCode(code)
+        percentOfFund = su.stockPercentOfFund(code)
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2])
         if isCollect and commentCount > 3:
             countDesc = '筹码逐渐集中' if isCollect else ''
-            print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ',  counts, countDesc, '  十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else '',hslDesc(hsl)
+            print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ',countDesc, '  十大流通股总计:', str(sdltPercent) if sdltPercent >= 20 else '',\
+                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
         else:
             pass
 

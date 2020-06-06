@@ -21,6 +21,8 @@ from send_email import sendMail
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+#基金流通股占比
+stockPercentOfFund = 'http://f10.eastmoney.com/ShareholderResearch/MainPositionsHodlerAjax?date=2020-03-31&code=%s'
 
 #单季度在建工程
 inprogressProject = 'http://f10.eastmoney.com/NewFinanceAnalysis/zcfzbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
@@ -609,6 +611,18 @@ class StockUtils(object):
                     else:
                         return ret[0], [ret[0], ret[1], ret[2]], [countRet[0], countRet[1], countRet[2]]
         return 0, [], []
+
+    def stockPercentOfFund(self, code):
+        url = stockPercentOfFund % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url)
+        obj = getJsonObjOrigin(res)
+        if obj and len(obj) > 0:
+            o = obj[0]
+            percent = o['zltgbl'];
+            if percent and percent != '--'  and percent != '%':
+                return float(percent[0: -1])
+        return 0
+
 
     def find_all(self, s2, s):
         index_list = []
