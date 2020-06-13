@@ -248,14 +248,50 @@ def descForCode(ret):
 ranks = []
 def holdingRank(code):
     if code:
-        holdings = StockUtils().getAverageHolding(code)
+        su  = StockUtils()
+        holdings = su.getAverageHolding(code)
+        name = su.getStockNameFromCode(code)
+        hsl = su.getHslForCode(code)
+        sdltPercent = su.sdltgdTotalPercent(code)
+        commentCount = su.getCommentNumberIn3MonthsForCode(code)
+        percentOfFund = su.stockPercentOfFund(code)
+
         if holdings and len(holdings) > 0:
             ranks.append({
                 'code': code,
+                'name': name,
+                'hsl': hsl, #换手率
+                'sdltPercent': sdltPercent, #十大流通股占比,
+                'commentCount': commentCount, #券商评级数量,
+                'percentOfFund': percentOfFund, #基金流通股占比
                 'count': holdings[0], #最近的持股金额
                 'je': holdings[1], #人均总额
-                'counts': holdings[2] #人均数据
+                'counts': holdings[2] #人均数据,
             })
+
+
+def formatStock(arr):
+    for item in arr:
+        code = item['code']
+        name = item['name']
+        hsl = item['hsl']
+        sdltPercent = item['sdltPercent']
+        commentCount = item['commentCount']
+        percentOfFund = item['percentOfFund']
+        je = item['je']
+        counts = item['counts']
+
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2]) or (len(je) > 0 and je[0] > 100)
+        if isCollect and commentCount > 3:
+            countDesc = '筹码逐渐集中' if isCollect else ''
+            print code, name, item[
+                'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
+                sdltPercent) if sdltPercent >= 20 else '', \
+                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
+
+        else:
+            pass
+
 
 def princleple():
     print '''
@@ -292,7 +328,6 @@ def mainMethod():
     princleple()
     currentTimeStamp = datetime.now()
     su = StockUtils();
-    #
     currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
@@ -302,7 +337,7 @@ def mainMethod():
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
-
+    #
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
@@ -337,24 +372,12 @@ def mainMethod():
 
     print '\n人均持股金额排行：'
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
-    for item in ret:
-        code = item['code']
-        je = item['je']
-        counts = item['counts']
+    formatStock(ret)
 
+    print '\n基金流通股占比排行：'
+    ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
+    formatStock(ret)
 
-        name = su.getStockNameFromCode(code)
-        hsl = su.getHslForCode(code)
-        sdltPercent = su.sdltgdTotalPercent(code)
-        commentCount = su.getCommentNumberIn3MonthsForCode(code)
-        percentOfFund = su.stockPercentOfFund(code)
-        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2])
-        if isCollect and commentCount > 3:
-            countDesc = '筹码逐渐集中' if isCollect else ''
-            print code, name, item['count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ',countDesc, '  十大流通股总计:', str(sdltPercent) if sdltPercent >= 20 else '',\
-                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
-        else:
-            pass
 
 
 if __name__ == '__main__':
