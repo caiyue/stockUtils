@@ -107,18 +107,18 @@ def getFloatFromString(s):
     else:
         return float(s)
 
-def getHtmlFromUrl(url,utf8coding=False):
+def getHtmlFromUrl(url, utf8coding=False):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
-        ret = urllib2.urlopen(req, timeout=10)
+        ret = urllib2.urlopen(req, timeout=5)
         res = None
         if utf8coding:
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
         else:
             res = ret.read()
-    except  Exception:
-            print 'exception  occur',url
+    except Exception:
+            print 'exception  occur', url
             return None
     return res
 
@@ -273,8 +273,15 @@ def getHoldChangeFromRes(obj):
     return None
 
 def getCompanyListFromJsonObj(obj):
-    return  None
+    return None
 
+
+def getMark10Id(code):
+    ret = getMarketCode(code, True)
+    if 'sh' in ret:
+        return 1
+    else:
+        return 0
 
 def getMarketId(code):
     subCode = code[0:3]
@@ -282,7 +289,7 @@ def getMarketId(code):
         return '1'
     else:
         fCode = subCode[0:1]
-        if fCode =='5' or fCode == '6' or fCode == '9':
+        if fCode == '5' or fCode == '6' or fCode == '9':
             return '1'
         else:
             return '2'
@@ -760,7 +767,7 @@ class StockUtils(object):
     @classmethod
     def getHslForCode(self,code):
         '''市盈率、市值相关数据'''
-        url = hslUrl % (getMarketId(code) + '.' + code)
+        url = hslUrl % (str(getMark10Id(code)) + '.' + code)
         res = getHtmlFromUrl(url)
         obj = getJsonObj2s(res)
         if not obj:
