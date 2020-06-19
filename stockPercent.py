@@ -280,9 +280,9 @@ def formatStock(arr):
         percentOfFund = item['percentOfFund']
         je = item['je']
         counts = item['counts']
-
-        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2]) or (len(je) > 0 and je[0] > 100)
-        if isCollect and commentCount > 3:
+        # 如果超过100w就不再过滤评级数量
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount > 3) or (len(je) > 0 and je[0] > 100)
+        if isCollect:
             countDesc = '筹码逐渐集中' if isCollect else ''
             print code, name, item[
                 'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
@@ -356,7 +356,9 @@ def mainMethod():
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = StockUtils().getAllStockList()
     for code in codes:
-        holdingRank(code)
+        # 去除科创板
+        if '688' not in code:
+            holdingRank(code)
         if code in codeArray:
             continue
         else:
