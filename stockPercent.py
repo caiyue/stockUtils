@@ -255,6 +255,12 @@ def holdingRank(code):
         sdltPercent = su.sdltgdTotalPercent(code)
         commentCount = su.getCommentNumberIn3MonthsForCode(code)
         percentOfFund = su.stockPercentOfFund(code)
+        # 净利率
+        roe = su.roeStringForCode(code, returnData=True)
+        if roe:
+            # 最近的季报
+            recent = roe[0]
+            jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         if holdings and len(holdings) > 0:
             ranks.append({
@@ -267,6 +273,7 @@ def holdingRank(code):
                 'count': holdings[0], #最近的持股金额
                 'je': holdings[1], #人均总额
                 'counts': holdings[2] #人均数据,
+                'jll': jll
             })
 
 
@@ -280,9 +287,13 @@ def formatStock(arr):
         percentOfFund = item['percentOfFund']
         je = item['je']
         counts = item['counts']
-        # 如果超过100w就不再过滤评级数量
-        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount > 3) or (len(je) > 0 and je[0] > 100)
-        if isCollect:
+        jll=item['jll']
+        # 如果超过80w就不再过滤评级数量
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount > 3) or \
+                    (len(je) >= 1 and je[0] >= 100) or \
+                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount > 3)
+        # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
+        if isCollect and jll > 10.:
             countDesc = '筹码逐渐集中' if isCollect else ''
             print code, name, item[
                 'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
@@ -316,9 +327,12 @@ def princleple():
     13、外资持股比例持续增长或者大比例持股 (可选)
     
      ==============================================
+        "市占率"
         "资金聚集的行业龙头"
+        "券商调研 >= 10"
         "换手率下降"
         "当前热点或者有政策利好"
+        "净利率 >= 10%"
      ==============================================
 
     买入时机：
@@ -359,7 +373,7 @@ def mainMethod():
     codes = StockUtils().getAllStockList()
     for code in codes:
         # 去除科创板
-        if '688' not in code:
+        if '688' != code[0:3]:
             holdingRank(code)
         if code in codeArray:
             continue
