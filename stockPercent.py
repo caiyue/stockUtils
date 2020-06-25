@@ -257,10 +257,11 @@ def holdingRank(code):
         percentOfFund = su.stockPercentOfFund(code)
         # 净利率
         roe = su.roeStringForCode(code, returnData=True)
+        jll = 0
         if roe:
             # 最近的季报
             recent = roe[0]
-            jll = recent.jinglilv if recent.jinglilv != '--' else '0'
+            jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
 
         if holdings and len(holdings) > 0:
             ranks.append({
@@ -272,7 +273,7 @@ def holdingRank(code):
                 'percentOfFund': percentOfFund, #基金流通股占比
                 'count': holdings[0], #最近的持股金额
                 'je': holdings[1], #人均总额
-                'counts': holdings[2] #人均数据,
+                'counts': holdings[2], #人均数据,
                 'jll': jll
             })
 
@@ -287,18 +288,19 @@ def formatStock(arr):
         percentOfFund = item['percentOfFund']
         je = item['je']
         counts = item['counts']
-        jll=item['jll']
+        jll = item['jll']
         # 如果超过80w就不再过滤评级数量
-        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount > 3) or \
-                    (len(je) >= 1 and je[0] >= 100) or \
-                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount > 3)
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount >= 5) or \
+                    (len(je) >= 1 and je[0] >= 100 and jll >= 20 and commentCount >= 3) or \
+                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount >= 5)
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isCollect and jll > 10.:
+        if isCollect:
             countDesc = '筹码逐渐集中' if isCollect else ''
+            jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             print code, name, item[
                 'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
-                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
+                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', ' ', jllDesc
 
         else:
             pass
@@ -353,6 +355,7 @@ def mainMethod():
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
+
     #
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
@@ -396,6 +399,13 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
     formatStock(ret)
 
+    print '\n评级数量排行：'
+    ret = sorted(ranks, key=lambda x: x['commentCount'], reverse=True)
+    formatStock(ret)
+
+    print '\n换手率排行：'
+    ret = sorted(ranks, key=lambda x: x['hsl'], reverse=True)
+    formatStock(ret)
 
 
 if __name__ == '__main__':
