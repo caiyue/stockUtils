@@ -403,6 +403,10 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['commentCount'], reverse=True)
     formatStock(ret)
 
+    print '\n净利率排行：'
+    ret = sorted(ranks, key=lambda x: x['jll'], reverse=True)
+    formatStock(ret)
+
     print '\n换手率排行：'
     ret = sorted(ranks, key=lambda x: x['hsl'], reverse=True)
     formatStock(ret)
