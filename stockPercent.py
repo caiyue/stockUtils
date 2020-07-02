@@ -187,9 +187,9 @@ def isGoodStock(code):
 
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 4:
-            if (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15) or \
+            if (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10) or \
                     (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
-                if float(jll) >= 12:
+                if float(jll) >= 15:
                     return True
             elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 10:
                 return True
@@ -350,7 +350,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    #sendReq(fourMonthAgoDate, currentDate)
+    sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
@@ -395,20 +395,20 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
-    print '\n基金流通股占比排行：'
-    ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
-    formatStock(ret)
-
     print '\n评级数量排行：'
     ret = sorted(ranks, key=lambda x: x['commentCount'], reverse=True)
     formatStock(ret)
 
-    print '\n净利率排行：'
-    ret = sorted(ranks, key=lambda x: x['jll'], reverse=True)
+    print '\n基金流通股占比排行：'
+    ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
     formatStock(ret)
 
     print '\n换手率排行：'
     ret = sorted(ranks, key=lambda x: x['hsl'], reverse=True)
+    formatStock(ret)
+
+    print '\n净利率排行：'
+    ret = sorted(ranks, key=lambda x: x['jll'], reverse=True)
     formatStock(ret)
 
 
