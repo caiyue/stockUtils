@@ -187,9 +187,9 @@ def isGoodStock(code):
 
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 4:
-            if (float(incodeIncremnt) >= 25 and float(profitIncrment) >= 15) or \
+            if (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10) or \
                     (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
-                if float(jll) >= 12:
+                if float(jll) >= 15:
                     return True
             elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 10:
                 return True
@@ -255,6 +255,13 @@ def holdingRank(code):
         sdltPercent = su.sdltgdTotalPercent(code)
         commentCount = su.getCommentNumberIn3MonthsForCode(code)
         percentOfFund = su.stockPercentOfFund(code)
+        # 净利率
+        roe = su.roeStringForCode(code, returnData=True)
+        jll = 0
+        if roe:
+            # 最近的季报
+            recent = roe[0]
+            jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
 
         if holdings and len(holdings) > 0:
             ranks.append({
@@ -266,7 +273,8 @@ def holdingRank(code):
                 'percentOfFund': percentOfFund, #基金流通股占比
                 'count': holdings[0], #最近的持股金额
                 'je': holdings[1], #人均总额
-                'counts': holdings[2] #人均数据,
+                'counts': holdings[2], #人均数据,
+                'jll': jll
             })
 
 
@@ -280,14 +288,19 @@ def formatStock(arr):
         percentOfFund = item['percentOfFund']
         je = item['je']
         counts = item['counts']
-
-        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2]) or (len(je) > 0 and je[0] > 100)
-        if isCollect and commentCount > 3:
+        jll = item['jll']
+        # 如果超过80w就不再过滤评级数量
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount >= 5) or \
+                    (len(je) >= 1 and je[0] >= 100 and jll >= 20 and commentCount >= 3) or \
+                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount >= 5)
+        # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
+        if isCollect:
             countDesc = '筹码逐渐集中' if isCollect else ''
+            jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             print code, name, item[
                 'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
-                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
+                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', ' ', jllDesc
 
         else:
             pass
@@ -315,9 +328,14 @@ def princleple():
     
     13、外资持股比例持续增长或者大比例持股 (可选)
     
-     ============================================
-    ｜【高管增持/不变[或者换手率极低]  、在建工程较多、 现金流增长较多】｜
-     ============================================
+     ==============================================
+        "市占率"
+        "资金聚集的行业龙头"
+        "券商调研 >= 10"
+        "换手率下降"
+        "当前热点或者有政策利好"
+        "净利率 >= 10%"
+     ==============================================
 
     买入时机：
     1、下跌阶段：地量，说明卖盘已经没有，可以准备建仓
@@ -332,11 +350,12 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    #sendReq(fourMonthAgoDate, currentDate)
+    sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     otherDevelopHighArray = []
+
     #
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
@@ -356,7 +375,9 @@ def mainMethod():
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = StockUtils().getAllStockList()
     for code in codes:
-        holdingRank(code)
+        # 去除科创板
+        if '688' != code[0:3]:
+            holdingRank(code)
         if code in codeArray:
             continue
         else:
@@ -374,10 +395,21 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
+    print '\n评级数量排行：'
+    ret = sorted(ranks, key=lambda x: x['commentCount'], reverse=True)
+    formatStock(ret)
+
     print '\n基金流通股占比排行：'
     ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
     formatStock(ret)
 
+    print '\n换手率排行：'
+    ret = sorted(ranks, key=lambda x: x['hsl'], reverse=True)
+    formatStock(ret)
+
+    print '\n净利率排行：'
+    ret = sorted(ranks, key=lambda x: x['jll'], reverse=True)
+    formatStock(ret)
 
 
 if __name__ == '__main__':
