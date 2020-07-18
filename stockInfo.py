@@ -606,20 +606,25 @@ class StockUtils(object):
             holdings = obj['gdrs']
             if holdings and len(holdings) > 0:
                 try:
+                    holdingsCount = map(lambda x: x['gdrs'], holdings)
                     jes = map(lambda x: x['rjcgje'], holdings)
                     counts = map(lambda x: x['rjltg'], holdings)
-                    ret = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x) / 10000), jes)
+
+                    holdingsCountRet = map(lambda x: 0 if x == '--' else (float(x[0: -1]) * 10000 if '万' in x else float(x[0:-1]) * 10000 * 10000 if '亿' in x else float(x)), holdingsCount)
+                    jeRet = map(lambda x: 0 if x == '--' else (float(x[0: -1]) if '万' in x else float(x) / 10000), jes)
                     countRet = map(lambda x: 0 if x == '--' else (float(x[0: -1]) * 10000 if '万' in x else float(x[0:-1]) * 10000 * 10000 if '亿' in x else float(x)), counts)
-                except Exception, e :
+
+                    if jeRet and len(jeRet) > 0:
+                        if len(jeRet) == 1:
+                            return jeRet[0], [jeRet[0], jeRet[0], jeRet[0]], [countRet[0], countRet[0], countRet[0]], [holdingsCountRet[0], holdingsCountRet[0], holdingsCountRet[0]]
+                        elif len(jeRet) == 2:
+                            return jeRet[0], [jeRet[0], jeRet[1], jeRet[1]], [countRet[0], countRet[1], countRet[1]], [holdingsCountRet[0], holdingsCountRet[1], holdingsCountRet[1]]
+                        else:
+                            return jeRet[0], [jeRet[0], jeRet[1], jeRet[2]], [countRet[0], countRet[1], countRet[2]], [holdingsCountRet[0], holdingsCountRet[1], holdingsCountRet[2]]
+
+                except Exception, e:
                     print 'process exception: code = ', code, e
 
-                if ret and len(ret) > 0:
-                    if len(ret) == 1:
-                        return ret[0], [ret[0], ret[0], ret[0]], [countRet[0], countRet[0], countRet[0]]
-                    elif len(ret) == 2:
-                        return ret[0], [ret[0], ret[1], ret[1]], [countRet[0], countRet[1], countRet[1]]
-                    else:
-                        return ret[0], [ret[0], ret[1], ret[2]], [countRet[0], countRet[1], countRet[2]]
         return 0, [], []
 
     def stockPercentOfFund(self, code):
