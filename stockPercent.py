@@ -270,7 +270,7 @@ def holdingRank(code):
                 'code': code,
                 'name': name,
                 'hsl': hsl, #换手率
-                'hsls': hsls[len(hsls) - 20:],
+                'hsls': hsls,
                 'sdltPercent': sdltPercent, #十大流通股占比,
                 'commentCount': commentCount, #券商评级数量,
                 'percentOfFund': percentOfFund, #基金流通股占比
@@ -316,9 +316,12 @@ def formatStock(arr):
                     hslIsDowning
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
         if isCollect:
+            # 股东数减少，基金在抢筹
+            stockIsHeavy = '基金在抢筹' if len(counts) and counts[0] > counts[1] > counts[2] else ''
             countDesc = '筹码逐渐集中' if isCollect else ''
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             hslsIsDowningDesc = '换手率在下降' if hslIsDowning else ''
+
             print code, name, item[
                 'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
