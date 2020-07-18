@@ -738,14 +738,18 @@ class StockUtils(object):
         res = getHtmlFromUrl(halfYearHsl + str(getMark10Id(code)) + '.' + code, utf8coding=True)
         pa = re.compile('\[.*?\]')
         if not res or type(res) is not str: return None
-        li = re.findall(pa, res)
-        if li and len(li):
-            s = getJsonObjOrigin(li[0])
-            if s and len(s) > 0:
-                s = s[len(s) - 30: ] if len(s) > 30 else s
-                return map(lambda x:  float(x.split(",")[8]), s)
-        else:
-            return None
+        try:
+            li = re.findall(pa, res)
+            if li and len(li):
+                s = getJsonObjOrigin(li[0])
+                if s and len(s) > 0:
+                    s = s[len(s) - 30: ] if len(s) > 30 else s
+                    return map(lambda x:  float(x.split(",")[8]), s)
+            else:
+                return None
+        except Exception, e:
+            print e, code
+
 
     def sdltgdTotalPercent(self, code):
         percent = 0
