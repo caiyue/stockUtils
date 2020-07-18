@@ -737,6 +737,7 @@ class StockUtils(object):
     def halfYearHslData(self, code):
         res = getHtmlFromUrl(halfYearHsl + str(getMark10Id(code)) + '.' + code, utf8coding=True)
         pa = re.compile('\[.*?\]')
+        if not res or type(res) is not str: return None
         li = re.findall(pa, res)
         if li and len(li):
             s = getJsonObjOrigin(li[0])
