@@ -44,6 +44,9 @@ sdltgd = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?c
 qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1&ps=100&jsObj=NMfupkBs&stat=0&code=%s'
 
 
+#近半年的换手率
+halfYearHsl = 'http://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery1124005434882013261677_1595068788894&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf61&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&beg=0&end=20500000&_=1595068788972&secid='
+
 #最近高管增持列表
 adminStockChange = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=GG&sty=GGMX&p=1&ps=200&js=var%20BLUkGoqU={pages:(pc),data:[(x)]}&rt=52664684'
 
@@ -112,7 +115,6 @@ def getHtmlFromUrl(url, utf8coding=False):
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
         ret = urllib2.urlopen(req, timeout=7)
-        res = None
         if utf8coding:
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
         else:
@@ -154,7 +156,7 @@ def getJsonObjOrigin(obj):
 
 def getFundCompanyListJsonObjFrom(obj):
     par = re.compile('var stockCodes=\[.*?\];')
-    list = re.findall(par,obj)
+    list = re.findall(par, obj)
     if list and len(list) > 0:
         companyString = list[0]
         if companyString.startswith('var stockCodes='):
@@ -276,6 +278,7 @@ def getCompanyListFromJsonObj(obj):
     return None
 
 
+# 深圳或者上海交易所
 def getMark10Id(code):
     ret = getMarketCode(code, True)
     if 'sh' in ret:
@@ -728,6 +731,18 @@ class StockUtils(object):
             ret = (s[1:-1]).split(',')
             if ret and len(ret):
                 return ret[4]
+        else:
+            return None
+
+    def halfYearHslData(self, code):
+        res = getHtmlFromUrl(halfYearHsl + str(getMark10Id(code)) + '.' + code, utf8coding=True)
+        pa = re.compile('\[.*?\]')
+        li = re.findall(pa, res)
+        if li and len(li):
+            s = getJsonObjOrigin(li[0])
+            if s and len(s) > 0:
+                s = s[len(s) - 30: ] if len(s) > 30 else s
+                return map(lambda x:  float(x.split(",")[8]), s)
         else:
             return None
 
