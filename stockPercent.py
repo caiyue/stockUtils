@@ -311,7 +311,7 @@ def formatStock(arr):
         hslIsDowning = hslIsDown(hsls)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount >= 5) or \
-                    (len(je) >= 1 and je[0] >= 100 and jll >= 20 and commentCount >= 3) or \
+                    (len(je) >= 1 and je[0] >= 100 and jll >= 18 and commentCount >= 3) or \
                     (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount >= 5) or \
                     hslIsDowning
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
