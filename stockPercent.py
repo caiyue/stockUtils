@@ -310,19 +310,17 @@ def formatStock(arr):
         counts = item['counts']
         jll = item['jll']
 
-        hslIsDowning = hslIsDown(hsls)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount >= 5) or \
                     (len(je) >= 1 and je[0] >= 100 and jll >= 18 and commentCount >= 3) or \
-                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount >= 5) or \
-                    hslIsDowning
+                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount >= 5)
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
         if isCollect:
             # 股东数减少，基金在抢筹
             stockIsHeavy = '基金在抢筹' if len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] < holdingsCount[2] else ''
             countDesc = '筹码逐渐集中' if isCollect else ''
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
-            hslsIsDowningDesc = '换手率在下降' if hslIsDowning else ''
+            hslsIsDowningDesc = '换手率在下降' if hslIsDown(hsls) else ''
 
             print code, name, item[
                 'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
