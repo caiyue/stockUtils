@@ -302,6 +302,7 @@ def formatStock(arr):
         name = item['name']
         hsl = item['hsl']
         hsls = item['hsls']
+        holdingsCount = item['holdingsCount']
         sdltPercent = item['sdltPercent']
         commentCount = item['commentCount']
         percentOfFund = item['percentOfFund']
