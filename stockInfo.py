@@ -625,7 +625,7 @@ class StockUtils(object):
                 except Exception, e:
                     print 'process exception: code = ', code, e
 
-        return 0, [], []
+        return 0, [], [], []
 
     def stockPercentOfFund(self, code):
         url = stockPercentOfFund % (getMarketCode(code, prefix=True))

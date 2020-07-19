@@ -277,7 +277,7 @@ def holdingRank(code):
                 'count': holdings[0], #最近的持股金额
                 'je': holdings[1], #人均总额
                 'counts': holdings[2], #人均持股数据,
-                'holdingsCount': holdings[2], #股东人数
+                'holdingsCount': holdings[3], #股东人数
                 'jll': jll
             })
 
