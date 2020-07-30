@@ -186,11 +186,10 @@ def isGoodStock(code):
         jll = recent.jinglilv if recent.jinglilv != '--' else '0'
 
         # roe 在4个季度有周期性，这里取偏低的中间值
-        if float(roe) >= 4:
-            if (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10) or \
-                    (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 20):
-                if float(jll) >= 15:
-                    return True
+        if float(roe) >= 2:
+            if (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10 and float(jll) >= 15) or \
+                    (float(incodeIncremnt) >= -25 and float(profitIncrment) >= -25 and float(jll) >= 20):
+                return True
             elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 10:
                 return True
             else:
@@ -323,9 +322,9 @@ def formatStock(arr):
             hslsIsDowningDesc = '换手率在下降' if hslIsDown(hsls) else ''
 
             print code, name, item[
-                'count'], 'W  ', '评级数：', commentCount, ' ', je, ' ', counts, ' ', countDesc, '  十大流通股总计:', str(
+                'count'], 'W ', '评级数:', commentCount, ' ', je, ' ', counts, ' ', countDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
-                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', ' ', jllDesc, hslsIsDowningDesc, stockIsHeavy
+                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', ' ', jllDesc, hslsIsDowningDesc, stockIsHeavy,  '最新股东数:' + str(holdingsCount[0])
         else:
             pass
 
