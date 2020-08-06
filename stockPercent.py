@@ -166,9 +166,9 @@ def filterGood(ret):
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             lastPercent = float(lastDataItem[3])
-            isOk = (endCount >= maxCount * 0.80 and lastPercent >= 0.2) or \
-                   (endCount >= averageCount and lastPercent >= 0.2) or \
-                   (endCount < startCount and lastPercent >= 0.2)
+            isOk = endCount >= maxCount * 0.80 or \
+                   endCount >= averageCount
+
             if isOk:
                 outArray.append(lastDataItem)
 
@@ -188,7 +188,7 @@ def isGoodStock(code):
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 2:
             if (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10 and float(jll) >= 15) or \
-                    (float(incodeIncremnt) >= -25 and float(profitIncrment) >= -25 and float(jll) >= 20):
+                    (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10 and float(jll) >= 20):
                 return True
             elif float(incodeIncremnt) >= 30 and float(profitIncrment) >= 30 and float(jll) >= 10:
                 return True
@@ -247,7 +247,7 @@ def descForCode(ret):
 ranks = []
 def holdingRank(code):
     if code:
-        su  = StockUtils()
+        su = StockUtils()
         holdings = su.getAverageHolding(code)
         name = su.getStockNameFromCode(code)
         hsl = su.getHslForCode(code)
@@ -301,30 +301,37 @@ def formatStock(arr):
         name = item['name']
         hsl = item['hsl']
         hsls = item['hsls']
-        holdingsCount = item['holdingsCount']
+        holdingsCount = item['holdingsCount'] #股东数
         sdltPercent = item['sdltPercent']
         commentCount = item['commentCount']
         percentOfFund = item['percentOfFund']
         je = item['je']
-        counts = item['counts']
+        counts = item['counts'] #人均持股数
         jll = item['jll']
 
+        # 股东数很少
+        stockHoldingCountDescrease = (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] <= holdingsCount[2]) or \
+                                     (len(holdingsCount) >= 2 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= 15000) or \
+                                     (len(holdingsCount) >= 1 and holdingsCount[0] < 10000)
+
         # 如果超过80w就不再过滤评级数量
-        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2] and commentCount >= 5) or \
-                    (len(je) >= 1 and je[0] >= 100 and jll >= 18 and commentCount >= 3) or \
-                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2] and commentCount >= 5)
+        isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2]) or \
+                    (len(je) >= 1 and je[0] >= 100 and jll >= 18) or \
+                    (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2]) or \
+                    stockHoldingCountDescrease
+
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
         if isCollect:
             # 股东数减少，基金在抢筹
-            stockIsHeavy = '基金在抢筹' if len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] < holdingsCount[2] else ''
+            stockIsHeavy = '基金在抢筹' if stockHoldingCountDescrease else ''
             countDesc = '筹码逐渐集中' if isCollect else ''
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             hslsIsDowningDesc = '换手率在下降' if hslIsDown(hsls) else ''
 
             print code, name, item[
-                'count'], 'W ', '评级数:', commentCount, ' ', je, ' ', counts, ' ', countDesc, ' 十大流通股总计:', str(
+                'count'], 'W ', '评级数:', commentCount, je, counts, countDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
-                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', ' ', jllDesc, hslsIsDowningDesc, stockIsHeavy,  '最新股东数:' + str(holdingsCount[0])
+                hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, hslsIsDowningDesc, stockIsHeavy,  '最新股东数:' + str(holdingsCount[0])
         else:
             pass
 
@@ -373,11 +380,10 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    #sendReq(fourMonthAgoDate, currentDate)
+    sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
-    otherDevelopHighArray = []
 
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
@@ -390,8 +396,6 @@ def mainMethod():
             developPercentHigh = su.getDevelopPercentOfCost(item[0])
             if isgood and developPercentHigh[0] >= 1:
                 printInfo(item, False)
-            elif developPercentHigh[0] >= 1:
-                otherDevelopHighArray.append(item)
 
 
     print '\n外资暂无持股，但是业绩很好的股票：'
@@ -405,11 +409,6 @@ def mainMethod():
             developPercentHigh = su.getDevelopPercentOfCost(code)
             if ret and developPercentHigh[0] >= 1:
                 printInfo(code, True)
-
-    # 其他研发比例高的企业
-    print '\n外资增持+业绩增速/净利率一般:'
-    for item in otherDevelopHighArray:
-        printInfo(item, False)
 
     print '\n人均持股金额排行：'
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
