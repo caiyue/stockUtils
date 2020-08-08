@@ -310,9 +310,8 @@ def formatStock(arr):
         jll = item['jll']
 
         # 股东数很少
-        stockHoldingCountDescrease = (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] <= holdingsCount[2]) or \
-                                     (len(holdingsCount) >= 2 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= 15000) or \
-                                     (len(holdingsCount) >= 1 and holdingsCount[0] < 10000)
+        stockHoldingCountDescrease = (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2]) or \
+                                     (len(holdingsCount) >= 2 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= 15000)
 
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2]) or \
@@ -380,7 +379,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    sendReq(fourMonthAgoDate, currentDate)
+    #sendReq(fourMonthAgoDate, currentDate)
 
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
