@@ -310,12 +310,10 @@ def formatStock(arr):
         jll = item['jll']
 
         # 股东数很少
-        stockHoldingCountDescrease = (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2]) or \
-                                     (len(holdingsCount) >= 2 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= 15000)
-
+        stockHoldingCountDescrease = (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2])
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] >= je[1] >= je[2]) or \
-                    (len(je) >= 1 and je[0] >= 100 and jll >= 18) or \
+                    (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount <= 15000) or \
                     (len(counts) >= 3 and counts[0] >= counts[1] >= counts[2]) or \
                     stockHoldingCountDescrease
 
@@ -323,12 +321,12 @@ def formatStock(arr):
         if isCollect:
             # 股东数减少，基金在抢筹
             stockIsHeavy = '基金在抢筹' if stockHoldingCountDescrease else ''
-            countDesc = '筹码逐渐集中' if isCollect else ''
+            # countDesc = '筹码逐渐集中' if isCollect else ''
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             hslsIsDowningDesc = '换手率在下降' if hslIsDown(hsls) else ''
 
             print code, name, item[
-                'count'], 'W ', '评级数:', commentCount, je, counts, countDesc, ' 十大流通股总计:', str(
+                'count'], 'W ', '评级数:', commentCount, je, counts, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 hslDesc(hsl), '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, hslsIsDowningDesc, stockIsHeavy,  '最新股东数:' + str(holdingsCount[0])
         else:

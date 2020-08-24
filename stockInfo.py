@@ -784,10 +784,12 @@ class StockUtils(object):
                     # code1  name2   zhangfu5, startPrice10，max11，min12
                     code = str(array[1])
                     stockList.append(code)
-            if li and len(li) < pageSize:
+            # 接口容易出现重复这里最多请求50 * 100 条数据
+            if li and len(li) < pageSize or startPage >= 50:
                 break
             startPage += 1
-        return stockList
+
+        return list(set(stockList)) if stockList and len(stockList) > 0 else []
 
     @classmethod
     def getHslForCode(self,code):
