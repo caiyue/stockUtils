@@ -281,7 +281,7 @@ def formatStock(arr):
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15)
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isCollect and jll >= 10:
+        if isCollect:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
 
             print code, name, item[

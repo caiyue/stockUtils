@@ -821,7 +821,7 @@ class StockUtils(object):
 
 def bussinessPercentString(code):
     s = ''
-    li  = StockUtils().getCompanyBussinessPercentDetailForCode(code)
+    li = StockUtils().getCompanyBussinessPercentDetailForCode(code)
     if li and len(li) > 0:
         for model in li:
             s += model.bussinessName.ljust(13,' ') + (u'收入:' + model.income).ljust(13,' ') + (u'利润:' + model.profit).ljust(13,' ') + (u'收入占比:' + model.incomePercent).ljust(16,' ') + (u'利润占比:' + model.profitPercent).ljust(13,' ')
