@@ -237,6 +237,7 @@ def holdingRank(code):
         sdltPercent = su.sdltgdTotalPercent(code)
         commentCount = su.getCommentNumberIn3MonthsForCode(code)
         percentOfFund = su.stockPercentOfFund(code)
+        developPercentHigh = su.getDevelopPercentOfCost(code)
 
         # 净利率
         roe = su.roeStringForCode(code, returnData=True)
@@ -257,7 +258,8 @@ def holdingRank(code):
                 'je': holdings[1], #人均总额
                 'counts': holdings[2], #人均持股数据,
                 'holdingsCount': holdings[3], #股东人数
-                'jll': jll
+                'jll': jll,
+                'devPercent': 1 if developPercentHigh[0] >= 2 else 0
             })
 
 
@@ -272,6 +274,7 @@ def formatStock(arr):
         je = item['je']
         counts = item['counts'] #人均持股数
         jll = item['jll']
+        devPercent= item['devPercent']
 
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and jll >= 15) or \
@@ -283,9 +286,10 @@ def formatStock(arr):
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
         if isCollect:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
+            devDesc = '研发占比很高' if devPercent else ''
 
             print code, name, item[
-                'count'], 'W ', '评级数:', commentCount, je, counts, ' 十大流通股总计:', str(
+                'count'], 'W ', '评级数:', commentCount, je, counts, devDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0])
         else:

@@ -845,8 +845,8 @@ def mostValueableCompanyString(model):
 def  validateStock(code):
     model = szyjl(code)
     if not model: return
-    jidu =  StockUtils().roeStringForCode(code)
-    niandu =  StockUtils().roeStringInYearsForCode(code, model)
+    jidu = StockUtils().roeStringForCode(code)
+    niandu = StockUtils().roeStringInYearsForCode(code, model)
 
     print jidu
     print niandu
