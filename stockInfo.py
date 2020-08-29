@@ -451,7 +451,7 @@ class StockUtils(object):
                 percent = float(RDExpense) * 1.0 / float(allExpense)
                 if percent >= 0.2:
                     return 3, percent
-                elif percent >= 0.1:
+                elif percent >= 0.08:
                     return 2, percent
                 elif percent >= 0.05:
                     return 1, percent
