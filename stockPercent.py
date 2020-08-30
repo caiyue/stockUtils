@@ -199,30 +199,34 @@ def printInfo(item, onlyCode=False):
     if onlyCode:
         name = su.getStockNameFromCode(item)
         holdings = su.getAverageHolding(item)
-        developPercent = descForCode(su.getDevelopPercentOfCost(item))
+        developPercent = su.getDevelopPercentOfCost(item)
+        increaseHigh = '近两年高速成长' if developPercent[2] else ''
+        developDesc = descForCode(developPercent)
+
+        commentCount = su.getCommentNumberIn3MonthsForCode(item)
         ggzc = su.getGGZCStock(item)
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
-        print item, name, developPercent, '高管增持/不变' if ggzc else '',  ' ', \
+        print item, name, '评级数:', commentCount, \
+            developDesc,  increaseHigh, '高管增持/不变' if ggzc else '',  ' ', \
             inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else ''
     else:
-        developPercent = descForCode(su.getDevelopPercentOfCost(item[0]))
+        developPercent = su.getDevelopPercentOfCost(item[0])
+        developDesc = descForCode(developPercent)
+        increaseHigh = '近两年高速成长' if developPercent[2] else ''
+        commentCount = su.getCommentNumberIn3MonthsForCode(item[0])
         holdings = su.getAverageHolding(item[0])
         ggzc = su.getGGZCStock(item[0])
         inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
-        print item[0], item[1], item[3], \
-        str(int(item[2]) / 10000) + '万股', \
-        '评级数:' + str(su.getCommentNumberIn3MonthsForCode(item[0])), \
-        developPercent, '高管增持/不变' if ggzc else '', ' ', \
+        print item[0], item[1], item[3], '评级数:', commentCount, \
+        developDesc,increaseHigh,'高管增持/不变' if ggzc else '', ' ', \
             inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else ''
 
 def descForCode(ret):
     code = ret[0]
     percent = ret[1]
-    if code == 1:
-        return '研发占比高%.5s' % percent
-    elif code == 2:
+    if code == 2:
         return '研发占比较高%.5s' % percent
     elif code == 3:
         return '研发占比很高%.5s' % percent
@@ -259,7 +263,8 @@ def holdingRank(code):
                 'counts': holdings[2], #人均持股数据,
                 'holdingsCount': holdings[3], #股东人数
                 'jll': jll,
-                'devPercent': 1 if developPercentHigh[0] >= 2 else 0
+                'devPercent': 1 if developPercentHigh[0] >= 2 else 0,
+                'increaseHight': 1 if developPercentHigh[2] else 0
             })
 
 
@@ -275,6 +280,7 @@ def formatStock(arr):
         counts = item['counts'] #人均持股数
         jll = item['jll']
         devPercent= item['devPercent']
+        increaseHight = item['increaseHight']
 
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and jll >= 15) or \
@@ -287,9 +293,10 @@ def formatStock(arr):
         if isCollect:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
+            increaseHight = '近两年高速成长' if increaseHight else ''
 
             print code, name, item[
-                'count'], 'W ', '评级数:', commentCount, je, counts, devDesc, ' 十大流通股总计:', str(
+                'count'], 'W ', '评级数:', commentCount, je, counts, devDesc,increaseHight, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0])
         else:
@@ -346,7 +353,6 @@ def mainMethod():
     #sendReq(fourMonthAgoDate, currentDate)
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
-
     if outArray:
         outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
         print '\n外资持股增长+业绩高速增长+净利率高如下:'
@@ -355,9 +361,8 @@ def mainMethod():
             if item[0] == '300572':
                 print 'aa'
             isgood = isGoodStock(item[0])
-            developPercentHigh = su.getDevelopPercentOfCost(item[0])
-            if isgood and developPercentHigh[0] >= 2:
-                printInfo(item, False)
+            if isgood:
+                printInfo(item, False, )
 
 
     print '\n外资暂无持股，但是业绩很好的股票：'
@@ -368,8 +373,7 @@ def mainMethod():
             continue
         else:
             ret = isGoodStock(code)
-            developPercentHigh = su.getDevelopPercentOfCost(code)
-            if ret and developPercentHigh[0] >= 2:
+            if ret:
                 printInfo(code, True)
 
     print '\n人均持股金额排行：'

@@ -81,8 +81,7 @@ ROEOfStockUrl2 = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?typ
 ROEOfStockInYears = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?type=1&code=%s'
 
 #利润表
-profitUrl =  'http://f10.eastmoney.com/NewFinanceAnalysis/lrbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
-
+profitUrl =  'http://f10.eastmoney.com/NewFinanceAnalysis/lrbAjax?companyType=4&reportDateType=1&reportType=1&endDate=&code=%s'
 
 #公司经营业务  sz000001
 bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConception/CoreConceptionAjax?code=%s'
@@ -434,28 +433,46 @@ class StockUtils(object):
         obj = getJsonObjOrigin(res)
 
         if not obj:
-            return 0, 0
+            return 0, 0, 0
         else:
             if isinstance(obj, list) and len(obj) > 0:
-                item = obj[0]
+                increaseHight = False
+                # 最近三年的成长速度
+                count = 0
+                for item in obj:
+                    # 最近两年成长
+                    count += 1
+                    # allExpense = item['TOTALOPERATEEXP']
+                    # RDExpense = item['RDEXP']
+                    # SaleExpense = item['SALEEXP']
+                    # InvestIncome = item['INVESTINCOME']
+                    incomeIncreaseByYear = item['OPERATEREVE_YOY']
+                    profileIncreaseByYear = item['NETPROFIT_YOY']
+                    increaseHight = not (float(incomeIncreaseByYear) <= 25 or
+                                         float(profileIncreaseByYear) <= 20 or
+                                         incomeIncreaseByYear == '--' or
+                                         profileIncreaseByYear == '--')
+
+                    if not increaseHight or count == 2:
+                        break
+
+                # 最近一年的研发费用
+                item=obj[0]
                 allExpense = item['TOTALOPERATEEXP']
                 RDExpense = item['RDEXP']
-                SaleExpense = item['SALEEXP']
-                InvestIncome = item['INVESTINCOME']
-
                 if not RDExpense or len(RDExpense) == 0 or RDExpense == '--':
-                    return 0, 0
+                    return 0, 0, increaseHight
                 if not allExpense or len(allExpense) == 0 or allExpense == '--':
-                    return 0, 0
+                    return 0, 0, increaseHight
 
                 percent = float(RDExpense) * 1.0 / float(allExpense)
                 if percent >= 0.2:
-                    return 3, percent
+                    return 3, percent, increaseHight
                 elif percent >= 0.08:
-                    return 2, percent
+                    return 2, percent, increaseHight
                 elif percent >= 0.05:
-                    return 1, percent
-        return 0, 0
+                    return 1, percent, increaseHight
+        return 0, 0, 0
 
 
     @classmethod
