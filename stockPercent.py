@@ -284,8 +284,8 @@ def formatStock(arr):
 
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and jll >= 15) or \
-                    (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount[0] <= 10000) or \
-                    (len(je) >= 1 and je[0] >= 50 and jll >= 12 and holdingsCount[0] <= 15000) or \
+                    (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount[0] <= 15000) or \
+                    (len(je) >= 1 and je[0] >= 50 and jll >= 12 and holdingsCount[0] <= 20000) or \
                     (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2] and jll >= 15) or \
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15)
 
@@ -296,7 +296,7 @@ def formatStock(arr):
             increaseHight = '近两年高速成长' if increaseHight else ''
 
             print code, name, item[
-                'count'], 'W ', '评级数:', commentCount, je, counts, devDesc,increaseHight, ' 十大流通股总计:', str(
+                'count'], 'W ', '评级数:', commentCount, je, counts, devDesc, increaseHight, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0])
         else:
