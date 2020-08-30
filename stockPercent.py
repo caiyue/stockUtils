@@ -195,9 +195,11 @@ def isGoodStock(code):
 def printInfo(item, onlyCode=False):
     su = StockUtils()
     if onlyCode:
+        developPercent = su.getDevelopPercentOfCost(item)
+        if not developPercent[0] >= 1:
+            return
         name = su.getStockNameFromCode(item)
         holdings = su.getAverageHolding(item)
-        developPercent = su.getDevelopPercentOfCost(item)
         increaseHigh = '近两年高速成长' if developPercent[2] else ''
         developDesc = descForCode(developPercent)
 
@@ -210,6 +212,8 @@ def printInfo(item, onlyCode=False):
             inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else ''
     else:
         developPercent = su.getDevelopPercentOfCost(item[0])
+        if not developPercent[0] >= 1:
+            return
         developDesc = descForCode(developPercent)
         increaseHigh = '近两年高速成长' if developPercent[2] else ''
         commentCount = su.getCommentNumberIn3MonthsForCode(item[0])
@@ -224,7 +228,9 @@ def printInfo(item, onlyCode=False):
 def descForCode(ret):
     code = ret[0]
     percent = ret[1]
-    if code == 2:
+    if code == 1:
+        return '研发占比高%.5s' % percent
+    elif code == 2:
         return '研发占比较高%.5s' % percent
     elif code == 3:
         return '研发占比很高%.5s' % percent
@@ -261,7 +267,7 @@ def holdingRank(code):
                 'counts': holdings[2], #人均持股数据,
                 'holdingsCount': holdings[3], #股东人数
                 'jll': jll,
-                'devPercent': 1 if developPercentHigh[0] >= 2 else 0,
+                'devPercent': 1 if developPercentHigh[0] >= 1 else 0,
                 'increaseHight': 1 if developPercentHigh[2] else 0
             })
 
