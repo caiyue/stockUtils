@@ -150,8 +150,6 @@ def getSortedValue():
         else:
             codeData.append(i)
         codeNum = code
-
-    # print good stock
     return filterGood(ret)
 
 def filterGood(ret):
@@ -166,8 +164,8 @@ def filterGood(ret):
             maxCount = max(allCountArray)
             isOk = endCount >= maxCount * 0.80 or \
                    endCount >= averageCount
-
-            if isOk:
+            # 不再根据外资投资比例筛选股票
+            if True:
                 outArray.append(lastDataItem)
 
     return outArray
@@ -345,7 +343,7 @@ def princleple():
 def mainMethod():
     princleple()
     currentTimeStamp = datetime.now()
-    su = StockUtils();
+    su = StockUtils()
     currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
@@ -362,11 +360,11 @@ def mainMethod():
                 print 'aa'
             isgood = isGoodStock(item[0])
             if isgood:
-                printInfo(item, False, )
+                printInfo(item, False)
 
 
     print '\n外资暂无持股，但是业绩很好的股票：'
-    codes = StockUtils().getAllStockList()
+    codes = su.getAllStockList()
     for code in codes:
         holdingRank(code)
         if code in codeArray:
