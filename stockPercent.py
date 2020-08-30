@@ -254,6 +254,8 @@ def holdingRank(code):
             # 最近的季报
             recent = roe[0]
             jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
+            incodeIncremnt =float(recent.incomeRate if recent.incomeRate != '--' else 0)
+            profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
 
         if holdings and len(holdings) > 0:
             ranks.append({
@@ -266,7 +268,11 @@ def holdingRank(code):
                 'je': holdings[1], #人均总额
                 'counts': holdings[2], #人均持股数据,
                 'holdingsCount': holdings[3], #股东人数
+
                 'jll': jll,
+                'incodeIncremnt': incodeIncremnt,
+                'profitIncrment': profitIncrment,
+
                 'devPercent': 1 if developPercentHigh[0] >= 1 else 0,
                 'increaseHight': 1 if developPercentHigh[2] else 0
             })
@@ -286,6 +292,11 @@ def formatStock(arr):
         devPercent= item['devPercent']
         increaseHight = item['increaseHight']
 
+        incodeIncremnt = item['incodeIncremnt']
+        profitIncrment = item['profitIncrment']
+
+        # 因为是人均持股金额或者调研数量，所以只要业绩不是特别差就可以
+        isOk = not (incodeIncremnt <= -20 and profitIncrment <= -20)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and jll >= 15) or \
                     (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount[0] <= 15000) or \
@@ -294,7 +305,7 @@ def formatStock(arr):
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15)
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isCollect:
+        if isCollect and isOk:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
