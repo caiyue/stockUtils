@@ -250,32 +250,35 @@ def holdingRank(code):
         # 净利率
         roe = su.roeStringForCode(code, returnData=True)
         jll = 0
-        if roe:
-            # 最近的季报
-            recent = roe[0]
-            jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
-            incodeIncremnt =float(recent.incomeRate if recent.incomeRate != '--' else 0)
-            profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
+        try:
+            if roe:
+                # 最近的季报
+                recent = roe[0]
+                jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
+                incodeIncremnt = float(recent.incomeRate if recent.incomeRate != '--' else 0)
+                profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
 
-        if holdings and len(holdings) > 0:
-            ranks.append({
-                'code': code,
-                'name': name,
-                'sdltPercent': sdltPercent, #十大流通股占比,
-                'commentCount': commentCount, #券商评级数量,
-                'percentOfFund': percentOfFund, #基金流通股占比
-                'count': holdings[0], #最近的持股金额
-                'je': holdings[1], #人均总额
-                'counts': holdings[2], #人均持股数据,
-                'holdingsCount': holdings[3], #股东人数
+            if holdings and len(holdings) > 0:
+                ranks.append({
+                    'code': code,
+                    'name': name,
+                    'sdltPercent': sdltPercent, #十大流通股占比,
+                    'commentCount': commentCount, #券商评级数量,
+                    'percentOfFund': percentOfFund, #基金流通股占比
+                    'count': holdings[0], #最近的持股金额
+                    'je': holdings[1], #人均总额
+                    'counts': holdings[2], #人均持股数据,
+                    'holdingsCount': holdings[3], #股东人数
 
-                'jll': jll,
-                'incodeIncremnt': incodeIncremnt,
-                'profitIncrment': profitIncrment,
+                    'jll': jll,
+                    'incodeIncremnt': incodeIncremnt,
+                    'profitIncrment': profitIncrment,
 
-                'devPercent': 1 if developPercentHigh[0] >= 1 else 0,
-                'increaseHight': 1 if developPercentHigh[2] else 0
-            })
+                    'devPercent': 1 if developPercentHigh[0] >= 1 else 0,
+                    'increaseHight': 1 if developPercentHigh[2] else 0
+                })
+        except Exception,e:
+            print 'holing rank:', code
 
 
 def formatStock(arr):
