@@ -475,6 +475,9 @@ class StockUtils(object):
                     return 2, percent, increaseHight
                 elif percent >= 0.05:
                     return 1, percent, increaseHight
+                else:
+                    return 0, percent, increaseHight
+
         return 0, 0, 0
 
 
