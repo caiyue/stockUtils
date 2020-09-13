@@ -44,7 +44,7 @@ sdltgd = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?c
 qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1&ps=100&jsObj=NMfupkBs&stat=0&code=%s'
 
 
-#近半年的换手率
+#近半年的K线数据
 halfYearHsl = 'http://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery1124005434882013261677_1595068788894&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf61&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&beg=0&end=20500000&_=1595068788972&secid='
 
 #最近高管增持列表
@@ -762,7 +762,7 @@ class StockUtils(object):
         else:
             return None
 
-    def halfYearHslData(self, code):
+    def prepareToIncreaseLastWeek(self, code):
         res = getHtmlFromUrl(halfYearHsl + str(getMark10Id(code)) + '.' + code, utf8coding=True)
         pa = re.compile('\[.*?\]')
         if not res or type(res) is not str: return None
@@ -771,10 +771,21 @@ class StockUtils(object):
             if li and len(li):
                 s = getJsonObjOrigin(li[0])
                 if s and len(s) > 0:
-                    s = s[len(s) - 30: ] if len(s) > 30 else s
-                    return map(lambda x:  float(x.split(",")[8]), s)
+                    s = s[len(s) - 7:] if len(s) > 7 else s
+                    # 嵌入的函数
+                    def compute(x):
+                        dataArray = x.split(",")
+                        startPrice = float(dataArray[1])
+                        endPrice = float(dataArray[2])
+                        return True if endPrice >= startPrice else False
+                    increaseArray = map(lambda x: compute(x), s)
+                    for i in range(len(increaseArray)):
+                        # 连续3天都在上涨则提示
+                        if i + 2 < len(increaseArray) and increaseArray[i] and increaseArray[i+1] and increaseArray[i+2]:
+                            return True
+                    return False
             else:
-                return None
+                return False
         except Exception, e:
             print e, code
 
