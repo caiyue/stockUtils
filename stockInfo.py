@@ -449,7 +449,7 @@ class StockUtils(object):
                     incomeIncreaseByYear = item['OPERATEREVE_YOY']
                     profileIncreaseByYear = item['NETPROFIT_YOY']
                     try:
-                        increaseHight = not (float(incomeIncreaseByYear) <= 25 or
+                        increaseHight = not (float(incomeIncreaseByYear) <= 20 or
                                          float(profileIncreaseByYear) <= 20 or
                                          incomeIncreaseByYear == '--' or
                                          profileIncreaseByYear == '--')
