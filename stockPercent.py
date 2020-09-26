@@ -208,7 +208,9 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item) else ''
-        print item, name, '评级数:', commentCount, \
+        syl = su.getHslAndSylForCode(item)
+
+        print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
             developDesc,  increaseHigh, '高管增持/不变' if ggzc else '',  ' ', \
             inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
     else:
@@ -223,7 +225,9 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item[0]) else ''
-        print item[0], item[1], item[3], '评级数:', commentCount, \
+        syl = su.getHslAndSylForCode(item[0])
+
+        print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
         developDesc,increaseHigh,'高管增持/不变' if ggzc else '', ' ', \
             inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
 
@@ -249,6 +253,7 @@ def holdingRank(code):
         percentOfFund = su.stockPercentOfFund(code)
         developPercentHigh = su.getDevelopPercentOfCost(code)
         prepareIncrease = su.prepareToIncreaseLastWeek(code)
+        syl = su.getHslAndSylForCode(code)
 
         # 净利率
         roe = su.roeStringForCode(code, returnData=True)
@@ -265,6 +270,7 @@ def holdingRank(code):
                 ranks.append({
                     'code': code,
                     'name': name,
+                    'syl': syl,
                     'sdltPercent': sdltPercent, #十大流通股占比,
                     'commentCount': commentCount, #券商评级数量,
                     'percentOfFund': percentOfFund, #基金流通股占比
@@ -290,6 +296,7 @@ def formatStock(arr):
     for item in arr:
         code = item['code']
         name = item['name']
+        syl = item['syl']
         holdingsCount = item['holdingsCount'] #股东数
         sdltPercent = item['sdltPercent']
         commentCount = item['commentCount']
@@ -321,8 +328,7 @@ def formatStock(arr):
             increaseHight = '近两年高速成长' if increaseHight else ''
             prepareIncreaseDesc = '连续3天上涨' if prepareIncrease else ''
 
-            print code, name, item[
-                'count'], 'W ', '评级数:', commentCount, je, counts, devDesc, increaseHight, ' 十大流通股总计:', str(
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0]), prepareIncreaseDesc
         else:

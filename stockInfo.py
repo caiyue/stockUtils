@@ -826,7 +826,7 @@ class StockUtils(object):
         return list(set(stockList)) if stockList and len(stockList) > 0 else []
 
     @classmethod
-    def getHslForCode(self,code):
+    def getHslAndSylForCode(self,code):
         '''市盈率、市值相关数据'''
         url = hslUrl % (str(getMark10Id(code)) + '.' + code)
         res = getHtmlFromUrl(url)
@@ -834,23 +834,7 @@ class StockUtils(object):
         if not obj:
             return 0
         else:
-            return obj['f168']
-
-
-    def jiduAndNianduAndszyl(self,detailCode):
-        detailModel = self.getSylDetailDataForCode(detailCode)
-        model = szyjl(detailCode)
-        if not model: return None
-        print detailCode, detailModel.name, u'市值:' + detailModel.sz + u'亿', u'市盈率:' + detailModel.syl, u'换手率' + detailModel.hsl + '%'
-        jidu = self.roeStringForCode(detailCode)
-        niandu = self.roeStringInYearsForCode(detailCode)
-        if jidu and niandu:
-            bussString = bussinessPercentString(detailCode)
-            if bussString:
-                print bussString
-                print jidu
-                print niandu
-
+            return obj['f162']
 
 
 def bussinessPercentString(code):
@@ -863,9 +847,6 @@ def bussinessPercentString(code):
     if len(s) > 0:
         return s
     return None
-
-def szyjl(code):
-    return  StockUtils().getSylDetailDataForCode(code)
 
 def szyjlString(model):
     return u'市值:'+ model.sz +u'亿' + u'  市盈率:'+model.syl + u'  市净率:'+model.sjl + u'  换手率:'+model.hsl
