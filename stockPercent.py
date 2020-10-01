@@ -195,8 +195,9 @@ def isGoodStock(code):
 def printInfo(item, onlyCode=False):
     su = StockUtils()
     if onlyCode:
+        syl = su.getHslAndSylForCode(item)
         developPercent = su.getDevelopPercentOfCost(item)
-        if not developPercent[0] >= 1:
+        if not developPercent[0] >= 1 or syl <= 0:
             return
         name = su.getStockNameFromCode(item)
         holdings = su.getAverageHolding(item)
@@ -208,14 +209,16 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item) else ''
-        syl = su.getHslAndSylForCode(item)
+
+
 
         print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
             developDesc,  increaseHigh, '高管增持/不变' if ggzc else '',  ' ', \
             inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
     else:
         developPercent = su.getDevelopPercentOfCost(item[0])
-        if not developPercent[0] >= 1:
+        syl = su.getHslAndSylForCode(item[0])
+        if not developPercent[0] >= 1 or syl <= 0:
             return
         developDesc = descForCode(developPercent)
         increaseHigh = '近两年高速成长' if developPercent[2] else ''
@@ -225,7 +228,6 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
         cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item[0]) else ''
-        syl = su.getHslAndSylForCode(item[0])
 
         print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
         developDesc,increaseHigh,'高管增持/不变' if ggzc else '', ' ', \
@@ -323,7 +325,7 @@ def formatStock(arr):
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15)
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isCollect and isOk:
+        if isCollect and isOk and syl > 0:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
