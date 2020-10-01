@@ -624,9 +624,9 @@ class StockUtils(object):
         res = getHtmlFromUrl(url)
         obj = getJsonObjOrigin(res)
         if obj and isinstance(obj, object):
-            holdings = obj['gdrs']
-            if holdings and len(holdings) > 0:
-                try:
+            try:
+                holdings = obj['gdrs']
+                if holdings and len(holdings) > 0:
                     holdingsCount = map(lambda x: x['gdrs'], holdings)
                     jes = map(lambda x: x['rjcgje'], holdings)
                     counts = map(lambda x: x['rjltg'], holdings)
@@ -643,8 +643,8 @@ class StockUtils(object):
                         else:
                             return jeRet[0], [jeRet[0], jeRet[1], jeRet[2]], [countRet[0], countRet[1], countRet[2]], [holdingsCountRet[0], holdingsCountRet[1], holdingsCountRet[2]]
 
-                except Exception, e:
-                    print 'process exception: code = ', code, e
+            except Exception, e:
+                print 'process exception: code = ', code, e
 
         return 0, [], [], []
 
