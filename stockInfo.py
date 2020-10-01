@@ -625,7 +625,7 @@ class StockUtils(object):
         url = averageHolding % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
         obj = getJsonObjOrigin(res)
-        if obj:
+        if obj and isinstance(obj, object):
             holdings = obj['gdrs']
             if holdings and len(holdings) > 0:
                 try:
