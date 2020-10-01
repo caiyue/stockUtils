@@ -449,11 +449,9 @@ class StockUtils(object):
                     incomeIncreaseByYear = item['OPERATEREVE_YOY']
                     profileIncreaseByYear = item['NETPROFIT_YOY']
                     try:
-                        increaseHight = not (float(incomeIncreaseByYear) < 25 or
-                                         float(profileIncreaseByYear) < 20 or
-                                         incomeIncreaseByYear == '--' or
-                                         profileIncreaseByYear == '--')
-
+                        notEmpty = incomeIncreaseByYear != '--' and profileIncreaseByYear != '--'
+                        increaseHight = notEmpty and ((float(incomeIncreaseByYear) >= 25 and float(profileIncreaseByYear) >= 20) or \
+                                        (float(incomeIncreaseByYear) >= 20 and float(profileIncreaseByYear) >= 30))
                         if not increaseHight or count == 2:
                             break
                     except Exception,e:
