@@ -605,19 +605,22 @@ class StockUtils(object):
         url = GuDongcount % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
         count = getJsonObjOrigin(res)
-        countLi = count['gdrs']
-        ret = [x1['gdrs'] for x1 in countLi]
-        ret = map(lambda x: round(float(x[0:-1]), 2) * 10000 if '万' in x else float(x), ret)
-        if ret:
-            ok = False
-            if (len(ret) > 1 and ret[0] < ret[1] and ret[0] <= 15000) or ret[0] <= 10000:
-                ok = True
-            if len(ret) > 4:
-                return ret[0:4], ok
+        try:
+            countLi = count['gdrs']
+            ret = [x1['gdrs'] for x1 in countLi]
+            ret = map(lambda x: round(float(x[0:-1]), 2) * 10000 if '万' in x else float(x), ret)
+            if ret:
+                ok = False
+                if (len(ret) > 1 and ret[0] < ret[1] and ret[0] <= 15000) or ret[0] <= 10000:
+                    ok = True
+                if len(ret) > 4:
+                    return ret[0:4], ok
+                else:
+                    return ret, ok
             else:
-                return ret, ok
-        else:
-            return [], False
+                return [], False
+        except Exception,e:
+            print code, e
 
     def getAverageHolding(self, code):
         url = averageHolding % (getMarketCode(code, prefix=True))
@@ -792,18 +795,21 @@ class StockUtils(object):
         percent = 0
         res = getHtmlFromUrl(sdltgd % getMarketCode(code))
         obj = getJsonObjOrigin(res)
-        if not obj:
+        try:
+            if not obj:
+                return percent
+            li = obj['gdrs']
+            if li and len(li) > 0:
+                for item in li:
+                    o = item['qsdltgdcghj']
+                    if '--' in o or '-' in o:
+                        percent = 0
+                    else:
+                        percent = float(o)
+                        break
             return percent
-        li = obj['gdrs']
-        if li and len(li) > 0:
-            for item in li:
-                o = item['qsdltgdcghj']
-                if '--' in o or '-' in o:
-                    percent = 0
-                else:
-                    percent = float(o)
-                    break
-        return percent
+        except Exception, e:
+            print e, code
 
     def getAllStockList(self):
         stockList = []
