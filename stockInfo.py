@@ -655,7 +655,7 @@ class StockUtils(object):
         url = stockPercentOfFund % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
         obj = getJsonObjOrigin(res)
-        if obj and len(obj) > 0:
+        if isinstance(obj, list) and len(obj) > 0:
             o = obj[0]
             percent = o['zltgbl'];
             if percent and percent != '--'  and percent != '%':
