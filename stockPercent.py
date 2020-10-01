@@ -197,7 +197,7 @@ def printInfo(item, onlyCode=False):
     if onlyCode:
         syl = su.getHslAndSylForCode(item)
         developPercent = su.getDevelopPercentOfCost(item)
-        if not developPercent[0] >= 1 or syl <= 0:
+        if not developPercent[0] >= 1 or syl <= 0 or syl > 100:
             return
         name = su.getStockNameFromCode(item)
         holdings = su.getAverageHolding(item)
@@ -218,7 +218,7 @@ def printInfo(item, onlyCode=False):
     else:
         developPercent = su.getDevelopPercentOfCost(item[0])
         syl = su.getHslAndSylForCode(item[0])
-        if not developPercent[0] >= 1 or syl <= 0:
+        if not developPercent[0] >= 1 or syl <= 0 or syl > 100:
             return
         developDesc = descForCode(developPercent)
         increaseHigh = '近两年高速成长' if developPercent[2] else ''
@@ -325,7 +325,7 @@ def formatStock(arr):
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15)
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isCollect and isOk and syl > 0:
+        if isCollect and isOk and 100 >= syl > 0:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
