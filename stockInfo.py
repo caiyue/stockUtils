@@ -451,7 +451,7 @@ class StockUtils(object):
                     try:
                         notEmpty = incomeIncreaseByYear != '--' and profileIncreaseByYear != '--'
                         increaseHight = notEmpty and ((float(incomeIncreaseByYear) >= 25 and float(profileIncreaseByYear) >= 20) or \
-                                        (float(incomeIncreaseByYear) >= 20 and float(profileIncreaseByYear) >= 30))
+                                        (float(incomeIncreaseByYear) >= 23 and float(profileIncreaseByYear) >= 30))
                         if not increaseHight or count == 2:
                             break
                     except Exception,e:
