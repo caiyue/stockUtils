@@ -183,9 +183,9 @@ def isGoodStock(code):
 
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 2:
-            if (float(incodeIncremnt) >= 0 and float(profitIncrment) >= 0 and float(jll) >= 15):
+            if (float(incodeIncremnt) >= 10 and float(profitIncrment) >= 0 and float(jll) >= 15):
                 return True
-            elif (float(incodeIncremnt) >= -10 and float(profitIncrment) >= -10 and float(jll) >= 20):
+            elif (float(incodeIncremnt) >= 0 and float(profitIncrment) >= -10 and float(jll) >= 20):
                 return True
             else:
                 return False
