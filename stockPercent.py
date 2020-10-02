@@ -318,7 +318,7 @@ def formatStock(arr):
         isOk = not (incodeIncremnt <= -20 and profitIncrment <= -20)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 1 and je[0] >= 50 and increaseHight and jll >= 8) or \
-                    (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and (jll >= 15 or increaseHight)) or \
+                    (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and (jll >= 15 or (increaseHight and jll >= 8))) or \
                     (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount[0] <= 15000) or \
                     (len(je) >= 1 and je[0] >= 50 and jll >= 12 and holdingsCount[0] <= 20000) or \
                     (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2] and jll >= 15) or \
