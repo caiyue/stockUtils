@@ -448,9 +448,13 @@ class StockUtils(object):
                     # InvestIncome = item['INVESTINCOME']
                     incomeIncreaseByYear = item['OPERATEREVE_YOY']
                     profileIncreaseByYear = item['NETPROFIT_YOY']
+                    income = item['TOTALOPERATEREVE']
+                    profit = item['PARENTNETPROFIT']
                     try:
-                        notEmpty = incomeIncreaseByYear != '--' and profileIncreaseByYear != '--'
-                        increaseHight = notEmpty and float(incomeIncreaseByYear) >= 25 and float(profileIncreaseByYear) >= 20
+                        notEmpty = incomeIncreaseByYear != '--' and profileIncreaseByYear != '--' and income != '--' and profit != '--'
+                        increaseHight = notEmpty and ((float(incomeIncreaseByYear) >= 25 and float(profileIncreaseByYear) >= 20) or
+                                                      (float(incomeIncreaseByYear) >= 30 and float(profit) >= 400000000 and profit * 1.0 / income >= 0.1) or
+                                                      (float(incomeIncreaseByYear) >= 20 and float(profileIncreaseByYear) >= 20 and float(profit) >= 500000000))
                         if not increaseHight or count == 2:
                             break
                     except Exception,e:
