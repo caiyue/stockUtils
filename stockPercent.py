@@ -323,7 +323,7 @@ def formatStock(arr):
                     (len(je) >= 1 and je[0] >= 50 and jll >= 12 and holdingsCount[0] <= 20000) or \
                     (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2] and jll >= 15) or \
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15) or \
-                    (len(je) >= 3 and je[0] >= je[1] and je[0] >= je[2] and increaseHight)# 有些新股没有数据所以这里就简单判断下
+                    (len(je) >= 3 and je[0] >= je[1] and je[0] >= je[2] and increaseHight and (jll >= 15 or jll == 0))# 有些新股没有数据所以这里就简单判断下
 
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
