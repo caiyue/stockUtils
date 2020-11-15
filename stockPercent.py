@@ -207,14 +207,15 @@ def printInfo(item, onlyCode=False):
         commentCount = su.getCommentNumberIn3MonthsForCode(item)
         ggzc = su.getGGZCStock(item)
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
-        cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
+        # cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item) else ''
+        cashDetail = '经营现金流增长' if su.getCashDetail(item) else ''
 
 
 
         print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
-            developDesc,  increaseHigh, '高管增持/不变' if ggzc else '',  ' ', \
-            inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
+            developDesc,  increaseHigh, cashDetail, '高管增持/不变' if ggzc else '',  ' ', \
+            inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
     else:
         developPercent = su.getDevelopPercentOfCost(item[0])
         syl = su.getHslAndSylForCode(item[0])
@@ -226,12 +227,15 @@ def printInfo(item, onlyCode=False):
         holdings = su.getAverageHolding(item[0])
         ggzc = su.getGGZCStock(item[0])
         inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
-        cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
+        # cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item[0]) else ''
+        cashDetail = '经营现金流增长' if su.getCashDetail(item[0]) else ''
+
+
 
         print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
-        developDesc,increaseHigh,'高管增持/不变' if ggzc else '', ' ', \
-            inProgressProject, cashIncrease, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
+        developDesc,increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
+            inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
 
 def descForCode(ret):
     code = ret[0]
@@ -256,6 +260,7 @@ def holdingRank(code):
         developPercentHigh = su.getDevelopPercentOfCost(code)
         prepareIncrease = su.prepareToIncreaseLastWeek(code)
         syl = su.getHslAndSylForCode(code)
+        cashIncrease = su.getCashDetail(code)
 
         # 净利率
         roe = su.roeStringForCode(code, returnData=True)
@@ -288,7 +293,9 @@ def holdingRank(code):
                     'devPercent': 1 if developPercentHigh[0] >= 1 else 0,
                     'increaseHight': 1 if developPercentHigh[2] else 0,
 
-                    'prepareIncrease': prepareIncrease
+                    'prepareIncrease': prepareIncrease,
+
+                    'cashIncrease': cashIncrease
                 })
         except Exception,e:
             print 'holing rank:', code
@@ -314,8 +321,10 @@ def formatStock(arr):
 
         prepareIncrease = item['prepareIncrease']
 
+        cashIncrease = item['cashIncrease']
+
         # 因为是人均持股金额或者调研数量，所以只要业绩不是特别差就可以
-        isOk = not (incodeIncremnt <= 0 and profitIncrment <= 0)
+        isOk = not (incodeIncremnt <= 10 and profitIncrment <= 10)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 1 and je[0] >= 20 and increaseHight and jll >= 8) or \
                     (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and (jll >= 15 or (increaseHight and jll >= 8))) or \
@@ -332,8 +341,9 @@ def formatStock(arr):
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
             prepareIncreaseDesc = '连续3天上涨' if prepareIncrease else ''
+            cashDesc = '经营现金流增长' if cashIncrease else ''
 
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, ' 十大流通股总计:', str(
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, cashDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0]), prepareIncreaseDesc
         else:

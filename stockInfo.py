@@ -83,6 +83,9 @@ ROEOfStockInYears = 'http://f10.eastmoney.com/NewFinanceAnalysis/MainTargetAjax?
 #利润表
 profitUrl =  'http://f10.eastmoney.com/NewFinanceAnalysis/lrbAjax?companyType=4&reportDateType=1&reportType=1&endDate=&code=%s'
 
+#现金流数据
+cashDetail = 'http://f10.eastmoney.com/NewFinanceAnalysis/xjllbAjax?companyType=4&reportDateType=1&reportType=1&endDate=&code=%s'
+
 #公司经营业务  sz000001
 bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConception/CoreConceptionAjax?code=%s'
 
@@ -425,6 +428,22 @@ class StockUtils(object):
                 else:break
             else:break
         return cList
+
+    def getCashDetail(self, code):
+        url = cashDetail % (getMarketCode(code, prefix=True))
+        res = getHtmlFromUrl(url, False)
+        obj = getJsonObjOrigin(res)
+        if not obj:
+            return False
+        else:
+            if (isinstance(obj, list) and len(obj) >= 2):
+                obj1 = obj[0]['NETOPERATECASHFLOW']
+                obj2 = obj[1]['NETOPERATECASHFLOW']
+                if (obj1 != '--' and obj2 != '--' and float(obj1) >= float(obj2)):
+                    return True
+            else:
+                return  False
+
 
     def getDevelopPercentOfCost(self, code):
         '''研发占比'''
