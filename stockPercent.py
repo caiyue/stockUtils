@@ -342,8 +342,9 @@ def formatStock(arr):
             increaseHight = '近两年高速成长' if increaseHight else ''
             prepareIncreaseDesc = '连续3天上涨' if prepareIncrease else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
+            currentIncreaseHight = '当前季度增长高速' if incodeIncremnt >= 30 and profitIncrment >= 30 else ''
 
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, cashDesc, ' 十大流通股总计:', str(
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
                 '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0]), prepareIncreaseDesc
         else:
