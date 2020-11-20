@@ -54,7 +54,7 @@ adminStockChange = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?typ
 ggzcBaseUrl = 'http://f10.eastmoney.com/CompanyManagement/CompanyManagementAjax?code=%s'
 
 #沪深A股价格相关数据
-xxsjPrefixUrl = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=C._A&sty=FCOIATA&sortType=C&sortRule=-1&page='
+xxsjPrefixUrl = 'http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?callback=jQuery112307869711436802214_1605710891092&st=HolderAvgCapitalisation&sr=-1&ps=100&p=%s&type=HOLDERNUMLATEST&sty=list&js=%7Bpages%3A(tp)%2Cdata%3A(x)%7D&token=70f12f2f4f091e459a279469fe49eca5&filter=(HolderNumChangeRate%3D)(RangeChangeRate%3D)'
 xxsjSuffix = '&pageSize=100&js=var%20quote_123%3d{rank:[(x)],pages:(pc)}&token=7bc05d0d4c3c22ef9fca8c2a912d779c&jsName=quote_123&_g=0.681840105810047'
 
 #换手率
@@ -215,12 +215,17 @@ def getJsonObj3(obj):
 def getJsonObj4(obj):
     if not obj: return None
     if hasHTML(obj): return None
-    partern = re.compile("rank:.*?\"]")
+    partern = re.compile("data:\[.*?\]")
     list = re.findall(partern, obj)
     if list and len(list) > 0:
         s = list[0]
-        sepString = s.split(':[')[1]
-        return simplejson.loads('[' + sepString)
+        if s:
+            s = s[5:]
+            li = simplejson.loads(s)
+            if li and len(li) > 0:
+                return map(lambda x: x["SecurityCode"], li)
+        else:
+            return None
     else:
         return None
 
@@ -759,18 +764,6 @@ class StockUtils(object):
                 break
         return total >= -1
 
-    @classmethod
-    def getDetailStockInfo(self, page):
-        '''资金流入排行'''
-        res = getHtmlFromUrl(xxsjPrefixUrl + str(page) + xxsjSuffix)
-        companyListObj = getJsonObj4(res)
-        if companyListObj and len(companyListObj):
-            cList = []
-            for item in companyListObj:
-                cList.append(item)
-            return cList
-        return None
-
     def getStockNameFromCode(self, code):
         res = getHtmlFromUrl(companyNameUrl % code, utf8coding=True)
         pa = re.compile('=.*?;')
@@ -837,15 +830,13 @@ class StockUtils(object):
         stockList = []
         startPage = 1
         while True:
-            li = StockUtils().getDetailStockInfo(startPage)
-            if li and len(li) > 0:
-                for item in li:
-                    array = item.split(',')
-                    # code1  name2   zhangfu5, startPrice10，max11，min12
-                    code = str(array[1])
-                    stockList.append(code)
+            res = getHtmlFromUrl(xxsjPrefixUrl + str(startPage) + xxsjSuffix)
+            companyListObj = getJsonObj4(res)
+            if companyListObj and len(companyListObj) > 0:
+                for item in companyListObj:
+                    stockList.append(item)
             # 接口容易出现重复这里最多请求50 * 100 条数据
-            if li and len(li) < pageSize or startPage >= 50:
+            if companyListObj and len(companyListObj) < pageSize or startPage >= 50:
                 break
             startPage += 1
 
@@ -882,16 +873,6 @@ def szyjlRankString(model):
 
 def mostValueableCompanyString(model):
     return ('净资产收益率年增长率:'+model.jzcsyl).ljust(15,' ')  + ('  持仓机构数:' + model.orgCount)
-
-def  validateStock(code):
-    model = szyjl(code)
-    if not model: return
-    jidu = StockUtils().roeStringForCode(code)
-    niandu = StockUtils().roeStringInYearsForCode(code, model)
-
-    print jidu
-    print niandu
-
 
 def mainMethod():
     util = StockUtils()
