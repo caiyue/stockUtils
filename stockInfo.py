@@ -54,8 +54,8 @@ adminStockChange = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?typ
 ggzcBaseUrl = 'http://f10.eastmoney.com/CompanyManagement/CompanyManagementAjax?code=%s'
 
 #沪深A股价格相关数据
-xxsjPrefixUrl = 'http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?callback=jQuery112307869711436802214_1605710891092&st=HolderAvgCapitalisation&sr=-1&ps=100&p=%s&type=HOLDERNUMLATEST&sty=list&js=%7Bpages%3A(tp)%2Cdata%3A(x)%7D&token=70f12f2f4f091e459a279469fe49eca5&filter=(HolderNumChangeRate%3D)(RangeChangeRate%3D)'
-xxsjSuffix = '&pageSize=100&js=var%20quote_123%3d{rank:[(x)],pages:(pc)}&token=7bc05d0d4c3c22ef9fca8c2a912d779c&jsName=quote_123&_g=0.681840105810047'
+allCompnayListUrl = 'http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?callback=jQuery112307869711436802214_1605710891092&st=HolderAvgCapitalisation&sr=-1&ps=100&p=%s&type=HOLDERNUMLATEST'
+allCompnayListSuffix = '&sty=list&js=%7Bpages%3A(tp)%2Cdata%3A(x)%7D&token=70f12f2f4f091e459a279469fe49eca5&filter=(HolderNumChangeRate%3D)(RangeChangeRate%3D)'
 
 #换手率
 hslUrl = 'http://push2.eastmoney.com/api/qt/stock/get?ut=fa5fd1943c7b386f172d6893dbfba10b&invt=2&fltt=2&fields=f43,f57,f58,f169,f170,f46,f44,f51,f168,f47,f164,f163,f116,f60,f45,f52,f50,f48,f167,f117,f71,f161,f49,f530,f135,f136,f137,f138,f139,f141,f142,f144,f145,f147,f148,f140,f143,f146,f149,f55,f62,f162,f92,f173,f104,f105,f84,f85,f183,f184,f185,f186,f187,f188,f189,f190,f191,f192,f107,f111,f86,f177,f78,f110,f262,f263,f264,f267,f268,f250,f251,f252,f253,f254,f255,f256,f257,f258,f266,f269,f270,f271,f273,f274,f275,f127,f199,f128,f193,f196,f194,f195,f197,f80,f280,f281,f282,f284,f285,f286,f287&secid=%s&cb=jQuery1124007973482264905063_1579700999918&_=1579700999919'
@@ -830,7 +830,7 @@ class StockUtils(object):
         stockList = []
         startPage = 1
         while True:
-            res = getHtmlFromUrl(xxsjPrefixUrl + str(startPage) + xxsjSuffix)
+            res = getHtmlFromUrl(allCompnayListUrl % str(startPage) + allCompnayListSuffix)
             companyListObj = getJsonObj4(res)
             if companyListObj and len(companyListObj) > 0:
                 for item in companyListObj:
