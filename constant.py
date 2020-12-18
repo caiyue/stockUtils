@@ -6,3 +6,16 @@
 #每次更新一张表，共5张表
 stockDetailTableList = ['stock_5DayDetailData','stock_4DayDetailData','stock_3DayDetailData','stock_2DayDetailData','stock_1DayDetailData','stock1DayDetailData','stock2DayDetailData','stock3DayDetailData','stock4DayDetailData','stock5DayDetailData']
 stocklistName = 'stocklist'
+
+
+'''
+CREATE TABLE `stock` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` char(10) DEFAULT NULL,
+  `name` char(20) DEFAULT NULL,
+  `total` char(20) DEFAULT NULL,
+  `percent` char(20) DEFAULT NULL,
+  `date` char(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5933705 DEFAULT CHARSET=utf8 
+'''
