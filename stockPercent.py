@@ -26,6 +26,9 @@ conn = MySQLdb.connect(host='localhost',
 shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
 szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
 
+incomeBaseIncrease = 20
+profitBaseIncrease = 10
+
 def mysql_init():
     cur = conn.cursor()
     if cur:
@@ -183,7 +186,7 @@ def isGoodStock(code):
 
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 2:
-            if (float(incodeIncremnt) >= 20 and float(profitIncrment) >= 10 and float(jll) >= 15):
+            if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(jll) >= 15):
                 return True
             else:
                 return False
@@ -322,7 +325,7 @@ def formatStock(arr):
         cashIncrease = item['cashIncrease']
 
         # 因为是人均持股金额或者调研数量，所以只要业绩不是特别差就可以
-        isOk = not (incodeIncremnt <= 10 and profitIncrment <= 10)
+        isOk = not (incodeIncremnt <= incomeBaseIncrease and profitIncrment <= profitBaseIncrease)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 1 and je[0] >= 20 and increaseHight and jll >= 8) or \
                     (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and (jll >= 15 or (increaseHight and jll >= 8))) or \
