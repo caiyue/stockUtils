@@ -325,7 +325,8 @@ def formatStock(arr):
         cashIncrease = item['cashIncrease']
 
         # 因为是人均持股金额或者调研数量，所以只要业绩不是特别差就可以
-        isOk = not (incodeIncremnt <= incomeBaseIncrease and profitIncrment <= profitBaseIncrease)
+        isOk = (incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease) or \
+                (incodeIncremnt >= 5 and profitIncrment >= 5 and increaseHight and len(je) >= 1 and je[0] >= 300 and jll >= 15)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 1 and je[0] >= 20 and increaseHight and jll >= 8) or \
                     (len(je) >= 1 and je[0] >= 100 and jll >= 12) or \
