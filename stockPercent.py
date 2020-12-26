@@ -328,6 +328,7 @@ def formatStock(arr):
         isOk = not (incodeIncremnt <= incomeBaseIncrease and profitIncrment <= profitBaseIncrease)
         # 如果超过80w就不再过滤评级数量
         isCollect = (len(je) >= 1 and je[0] >= 20 and increaseHight and jll >= 8) or \
+                    (len(je) >= 1 and je[0] >= 100 and jll >= 12) or \
                     (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and (jll >= 15 or (increaseHight and jll >= 8))) or \
                     (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount[0] <= 15000) or \
                     (len(je) >= 1 and je[0] >= 50 and jll >= 12 and holdingsCount[0] <= 20000) or \
@@ -343,7 +344,8 @@ def formatStock(arr):
             increaseHight = '近两年高速成长' if increaseHight else ''
             prepareIncreaseDesc = '连续3天上涨' if prepareIncrease else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
-            currentIncreaseHight = '当前季度增长高速' if incodeIncremnt >= 40 and profitIncrment >= 40 else ''
+            currentIncreaseHight = '当前季度增长高速' if incodeIncremnt >= 30 and profitIncrment >= 30 else \
+                ('当前季度增长超高速' if incodeIncremnt >= 40 and profitIncrment >= 40 else '')
 
             print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
