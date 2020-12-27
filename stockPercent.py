@@ -29,7 +29,7 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 incomeBaseIncrease = 20
 profitBaseIncrease = 10
 sylLimit = 100
-shizhiLimit = 30
+shizhiLimit = 25
 
 def mysql_init():
     cur = conn.cursor()
@@ -343,7 +343,7 @@ def formatStock(arr):
         # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
         # 或者 人均持股金额 大于100w
 
-        if len(je) >= 1 and je[0] < shizhiLimit and jll < 18:
+        if len(je) >= 1 and je[0] < shizhiLimit and jll < 13:
             continue
 
         # 企业增长不能太差
