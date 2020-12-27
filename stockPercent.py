@@ -1,7 +1,7 @@
 # !/usr/bin/python
-#-*-coding:utf-8 -*-
-import  os
-import  sys
+# -*-coding:utf-8 -*-
+import os
+import sys
 import urllib2, urllib, requests
 import bs4;
 import re
@@ -11,9 +11,9 @@ import MySQLdb
 from stockInfo import StockUtils
 
 import sys
+
 reload(sys)
 sys.setdefaultencoding('utf8')
-
 
 conn = MySQLdb.connect(host='localhost',
                        port=3306,
@@ -28,6 +28,8 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 
 incomeBaseIncrease = 20
 profitBaseIncrease = 10
+sylLimit = 100
+shizhiLimit = 30
 
 def mysql_init():
     cur = conn.cursor()
@@ -35,6 +37,7 @@ def mysql_init():
         return cur
     else:
         return cur.cursor()
+
 
 def executeSQL(sql):
     if sql:
@@ -69,7 +72,7 @@ def sendReq(startDate, endDate):
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
     page = 1
-    while True: # 日期不受限制
+    while True:  # 日期不受限制
         shReqUrl = shurl % (page, startDate, endDate)
         szReqUrl = szurl % (page, startDate, endDate)
 
@@ -115,9 +118,10 @@ def saveValueFromJson(json):
         return
 
 
-def getHtmlFromUrl(url,utf8coding=False):
+def getHtmlFromUrl(url, utf8coding=False):
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
         ret = urllib2.urlopen(req, timeout=10)
         res = None
@@ -126,8 +130,8 @@ def getHtmlFromUrl(url,utf8coding=False):
         else:
             res = ret.read()
     except Exception, e:
-            print 'exception  occur', url
-            return None
+        print 'exception  occur', url
+        return None
     return res
 
 
@@ -155,6 +159,7 @@ def getSortedValue():
         codeNum = code
     return filterGood(ret)
 
+
 def filterGood(ret):
     outArray = []
     for item in ret:
@@ -162,7 +167,7 @@ def filterGood(ret):
             code = item[0][0]
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
-            averageCount = sum(allCountArray)/len(allCountArray)
+            averageCount = sum(allCountArray) / len(allCountArray)
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
             isOk = endCount >= maxCount * 0.80 or \
@@ -172,6 +177,7 @@ def filterGood(ret):
                 outArray.append(lastDataItem)
 
     return outArray
+
 
 def isGoodStock(code):
     # 获取的是单个季度的数据  例如6.30的财报只是3个月的，而不是6个月的 这里分析单个季度的数据
@@ -186,19 +192,21 @@ def isGoodStock(code):
 
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 2:
-            if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(jll) >= 10):
+            if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(
+                    jll) >= 10):
                 return True
             else:
                 return False
         else:
             return False
 
+
 def printInfo(item, onlyCode=False):
     su = StockUtils()
     if onlyCode:
         syl = su.getHslAndSylForCode(item)
         developPercent = su.getDevelopPercentOfCost(item)
-        if not developPercent[0] >= 1 or syl <= 0 or syl > 100:
+        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit:
             return
         name = su.getStockNameFromCode(item)
         holdings = su.getAverageHolding(item)
@@ -212,14 +220,13 @@ def printInfo(item, onlyCode=False):
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item) else ''
         cashDetail = '经营现金流增长' if su.getCashDetail(item) else ''
 
-
         print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
-            developDesc,  increaseHigh, cashDetail, '高管增持/不变' if ggzc else '',  ' ', \
+            developDesc, increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
             inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
     else:
         developPercent = su.getDevelopPercentOfCost(item[0])
         syl = su.getHslAndSylForCode(item[0])
-        if not developPercent[0] >= 1 or syl <= 0 or syl > 100:
+        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit:
             return
         developDesc = descForCode(developPercent)
         increaseHigh = '近两年高速成长' if developPercent[2] else ''
@@ -231,10 +238,10 @@ def printInfo(item, onlyCode=False):
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item[0]) else ''
         cashDetail = '经营现金流增长' if su.getCashDetail(item[0]) else ''
 
-
         print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
-        developDesc,increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
+            developDesc, increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
             inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
+
 
 def descForCode(ret):
     code = ret[0]
@@ -247,12 +254,18 @@ def descForCode(ret):
         return '研发占比很高%.5s' % percent
     return ''
 
+
 ranks = []
 cachedCodes = []
+
+
 def holdingRank(code):
     if code and code not in cachedCodes:
         cachedCodes.append(code)
         su = StockUtils()
+        syl = su.getHslAndSylForCode(code)
+        if syl < 0 or syl > sylLimit:
+            return
         holdings = su.getAverageHolding(code)
         name = su.getStockNameFromCode(code)
         sdltPercent = su.sdltgdTotalPercent(code)
@@ -260,7 +273,6 @@ def holdingRank(code):
         percentOfFund = su.stockPercentOfFund(code)
         developPercentHigh = su.getDevelopPercentOfCost(code)
         prepareIncrease = su.prepareToIncreaseLastWeek(code)
-        syl = su.getHslAndSylForCode(code)
         cashIncrease = su.getCashDetail(code)
 
         # 净利率
@@ -279,13 +291,13 @@ def holdingRank(code):
                     'code': code,
                     'name': name,
                     'syl': syl,
-                    'sdltPercent': sdltPercent, #十大流通股占比,
-                    'commentCount': commentCount, #券商评级数量,
-                    'percentOfFund': percentOfFund, #基金流通股占比
-                    'count': holdings[0], #最近的持股金额
-                    'je': holdings[1], #人均总额
-                    'counts': holdings[2], #人均持股数据,
-                    'holdingsCount': holdings[3], #股东人数
+                    'sdltPercent': sdltPercent,  # 十大流通股占比,
+                    'commentCount': commentCount,  # 券商评级数量,
+                    'percentOfFund': percentOfFund,  # 基金流通股占比
+                    'count': holdings[0],  # 最近的持股金额
+                    'je': holdings[1],  # 人均总额
+                    'counts': holdings[2],  # 人均持股数据,
+                    'holdingsCount': holdings[3],  # 股东人数
 
                     'jll': jll,
                     'incodeIncremnt': incodeIncremnt,
@@ -297,7 +309,7 @@ def holdingRank(code):
                     'prepareIncrease': prepareIncrease,
                     'cashIncrease': cashIncrease
                 })
-        except Exception,e:
+        except Exception, e:
             print 'holing rank:', code
 
 
@@ -306,14 +318,14 @@ def formatStock(arr):
         code = item['code']
         name = item['name']
         syl = item['syl']
-        holdingsCount = item['holdingsCount'] #股东数
+        holdingsCount = item['holdingsCount']  # 股东数
         sdltPercent = item['sdltPercent']
         commentCount = item['commentCount']
         percentOfFund = item['percentOfFund']
         je = item['je']
-        counts = item['counts'] #人均持股数
+        counts = item['counts']  # 人均持股数
         jll = item['jll']
-        devPercent= item['devPercent']
+        devPercent = item['devPercent']
         increaseHight = item['increaseHight']
 
         incodeIncremnt = item['incodeIncremnt']
@@ -321,12 +333,23 @@ def formatStock(arr):
         prepareIncrease = item['prepareIncrease']
         cashIncrease = item['cashIncrease']
 
+        #针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
+
+        # 当季度业绩至少要达到 incomeBaseIncrease profitBaseIncrease的要求
         # 或者 资金连续3次递增       x3 >= x2 and x3 >= x1
         # 或者 人均持股连续3次递增    x3 >= x2 and x3 >= x1
         # 或者 股东数连续3次递减     x3 <= x2 and x3 <= x1
         # 或者 过去连续两年业绩很好   increaseHight
         # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
         # 或者 人均持股金额 大于100w
+
+        if len(je) >= 1 and je[0] < shizhiLimit and jll < 18:
+            continue
+
+        # 企业增长不能太差
+        isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease and jll >= 11
+
+        # 资金聚集筛选条件
         isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2]) or \
                     (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2]) or \
                     (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] and holdingsCount[0] <
@@ -335,8 +358,6 @@ def formatStock(arr):
                     (incodeIncremnt >= 30 and profitIncrment >= 30) or \
                     (len(je) >= 1 and je[0] >= 100)
 
-        isOK = jll >= 10
-
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
         if isOK and isCollect:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
@@ -344,13 +365,15 @@ def formatStock(arr):
             increaseHight = '近两年高速成长' if increaseHight else ''
             prepareIncreaseDesc = '连续3天上涨' if prepareIncrease else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
-            currentIncreaseHight = '当季度超高增长:[%s/%s]' % (incodeIncremnt, profitIncrment ) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
+            currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
+            incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
                 ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
             currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
 
             print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
-                '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
+                '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(
+                currentHodingCount), prepareIncreaseDesc
         else:
             pass
 
@@ -397,6 +420,8 @@ def princleple():
     卖出时机：
     1、上涨阶段：天量卖出，表示所有的上扬力量已经出尽，后期上扬没有资金跟进
     '''
+
+
 def mainMethod():
     princleple()
     currentTimeStamp = datetime.now()
@@ -405,7 +430,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    #sendReq(fourMonthAgoDate, currentDate)
+    # sendReq(fourMonthAgoDate, currentDate)
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     if outArray:
@@ -419,7 +444,6 @@ def mainMethod():
             if isgood:
                 holdingRank(item[0]);
                 printInfo(item, False)
-
 
     print '\n外资暂无持股，但是业绩很好的股票：'
     codes = su.getAllStockList()
