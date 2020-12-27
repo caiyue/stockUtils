@@ -333,7 +333,9 @@ def formatStock(arr):
         prepareIncrease = item['prepareIncrease']
         cashIncrease = item['cashIncrease']
 
+        #针对近两年不是高速成长的企业，需要这么过滤下
         #针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
+        #针对人均持股较少的股，如果不是资金连续聚集，也不再关注了
 
         # 当季度业绩至少要达到 incomeBaseIncrease profitBaseIncrease的要求
         # 或者 资金连续3次递增       x3 >= x2 and x3 >= x1
@@ -343,8 +345,14 @@ def formatStock(arr):
         # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
         # 或者 人均持股金额 大于100w
 
-        if len(je) >= 1 and je[0] < shizhiLimit and jll < 13:
-            continue
+
+        # 主要用来过滤新股
+        if not increaseHight:
+            if len(je) >= 1 and je[0] < shizhiLimit and jll < 11:
+                continue
+            if len(je) >= 3 and je[0] < shizhiLimit and (not je[0] > je[1] > je[2]):
+                continue
+
 
         # 企业增长不能太差
         isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease and jll >= 11
