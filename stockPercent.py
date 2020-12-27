@@ -26,7 +26,7 @@ conn = MySQLdb.connect(host='localhost',
 shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
 szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
 
-incomeBaseIncrease = 15
+incomeBaseIncrease = 20
 profitBaseIncrease = 10
 
 def mysql_init():
@@ -186,7 +186,7 @@ def isGoodStock(code):
 
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 2:
-            if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(jll) >= 15):
+            if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(jll) >= 10):
                 return True
             else:
                 return False
@@ -248,8 +248,10 @@ def descForCode(ret):
     return ''
 
 ranks = []
+cachedCodes = []
 def holdingRank(code):
-    if code:
+    if code and code not in cachedCodes:
+        cachedCodes.append(code)
         su = StockUtils()
         holdings = su.getAverageHolding(code)
         name = su.getStockNameFromCode(code)
@@ -293,7 +295,6 @@ def holdingRank(code):
                     'increaseHight': 1 if developPercentHigh[2] else 0,
 
                     'prepareIncrease': prepareIncrease,
-
                     'cashIncrease': cashIncrease
                 })
         except Exception,e:
@@ -334,7 +335,7 @@ def formatStock(arr):
                     (incodeIncremnt >= 30 and profitIncrment >= 30) or \
                     (len(je) >= 1 and je[0] >= 100)
 
-        isOK = jll > 8
+        isOK = jll >= 10
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
         if isOK and isCollect:
@@ -345,10 +346,11 @@ def formatStock(arr):
             cashDesc = '经营现金流增长' if cashIncrease else ''
             currentIncreaseHight = '当季度超高增长:[%s/%s]' % (incodeIncremnt, profitIncrment ) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
                 ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
+            currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
 
             print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, ' 十大流通股总计:', str(
                 sdltPercent) if sdltPercent >= 20 else '', \
-                '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(holdingsCount[0]), prepareIncreaseDesc
+                '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
         else:
             pass
 
@@ -415,6 +417,7 @@ def mainMethod():
                 print 'aa'
             isgood = isGoodStock(item[0])
             if isgood:
+                holdingRank(item[0]);
                 printInfo(item, False)
 
 
