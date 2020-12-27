@@ -26,7 +26,7 @@ conn = MySQLdb.connect(host='localhost',
 shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
 szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
 
-incomeBaseIncrease = 20
+incomeBaseIncrease = 15
 profitBaseIncrease = 10
 
 def mysql_init():
@@ -213,7 +213,6 @@ def printInfo(item, onlyCode=False):
         cashDetail = '经营现金流增长' if su.getCashDetail(item) else ''
 
 
-
         print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
             developDesc,  increaseHigh, cashDetail, '高管增持/不变' if ggzc else '',  ' ', \
             inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
@@ -231,7 +230,6 @@ def printInfo(item, onlyCode=False):
         # cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
         prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item[0]) else ''
         cashDetail = '经营现金流增长' if su.getCashDetail(item[0]) else ''
-
 
 
         print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
@@ -319,27 +317,27 @@ def formatStock(arr):
 
         incodeIncremnt = item['incodeIncremnt']
         profitIncrment = item['profitIncrment']
-
         prepareIncrease = item['prepareIncrease']
-
         cashIncrease = item['cashIncrease']
 
-        # 因为是人均持股金额或者调研数量，所以只要业绩不是特别差就可以
-        isOk = (incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease) or \
-                (incodeIncremnt >= 5 and profitIncrment >= 5 and increaseHight and len(je) >= 1 and je[0] >= 300 and jll >= 15)
-        # 如果超过80w就不再过滤评级数量
-        isCollect = (len(je) >= 1 and je[0] >= 20 and increaseHight and jll >= 8) or \
-                    (len(je) >= 1 and je[0] >= 100 and jll >= 12) or \
-                    (len(je) >= 3 and je[0] > je[1] and je[0] > je[2] and (jll >= 15 or (increaseHight and jll >= 8))) or \
-                    (len(je) >= 1 and je[0] >= 10 and jll >= 15 and holdingsCount[0] <= 15000) or \
-                    (len(je) >= 1 and je[0] >= 50 and jll >= 12 and holdingsCount[0] <= 20000) or \
-                    (len(holdingsCount) >= 3 and holdingsCount[0] <= holdingsCount[1] and holdingsCount[0] <= holdingsCount[2] and jll >= 15) or \
-                    (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2] and jll >= 15) or \
-                    (len(je) >= 3 and je[0] >= je[1] and je[0] >= je[2] and increaseHight and (jll >= 15 or jll == 0))# 有些新股没有数据所以这里就简单判断下
+        # 或者 资金连续3次递增       x3 >= x2 and x3 >= x1
+        # 或者 人均持股连续3次递增    x3 >= x2 and x3 >= x1
+        # 或者 股东数连续3次递减     x3 <= x2 and x3 <= x1
+        # 或者 过去连续两年业绩很好   increaseHight
+        # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
+        # 或者 人均持股金额 大于100w
+        isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2]) or \
+                    (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2]) or \
+                    (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] and holdingsCount[0] <
+                     holdingsCount[2]) or \
+                    increaseHight or \
+                    (incodeIncremnt >= 30 and profitIncrment >= 30) or \
+                    (len(je) >= 1 and je[0] >= 100)
 
+        isOK = jll > 8
 
         # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isCollect and isOk and 100 > syl > 0:
+        if isOK and isCollect:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
