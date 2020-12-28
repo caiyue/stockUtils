@@ -355,9 +355,14 @@ def formatStock(arr):
 
 
         # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
-        isOK = ((incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease) or
-                (len(je) >= 1 and je[0] >= 100 and jll >= 20 and incodeIncremnt >= 5 and profitIncrment >= 5) or increaseHight)\
-               and jll >= 11
+        isOK = False
+        if jll >= 11:
+            if increaseHight:
+                isOK = incodeIncremnt >= 5 and profitIncrment >= 5
+            elif len(je) >= 1 and je[0] >= 100 and jll >= 20:
+                isOK = True
+            else:
+                isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
 
         # 资金聚集筛选条件
         isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2]) or \
