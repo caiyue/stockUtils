@@ -217,7 +217,7 @@ def printInfo(item, onlyCode=False):
         ggzc = su.getGGZCStock(item)
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         # cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
-        prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item) else ''
+        prepareIncrease = prepareIncreaseFunc(su.prepareToIncreaseLastWeek(item))
         cashDetail = '经营现金流增长' if su.getCashDetail(item) else ''
 
         print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
@@ -235,7 +235,7 @@ def printInfo(item, onlyCode=False):
         ggzc = su.getGGZCStock(item[0])
         inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
         # cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
-        prepareIncrease = '连续3天上涨' if su.prepareToIncreaseLastWeek(item[0]) else ''
+        prepareIncrease = prepareIncreaseFunc(su.prepareToIncreaseLastWeek(item[0]))
         cashDetail = '经营现金流增长' if su.getCashDetail(item[0]) else ''
 
         print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
@@ -312,6 +312,11 @@ def holdingRank(code):
         except Exception, e:
             print 'holing rank:', code
 
+def prepareIncreaseFunc(prepareIncrease):
+    if prepareIncrease and prepareIncrease[0]:
+        return '连续3天上涨[%s]' %  prepareIncrease[1]
+    else:
+        return ''
 
 def formatStock(arr):
     for item in arr:
@@ -378,7 +383,7 @@ def formatStock(arr):
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
-            prepareIncreaseDesc = '连续3天上涨' if prepareIncrease else ''
+            prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
             cashDesc = '经营现金流增长' if cashIncrease else ''
             currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
             incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \

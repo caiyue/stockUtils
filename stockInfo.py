@@ -787,18 +787,31 @@ class StockUtils(object):
             if li and len(li):
                 s = getJsonObjOrigin(li[0])
                 if s and len(s) > 0:
-                    s = s[len(s) - 5:] if len(s) > 5 else s
+                    s = s[len(s) - 20:] if len(s) > 20 else s
                     # 嵌入的函数
                     def compute(x):
                         dataArray = x.split(",")
                         startPrice = float(dataArray[1])
                         endPrice = float(dataArray[2])
                         return True if endPrice >= startPrice else False
+
+                    def computeDeal(x):
+                        dataArray = x.split(",")
+                        return float(dataArray[5])
+
+                    def computeDate(x):
+                        dataArray = x.split(",")
+                        return dataArray[0] or None
+
                     increaseArray = map(lambda x: compute(x), s)
+                    increaseDealCount = map(lambda x: computeDeal(x), s)
+                    computeDateArray = map(lambda x: computeDate(x), s)
                     for i in range(len(increaseArray)):
                         # 连续3天都在上涨则提示
                         if i + 2 < len(increaseArray) and increaseArray[i] and increaseArray[i+1] and increaseArray[i+2]:
-                            return True
+                            if i + 2 < len(increaseDealCount) and increaseDealCount[i] >= increaseDealCount[i+1] >= increaseDealCount[i+2]:
+                                return True, computeDateArray[i]
+                            return False
                     return False
             else:
                 return False
