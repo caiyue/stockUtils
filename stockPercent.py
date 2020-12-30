@@ -4,11 +4,12 @@ import os
 import sys
 import urllib2, urllib, requests
 import bs4;
-import re
+import re, json
 import simplejson
 from datetime import datetime, timedelta
 import MySQLdb
 from stockInfo import StockUtils
+from send_email import sendMail
 
 import sys
 
@@ -494,6 +495,13 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['jll'], reverse=True)
     formatStock(ret)
 
+    def filter_increase(n):
+        return n['prepareIncrease'] and n['prepareIncrease'][0];
+    increaseList = filter(filter_increase, ranks)
+    s = ''
+    for item in increaseList:
+        s = s + item['code'] + '  ' + item['name'] + '\n'
+    sendMail('筛选列表', s)
 
 if __name__ == '__main__':
     mainMethod()
