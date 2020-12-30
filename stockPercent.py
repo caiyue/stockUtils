@@ -358,7 +358,6 @@ def formatStock(arr):
             if len(je) >= 3 and je[0] < shizhiLimit and (not je[0] > je[1] > je[2]):
                 continue
 
-
         # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
         isOK = False
         if jll >= 11:
@@ -370,20 +369,19 @@ def formatStock(arr):
                 isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
 
         # 资金聚集筛选条件
-        isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2]) or \
-                    (len(counts) >= 3 and counts[0] > counts[1] and counts[0] > counts[2]) or \
-                    (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] and holdingsCount[0] <
-                     holdingsCount[2]) or \
+        isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
+                    (len(counts) >= 3 and counts[0] > counts[1] > counts[2]) or \
+                    (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] < holdingsCount[2]) or \
                     increaseHight or \
                     (incodeIncremnt >= 30 and profitIncrment >= 30) or \
                     (len(je) >= 1 and je[0] >= 100)
 
-        # 资金集中，净利率大于10%，这样才算是龙头企业，否则量大，利润率低的很难成为龙头
-        if isOK and isCollect:
+        # 资金聚集或者筹码聚集 或者 连续3天上涨
+        prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
+        if (isOK and isCollect) or prepareIncreaseDesc:
             jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
-            prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
             cashDesc = '经营现金流增长' if cashIncrease else ''
             currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
             incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
