@@ -356,7 +356,8 @@ def formatStock(arr):
         if not increaseHight:
             if len(je) >= 1 and je[0] < shizhiLimit and jll < 11:
                 continue
-            if len(je) >= 3 and je[0] < shizhiLimit and (not je[0] > je[1] > je[2]):
+            if len(je) >= 3 and len(holdingsCount) >= 3 and je[0] < shizhiLimit and \
+                    (not je[0] > je[1] > je[2] or not holdingsCount[0] < holdingsCount[1] < holdingsCount[2]):
                 continue
 
         # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
