@@ -194,7 +194,7 @@ def isGoodStock(code):
         # roe 在4个季度有周期性，这里取偏低的中间值
         if float(roe) >= 2:
             if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(
-                    jll) >= 10):
+                    jll) > 11):
                 return True
             else:
                 return False
@@ -271,7 +271,7 @@ def holdingRank(code):
         name = su.getStockNameFromCode(code)
         sdltPercent = su.sdltgdTotalPercent(code)
         commentCount = su.getCommentNumberIn3MonthsForCode(code)
-        percentOfFund = su.stockPercentOfFund(code)
+        fundInfo = su.fundInfoOfStock(code)
         developPercentHigh = su.getDevelopPercentOfCost(code)
         prepareIncrease = su.prepareToIncreaseLastWeek(code)
         cashIncrease = su.getCashDetail(code)
@@ -294,7 +294,8 @@ def holdingRank(code):
                     'syl': syl,
                     'sdltPercent': sdltPercent,  # 十大流通股占比,
                     'commentCount': commentCount,  # 券商评级数量,
-                    'percentOfFund': percentOfFund,  # 基金流通股占比
+                    'percentOfFund': fundInfo[0],  # 基金流通股占比
+                    'countOfFund': fundInfo[1], #机构数量
                     'count': holdings[0],  # 最近的持股金额
                     'je': holdings[1],  # 人均总额
                     'counts': holdings[2],  # 人均持股数据,
@@ -328,6 +329,7 @@ def formatStock(arr):
         sdltPercent = item['sdltPercent']
         commentCount = item['commentCount']
         percentOfFund = item['percentOfFund']
+        countOfFund = item['countOfFund']
         je = item['je']
         counts = item['counts']  # 人均持股数
         jll = item['jll']
@@ -381,7 +383,6 @@ def formatStock(arr):
         # 资金聚集或者筹码聚集 或者 连续3天上涨
         prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
         if (isOK and isCollect) or prepareIncreaseDesc:
-            jllDesc = '净利率很高' if jll >= 20 else '净利率高' if jll >= 12 else ''
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
@@ -389,14 +390,14 @@ def formatStock(arr):
             incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
                 ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
             currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
+            sdltPercentDesc = '十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else ''
+            fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
+            fundCountDesc = '机构数量：%d' % countOfFund
 
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, ' 十大流通股总计:', str(
-                sdltPercent) if sdltPercent >= 20 else '', \
-                '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else '', jllDesc, '最新股东数:' + str(
-                currentHodingCount), prepareIncreaseDesc
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, sdltPercentDesc, \
+                fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
         else:
             pass
-
 
 def princleple():
     print '''
@@ -440,7 +441,6 @@ def princleple():
     卖出时机：
     1、上涨阶段：天量卖出，表示所有的上扬力量已经出尽，后期上扬没有资金跟进
     '''
-
 
 def mainMethod():
     princleple()
@@ -486,6 +486,10 @@ def mainMethod():
 
     print '\n股东人数排行：'
     ret = sorted(ranks, key=lambda x: x['holdingsCount'], reverse=False)
+    formatStock(ret)
+
+    print '\n基金数量排行：'
+    ret = sorted(ranks, key=lambda x: x['countOfFund'], reverse=True)
     formatStock(ret)
 
     print '\n基金流通股占比排行：'

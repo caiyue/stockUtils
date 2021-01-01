@@ -11,7 +11,7 @@ import re
 import simplejson
 import time
 import socket
-import datetime
+from datetime import datetime, timedelta
 import os.path as fpath
 from bs4 import BeautifulSoup
 import pickle,pprint
@@ -21,7 +21,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 #基金流通股占比
-stockPercentOfFund = 'http://f10.eastmoney.com/ShareholderResearch/MainPositionsHodlerAjax?date=2020-03-31&code=%s'
+fundInfoOfStock = 'http://f10.eastmoney.com/ShareholderResearch/MainPositionsHodlerAjax?date=%s&code=%s'
 
 #单季度在建工程
 inprogressProject = 'http://f10.eastmoney.com/NewFinanceAnalysis/zcfzbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
@@ -508,11 +508,11 @@ class StockUtils(object):
     @classmethod
     def getCommentNumberIn3MonthsForCode(self, code):
         '''3个月内评级'''
-        currentTimeStamp = datetime.datetime.now()
+        currentTimeStamp = datetime.now()
 
         # 100天内
-        startTime = datetime.datetime.strftime(currentTimeStamp - datetime.timedelta(days=(90+10)), "%Y-%m-%d")
-        endTime = datetime.datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+        startTime = datetime.strftime(currentTimeStamp - timedelta(days=(90+10)), "%Y-%m-%d")
+        endTime = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
 
         url = companyCommentList % (code, startTime, endTime)
         res = getHtmlFromUrl(url, False)
@@ -677,16 +677,23 @@ class StockUtils(object):
 
         return 0, [], [], []
 
-    def stockPercentOfFund(self, code):
-        url = stockPercentOfFund % (getMarketCode(code, prefix=True))
+
+    def fundInfoOfStock(self, code):
+        url = fundInfoOfStock % (getlastseason(), getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
         obj = getJsonObjOrigin(res)
         if isinstance(obj, list) and len(obj) > 0:
             o = obj[0]
-            percent = o['zltgbl'];
-            if percent and percent != '--'  and percent != '%':
-                return float(percent[0: -1])
-        return 0
+            percent = o['zltgbl']
+            fundCount = o['ccjs']
+            p = 0
+            c = 0
+            if percent and percent != '--' and percent != '%':
+                p = float(percent[0: -1])
+            if fundCount and fundCount != '--':
+                c = float(fundCount)
+            return p, c
+        return 0, 0
 
 
     def find_all(self, s2, s):
@@ -865,6 +872,20 @@ class StockUtils(object):
         else:
             return obj['f162']
 
+
+def getlastseason():
+    currentTimeStamp = datetime.now()
+    currentDate = datetime.strftime(currentTimeStamp, "%Y-%m-%d")
+    today = datetime.strptime(currentDate, '%Y-%m-%d')
+    quarter = (today.month - 1) / 3 + 1
+    if quarter == 1:
+        return datetime(today.year - 1, 12, 31).strftime('%Y-%m-%d')
+    elif quarter == 2:
+        return datetime(today.year, 3, 31).strftime('%Y-%m-%d')
+    elif quarter == 3:
+        return datetime(today.year, 6, 30).strftime('%Y-%m-%d')
+    else:
+        return datetime(today.year, 9, 30).strftime('%Y-%m-%d')
 
 def bussinessPercentString(code):
     s = ''
