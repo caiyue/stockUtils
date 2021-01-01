@@ -287,7 +287,7 @@ def holdingRank(code):
                 incodeIncremnt = float(recent.incomeRate if recent.incomeRate != '--' else 0)
                 profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
 
-            if holdings and len(holdings) > 0:
+            if code and name and holdings and len(holdings) > 0:
                 ranks.append({
                     'code': code,
                     'name': name,
