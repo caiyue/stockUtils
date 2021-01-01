@@ -21,7 +21,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 #基金流通股占比
-fundInfoOfStock = 'http://f10.eastmoney.com/ShareholderResearch/MainPositionsHodlerAjax?date=%s&code=%s'
+fundInfoOfStock = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?code=%s'
 
 #单季度在建工程
 inprogressProject = 'http://f10.eastmoney.com/NewFinanceAnalysis/zcfzbAjax?companyType=4&reportDateType=0&reportType=1&endDate=&code=%s'
@@ -679,19 +679,19 @@ class StockUtils(object):
 
 
     def fundInfoOfStock(self, code):
-        url = fundInfoOfStock % (getlastseason(), getMarketCode(code, prefix=True))
+        url = fundInfoOfStock % getMarketCode(code, prefix=True)
         res = getHtmlFromUrl(url)
         obj = getJsonObjOrigin(res)
-        if isinstance(obj, list) and len(obj) > 0:
-            o = obj[0]
+        if obj and obj['zlcc']:
+            o = obj['zlcc'][0]
             percent = o['zltgbl']
-            fundCount = o['ccjs']
+            count = o['ccjs']
             p = 0
             c = 0
             if percent and percent != '--' and percent != '%':
                 p = float(percent[0: -1])
-            if fundCount and fundCount != '--':
-                c = float(fundCount)
+            if count and count != '--':
+                c = int(count)
             return p, c
         return 0, 0
 
