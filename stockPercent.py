@@ -271,7 +271,7 @@ def holdingRank(code):
             return
         holdings = su.getAverageHolding(code)
         name = su.getStockNameFromCode(code)
-        sdltPercent = su.sdltgdTotalPercent(code)
+        sdPercent = su.sdgdTotalPercent(code)
         commentCount = su.getCommentNumberIn3MonthsForCode(code)
         fundInfo = su.fundInfoOfStock(code)
         developPercentHigh = su.getDevelopPercentOfCost(code)
@@ -294,7 +294,7 @@ def holdingRank(code):
                     'code': code,
                     'name': name,
                     'syl': syl,
-                    'sdltPercent': sdltPercent,  # 十大流通股占比,
+                    'sdPercent': sdPercent,  # 十大股东占比,
                     'commentCount': commentCount,  # 券商评级数量,
                     'percentOfFund': fundInfo[0],  # 基金流通股占比
                     'countOfFund': fundInfo[1], #机构数量
@@ -328,7 +328,7 @@ def formatStock(arr):
         name = item['name']
         syl = item['syl']
         holdingsCount = item['holdingsCount']  # 股东数
-        sdltPercent = item['sdltPercent']
+        sdPercent = item['sdPercent']
         commentCount = item['commentCount']
         percentOfFund = item['percentOfFund']
         countOfFund = item['countOfFund']
@@ -396,11 +396,11 @@ def formatStock(arr):
             incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
                 ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
             currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
-            sdltPercentDesc = '十大流通股总计:' + str(sdltPercent)
+            sdPercentDesc = '十大股东总计:' + str(sdPercent)
             fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
             fundCountDesc = '机构数量：%d' % countOfFund
 
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, sdltPercentDesc, \
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
                 fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
         else:
             pass
@@ -502,8 +502,8 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
     formatStock(ret)
 
-    print '\n十大流通股占比排行：'
-    ret = sorted(ranks, key=lambda x: x['sdltPercent'], reverse=True)
+    print '\n十大股东占比排行：'
+    ret = sorted(ranks, key=lambda x: x['sdPercent'], reverse=True)
     formatStock(ret)
 
     def filter_increase(n):
