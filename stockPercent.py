@@ -207,7 +207,8 @@ def printInfo(item, onlyCode=False):
     if onlyCode:
         syl = su.getHslAndSylForCode(item)
         developPercent = su.getDevelopPercentOfCost(item)
-        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit:
+        cashIncrease = su.getCashDetail(item)
+        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit or not cashIncrease:
             return
         name = su.getStockNameFromCode(item)
         holdings = su.getAverageHolding(item)
@@ -219,7 +220,7 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
         # cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
         prepareIncrease = prepareIncreaseFunc(su.prepareToIncreaseLastWeek(item))
-        cashDetail = '经营现金流增长' if su.getCashDetail(item) else ''
+        cashDetail = '经营现金流增长' if cashIncrease else ''
 
         print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
             developDesc, increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
@@ -227,7 +228,8 @@ def printInfo(item, onlyCode=False):
     else:
         developPercent = su.getDevelopPercentOfCost(item[0])
         syl = su.getHslAndSylForCode(item[0])
-        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit:
+        cashIncrease = su.getCashDetail(item[0])
+        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit or not cashIncrease:
             return
         developDesc = descForCode(developPercent)
         increaseHigh = '近两年高速成长' if developPercent[2] else ''
@@ -237,7 +239,7 @@ def printInfo(item, onlyCode=False):
         inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
         # cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
         prepareIncrease = prepareIncreaseFunc(su.prepareToIncreaseLastWeek(item[0]))
-        cashDetail = '经营现金流增长' if su.getCashDetail(item[0]) else ''
+        cashDetail = '经营现金流增长' if cashIncrease else ''
 
         print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
             developDesc, increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
@@ -361,6 +363,10 @@ def formatStock(arr):
             if len(je) >= 3 and len(holdingsCount) >= 3 and je[0] < shizhiLimit and \
                     (not je[0] > je[1] > je[2] or not holdingsCount[0] < holdingsCount[1] < holdingsCount[2]):
                 continue
+
+        #经营现金流差的公司直接过滤掉
+        if not cashIncrease:
+            continue
 
         # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
         isOK = False
