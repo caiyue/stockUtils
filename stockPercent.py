@@ -396,7 +396,7 @@ def formatStock(arr):
             incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
                 ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
             currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
-            sdltPercentDesc = '十大流通股总计:' + str(sdltPercent) if sdltPercent >= 20 else ''
+            sdltPercentDesc = '十大流通股总计:' + str(sdltPercent)
             fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
             fundCountDesc = '机构数量：%d' % countOfFund
 
@@ -502,8 +502,8 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['percentOfFund'], reverse=True)
     formatStock(ret)
 
-    print '\n净利率排行：'
-    ret = sorted(ranks, key=lambda x: x['jll'], reverse=True)
+    print '\n十大流通股占比排行：'
+    ret = sorted(ranks, key=lambda x: x['sdltPercent'], reverse=True)
     formatStock(ret)
 
     def filter_increase(n):
