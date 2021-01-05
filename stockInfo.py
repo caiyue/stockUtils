@@ -446,7 +446,7 @@ class StockUtils(object):
                 if (obj1 != '--' and obj2 != '--' and float(obj1) >= float(obj2)):
                     return True
             else:
-                return  False
+                return False
 
 
     def getDevelopPercentOfCost(self, code):
