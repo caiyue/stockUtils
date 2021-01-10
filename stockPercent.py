@@ -377,6 +377,8 @@ def formatStock(arr):
                 isOK = True
             else:
                 isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
+        elif jll >= 9 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
+            return True
 
         # 资金聚集筛选条件
         isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
