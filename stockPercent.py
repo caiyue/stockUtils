@@ -364,8 +364,8 @@ def formatStock(arr):
                     (not je[0] > je[1] > je[2] or not holdingsCount[0] < holdingsCount[1] < holdingsCount[2]):
                 continue
 
-        #经营现金流差的公司直接过滤掉
-        if not cashIncrease:
+        #如果不是高速成长的公司，经营现金流差的公司直接过滤掉
+        if not increaseHight and not cashIncrease:
             continue
 
         # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
