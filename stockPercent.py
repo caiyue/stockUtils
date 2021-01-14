@@ -372,7 +372,7 @@ def formatStock(arr):
         isOK = False
         if jll >= 11:
             if increaseHight:
-                isOK = incodeIncremnt >= 5 and profitIncrment >= 5
+                isOK = incodeIncremnt >= 5 and profitIncrment >= -10
             elif len(je) >= 1 and je[0] >= 100 and jll >= 20:
                 isOK = True
             else:
