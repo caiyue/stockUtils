@@ -29,7 +29,7 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 
 incomeBaseIncrease = 20
 profitBaseIncrease = 10
-sylLimit = 120
+sylLimit = 150
 shizhiLimit = 25
 
 def mysql_init():
@@ -377,7 +377,7 @@ def formatStock(arr):
                 isOK = True
             else:
                 isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
-        elif jll >= 9 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
+        elif jll >= 8 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
             isOK = True
 
         # 资金聚集筛选条件
