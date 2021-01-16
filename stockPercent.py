@@ -260,7 +260,6 @@ def descForCode(ret):
 
 ranks = []
 cachedCodes = []
-
 def holdingRank(code):
     if code and code not in cachedCodes:
         cachedCodes.append(code)
@@ -321,6 +320,77 @@ def prepareIncreaseFunc(prepareIncrease):
     else:
         return ''
 
+def itemIsGood(item):
+    code = item['code']
+    name = item['name']
+    syl = item['syl']
+    holdingsCount = item['holdingsCount']  # 股东数
+    sdPercent = item['sdPercent']
+    commentCount = item['commentCount']
+    percentOfFund = item['percentOfFund']
+    countOfFund = item['countOfFund']
+    je = item['je']
+    counts = item['counts']  # 人均持股数
+    jll = item['jll']
+    devPercent = item['devPercent']
+    increaseHight = item['increaseHight']
+
+    incodeIncremnt = item['incodeIncremnt']
+    profitIncrment = item['profitIncrment']
+    prepareIncrease = item['prepareIncrease']
+    cashIncrease = item['cashIncrease']
+
+    # 针对近两年不是高速成长的企业，需要这么过滤下
+    # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
+    # 针对人均持股较少的股，如果不是资金连续聚集，也不再关注了
+
+    # 当季度业绩至少要达到 incomeBaseIncrease profitBaseIncrease的要求
+    # 或者 资金连续3次递增       x3 >= x2 and x3 >= x1
+    # 或者 人均持股连续3次递增    x3 >= x2 and x3 >= x1
+    # 或者 股东数连续3次递减     x3 <= x2 and x3 <= x1
+    # 或者 过去连续两年业绩很好   increaseHight
+    # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
+    # 或者 人均持股金额 大于100w
+
+    # 主要用来过滤新股
+    if not increaseHight:
+        if len(je) >= 1 and je[0] < shizhiLimit and jll < 11:
+            return False
+        if len(je) >= 3 and len(holdingsCount) >= 3 and je[0] < shizhiLimit and \
+                (not je[0] > je[1] > je[2] or not holdingsCount[0] < holdingsCount[1] < holdingsCount[2]):
+            return False
+
+    # 如果不是高速成长的公司，经营现金流差的公司，再给一次机会，看当前季度增长是否高，否则直接过滤掉
+    if not increaseHight and not cashIncrease:
+        if not (incodeIncremnt >= 50 and profitIncrment >= 50):
+            return False
+
+    # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
+    isOK = False
+    if jll >= 11:
+        if increaseHight:
+            isOK = incodeIncremnt >= 5 and profitIncrment >= -10
+        elif len(je) >= 1 and je[0] >= 100 and jll >= 20:
+            isOK = True
+        else:
+            isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
+    elif jll >= 8 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
+        isOK = True
+
+    # 资金聚集筛选条件
+    isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
+                (len(counts) >= 3 and counts[0] > counts[1] > counts[2]) or \
+                (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] < holdingsCount[2]) or \
+                increaseHight or \
+                (incodeIncremnt >= 30 and profitIncrment >= 30) or \
+                (len(je) >= 1 and je[0] >= 100)
+
+    # 资金聚集或者筹码聚集 或者 连续3天上涨
+    prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
+    if (isOK and isCollect) or prepareIncreaseDesc:
+        return True
+    return False
+
 def formatStock(arr):
     for item in arr:
         code = item['code']
@@ -342,55 +412,7 @@ def formatStock(arr):
         prepareIncrease = item['prepareIncrease']
         cashIncrease = item['cashIncrease']
 
-        #针对近两年不是高速成长的企业，需要这么过滤下
-        #针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
-        #针对人均持股较少的股，如果不是资金连续聚集，也不再关注了
-
-        # 当季度业绩至少要达到 incomeBaseIncrease profitBaseIncrease的要求
-        # 或者 资金连续3次递增       x3 >= x2 and x3 >= x1
-        # 或者 人均持股连续3次递增    x3 >= x2 and x3 >= x1
-        # 或者 股东数连续3次递减     x3 <= x2 and x3 <= x1
-        # 或者 过去连续两年业绩很好   increaseHight
-        # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
-        # 或者 人均持股金额 大于100w
-
-
-        # 主要用来过滤新股
-        if not increaseHight:
-            if len(je) >= 1 and je[0] < shizhiLimit and jll < 11:
-                continue
-            if len(je) >= 3 and len(holdingsCount) >= 3 and je[0] < shizhiLimit and \
-                    (not je[0] > je[1] > je[2] or not holdingsCount[0] < holdingsCount[1] < holdingsCount[2]):
-                continue
-
-        #如果不是高速成长的公司，经营现金流差的公司，再给一次机会，看当前季度增长是否高，否则直接过滤掉
-        if not increaseHight and not cashIncrease:
-            if not (incodeIncremnt >= 50 and profitIncrment >= 50):
-                continue
-
-        # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
-        isOK = False
-        if jll >= 11:
-            if increaseHight:
-                isOK = incodeIncremnt >= 5 and profitIncrment >= -10
-            elif len(je) >= 1 and je[0] >= 100 and jll >= 20:
-                isOK = True
-            else:
-                isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
-        elif jll >= 8 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
-            isOK = True
-
-        # 资金聚集筛选条件
-        isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
-                    (len(counts) >= 3 and counts[0] > counts[1] > counts[2]) or \
-                    (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] < holdingsCount[2]) or \
-                    increaseHight or \
-                    (incodeIncremnt >= 30 and profitIncrment >= 30) or \
-                    (len(je) >= 1 and je[0] >= 100)
-
-        # 资金聚集或者筹码聚集 或者 连续3天上涨
-        prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
-        if (isOK and isCollect) or prepareIncreaseDesc:
+        if itemIsGood(item):
             devDesc = '研发占比很高' if devPercent else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
@@ -470,7 +492,7 @@ def mainMethod():
                 print 'aa'
             isgood = isGoodStock(item[0])
             if isgood:
-                holdingRank(item[0]);
+                holdingRank(item[0])
                 printInfo(item, False)
 
     print '\n外资暂无持股，但是业绩很好的股票：'
@@ -513,7 +535,8 @@ def mainMethod():
     increaseList = filter(filter_increase, ranks)
     s = ''
     for item in increaseList:
-        s = s + item['code'] + '  ' + item['name'] + '\n'
+        if itemIsGood(item):
+            s = s + item['code'] + '  ' + item['name'] + '\n'
     sendMail('筛选列表', s)
 
 if __name__ == '__main__':
