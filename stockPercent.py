@@ -261,7 +261,6 @@ def descForCode(ret):
 ranks = []
 cachedCodes = []
 
-
 def holdingRank(code):
     if code and code not in cachedCodes:
         cachedCodes.append(code)

@@ -793,7 +793,7 @@ class StockUtils(object):
             if li and len(li):
                 s = getJsonObjOrigin(li[0])
                 if s and len(s) > 0:
-                    s = s[len(s) - 20:] if len(s) > 20 else s
+                    s = s[len(s) - 10:] if len(s) > 10 else s
                     # 嵌入的函数
                     def compute(x):
                         dataArray = x.split(",")
