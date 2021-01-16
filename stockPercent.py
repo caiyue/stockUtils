@@ -385,9 +385,7 @@ def itemIsGood(item):
                 (incodeIncremnt >= 30 and profitIncrment >= 30) or \
                 (len(je) >= 1 and je[0] >= 100)
 
-    # 资金聚集或者筹码聚集 或者 连续3天上涨
-    prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
-    if (isOK and isCollect) or prepareIncreaseDesc:
+    if isOK and isCollect:
         return True
     return False
 
@@ -423,6 +421,7 @@ def formatStock(arr):
             sdPercentDesc = '十大股东总计:' + str(sdPercent)
             fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
             fundCountDesc = '机构数量：%d' % countOfFund
+            prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
 
             print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
                 fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
