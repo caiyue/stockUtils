@@ -536,7 +536,7 @@ def mainMethod():
     for item in increaseList:
         if itemIsGood(item):
             s = s + item['code'] + '  ' + item['name'] + '\n'
-    sendMail('筛选列表', s)
+    sendMail('筛选列表【W】缩量买入', s)
 
 if __name__ == '__main__':
     mainMethod()
