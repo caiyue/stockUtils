@@ -421,7 +421,7 @@ def formatStock(arr):
         cashIncrease = item['cashIncrease']
 
         if itemIsGood(item):
-            devDesc = '研发占比很高' if devHigh else ''
+            devDesc = '研发占比%.2f' % devPercent
             increaseHight = '近两年高速成长' if increaseHight else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
             currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
