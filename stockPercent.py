@@ -8,6 +8,7 @@ import re, json
 import simplejson
 from datetime import datetime, timedelta
 import MySQLdb
+import threading
 from stockInfo import StockUtils
 from send_email import sendMail
 
@@ -260,59 +261,67 @@ def descForCode(ret):
 
 ranks = []
 cachedCodes = []
+cachedThreads = []
+def multiThradExector(code):
+    su = StockUtils()
+    syl = su.getHslAndSylForCode(code)
+    if syl < 0 or syl > sylLimit:
+        return
+    holdings = su.getAverageHolding(code)
+    name = su.getStockNameFromCode(code)
+    sdPercent = su.sdgdTotalPercent(code)
+    commentCount = su.getCommentNumberIn3MonthsForCode(code)
+    fundInfo = su.fundInfoOfStock(code)
+    developPercentHigh = su.getDevelopPercentOfCost(code)
+    prepareIncrease = su.prepareToIncreaseLastWeek(code)
+    cashIncrease = su.getCashDetail(code)
+
+    # 净利率
+    roe = su.roeStringForCode(code, returnData=True)
+    jll = 0
+    try:
+        if roe:
+            # 最近的季报
+            recent = roe[0]
+            jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
+            incodeIncremnt = float(recent.incomeRate if recent.incomeRate != '--' else 0)
+            profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
+
+        if code and name and holdings and len(holdings) > 0:
+            ranks.append({
+                'code': code,
+                'name': name,
+                'syl': syl,
+                'sdPercent': sdPercent,  # 十大股东占比,
+                'commentCount': commentCount,  # 券商评级数量,
+                'percentOfFund': fundInfo[0],  # 基金流通股占比
+                'countOfFund': fundInfo[1],  # 机构数量
+                'count': holdings[0],  # 最近的持股金额
+                'je': holdings[1],  # 人均总额
+                'counts': holdings[2],  # 人均持股数据,
+                'holdingsCount': holdings[3],  # 股东人数
+
+                'jll': jll,
+                'incodeIncremnt': incodeIncremnt,
+                'profitIncrment': profitIncrment,
+
+                'devPercent': developPercentHigh[1],
+                'devHigh': developPercentHigh[0] >= 1,
+                'increaseHight': 1 if developPercentHigh[2] else 0,
+
+                'prepareIncrease': prepareIncrease,
+                'cashIncrease': cashIncrease
+            })
+    except Exception, e:
+        print 'holing rank:', code
+
 def holdingRank(code):
     if code and code not in cachedCodes:
         cachedCodes.append(code)
-        su = StockUtils()
-        syl = su.getHslAndSylForCode(code)
-        if syl < 0 or syl > sylLimit:
-            return
-        holdings = su.getAverageHolding(code)
-        name = su.getStockNameFromCode(code)
-        sdPercent = su.sdgdTotalPercent(code)
-        commentCount = su.getCommentNumberIn3MonthsForCode(code)
-        fundInfo = su.fundInfoOfStock(code)
-        developPercentHigh = su.getDevelopPercentOfCost(code)
-        prepareIncrease = su.prepareToIncreaseLastWeek(code)
-        cashIncrease = su.getCashDetail(code)
-
-        # 净利率
-        roe = su.roeStringForCode(code, returnData=True)
-        jll = 0
-        try:
-            if roe:
-                # 最近的季报
-                recent = roe[0]
-                jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
-                incodeIncremnt = float(recent.incomeRate if recent.incomeRate != '--' else 0)
-                profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
-
-            if code and name and holdings and len(holdings) > 0:
-                ranks.append({
-                    'code': code,
-                    'name': name,
-                    'syl': syl,
-                    'sdPercent': sdPercent,  # 十大股东占比,
-                    'commentCount': commentCount,  # 券商评级数量,
-                    'percentOfFund': fundInfo[0],  # 基金流通股占比
-                    'countOfFund': fundInfo[1], #机构数量
-                    'count': holdings[0],  # 最近的持股金额
-                    'je': holdings[1],  # 人均总额
-                    'counts': holdings[2],  # 人均持股数据,
-                    'holdingsCount': holdings[3],  # 股东人数
-
-                    'jll': jll,
-                    'incodeIncremnt': incodeIncremnt,
-                    'profitIncrment': profitIncrment,
-
-                    'devPercent': 1 if developPercentHigh[0] >= 1 else 0,
-                    'increaseHight': 1 if developPercentHigh[2] else 0,
-
-                    'prepareIncrease': prepareIncrease,
-                    'cashIncrease': cashIncrease
-                })
-        except Exception, e:
-            print 'holing rank:', code
+        # 多线程优化
+        thread = threading.Thread(target=multiThradExector, args=(code,))
+        cachedThreads.append(thread)
+        thread.start()
 
 def prepareIncreaseFunc(prepareIncrease):
     if prepareIncrease and prepareIncrease[0]:
@@ -403,6 +412,7 @@ def formatStock(arr):
         counts = item['counts']  # 人均持股数
         jll = item['jll']
         devPercent = item['devPercent']
+        devHigh = item['devHigh']
         increaseHight = item['increaseHight']
 
         incodeIncremnt = item['incodeIncremnt']
@@ -411,7 +421,7 @@ def formatStock(arr):
         cashIncrease = item['cashIncrease']
 
         if itemIsGood(item):
-            devDesc = '研发占比很高' if devPercent else ''
+            devDesc = '研发占比很高' if devHigh else ''
             increaseHight = '近两年高速成长' if increaseHight else ''
             cashDesc = '经营现金流增长' if cashIncrease else ''
             currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
@@ -505,8 +515,17 @@ def mainMethod():
             if ret:
                 printInfo(code, True)
 
+    # 等待所有线程结束
+    for thread in cachedThreads:
+        thread.join()
+
+    # 直接结果
     print '\n人均持股金额排行：'
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
+    formatStock(ret)
+
+    print '\n研发占比排行：'
+    ret = sorted(ranks, key=lambda x: x['devPercent'], reverse=True)
     formatStock(ret)
 
     print '\n评级数量排行：'
