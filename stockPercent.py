@@ -387,11 +387,11 @@ def itemIsGood(item):
         isOK = True
 
     # 资金聚集筛选条件
+    # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
     isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
-                (len(counts) >= 3 and counts[0] > counts[1] > counts[2]) or \
-                (len(holdingsCount) >= 3 and holdingsCount[0] < holdingsCount[1] < holdingsCount[2]) or \
                 increaseHight or \
-                (incodeIncremnt >= 30 and profitIncrment >= 30) or \
+                (incodeIncremnt >= 40 and profitIncrment >= 40) or \
+                (devPercent > 1.0 and jll >= 18) or \
                 (len(je) >= 1 and je[0] >= 100)
 
     if isOK and isCollect:
