@@ -489,7 +489,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    # sendReq(fourMonthAgoDate, currentDate)
+    sendReq(fourMonthAgoDate, currentDate)
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     if outArray:
@@ -522,6 +522,10 @@ def mainMethod():
     # 直接结果
     print '\n人均持股金额排行：'
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
+    formatStock(ret)
+
+    print '\n利润增速排行：'
+    ret = sorted(ranks, key=lambda x: x['profitIncrment'], reverse=True)
     formatStock(ret)
 
     print '\n研发占比排行：'
