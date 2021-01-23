@@ -539,10 +539,6 @@ def mainMethod():
     ret = sorted(ranks, key=lambda x: x['devPercent'], reverse=True)
     formatStock(ret)
 
-    print '\n评级数量排行：'
-    ret = sorted(ranks, key=lambda x: x['commentCount'], reverse=True)
-    formatStock(ret)
-
     print '\n股东人数排行：'
     ret = sorted(ranks, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
