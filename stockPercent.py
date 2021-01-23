@@ -30,7 +30,7 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 
 incomeBaseIncrease = 20
 profitBaseIncrease = 10
-sylLimit = 150
+sylLimit = 300
 shizhiLimit = 25
 
 def mysql_init():
