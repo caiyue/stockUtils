@@ -14,7 +14,7 @@ mail_pass = '25698469'
 #邮件发送方邮箱地址
 sender = '13146623011@163.com'
 #邮件接受方邮箱地址，注意需要[]包裹，这意味着你可以写多个邮件地址群发
-receivers = ['1072079578@qq.com', 'wpfun@foxmail.com']
+receivers = ['1072079578@qq.com']
 
 #登录并发送邮件
 def sendMail(subject, content):
