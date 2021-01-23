@@ -31,7 +31,7 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 incomeBaseIncrease = 25
 profitBaseIncrease = 25
 
-sylLimit = 300
+sylLimit = 150
 shizhiLimit = 25
 
 def mysql_init():
@@ -287,6 +287,8 @@ def multiThradExector(code):
             jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
             incodeIncremnt = float(recent.incomeRate if recent.incomeRate != '--' else 0)
             profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
+            income = recent.income
+            profit = recent.profit
 
         if code and name and holdings and len(holdings) > 0:
             ranks.append({
@@ -303,6 +305,8 @@ def multiThradExector(code):
                 'holdingsCount': holdings[3],  # 股东人数
 
                 'jll': jll,
+                'income': income,
+                'profit': profit,
                 'incodeIncremnt': incodeIncremnt,
                 'profitIncrment': profitIncrment,
 
@@ -416,6 +420,8 @@ def formatStock(arr):
         devHigh = item['devHigh']
         increaseHight = item['increaseHight']
 
+        income = item['income']
+        profit = item['profit']
         incodeIncremnt = item['incodeIncremnt']
         profitIncrment = item['profitIncrment']
         prepareIncrease = item['prepareIncrease']
@@ -434,7 +440,7 @@ def formatStock(arr):
             fundCountDesc = '机构数量：%d' % countOfFund
             prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
 
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, '利润:%s/%s' % (income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
                 fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
         else:
             pass
