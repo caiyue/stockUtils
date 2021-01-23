@@ -354,6 +354,10 @@ def itemIsGood(item):
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
 
+    #如果筹码太散，股价不容易拉升，所以过滤下
+    if sdPercent < 40:
+        return False
+
     # 针对近两年不是高速成长的企业，需要这么过滤下
     # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
     # 针对人均持股较少的股，如果不是资金连续聚集，也不再关注了

@@ -115,7 +115,7 @@ def getHtmlFromUrl(url, utf8coding=False):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
-        ret = urllib2.urlopen(req, timeout=7)
+        ret = urllib2.urlopen(req, timeout=20)
         if utf8coding:
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
         else:
