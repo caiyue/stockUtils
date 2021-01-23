@@ -490,7 +490,7 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    sendReq(fourMonthAgoDate, currentDate)
+    #sendReq(fourMonthAgoDate, currentDate)
     outArray = getSortedValue()
     codeArray = [x[0] for x in outArray]
     if outArray:
