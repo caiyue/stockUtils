@@ -531,6 +531,7 @@ def mainMethod():
         thread.join()
 
     # 直接结果
+    print '\n共【%f】个 \n' % len(ranks)
     print '\n人均持股金额排行：'
     ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
