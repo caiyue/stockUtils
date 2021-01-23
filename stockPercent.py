@@ -28,8 +28,9 @@ conn = MySQLdb.connect(host='localhost',
 shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
 szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
 
-incomeBaseIncrease = 20
-profitBaseIncrease = 10
+incomeBaseIncrease = 25
+profitBaseIncrease = 25
+
 sylLimit = 300
 shizhiLimit = 25
 
