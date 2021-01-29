@@ -276,6 +276,7 @@ def multiThradExector(code):
     developPercentHigh = su.getDevelopPercentOfCost(code)
     prepareIncrease = su.prepareToIncreaseLastWeek(code)
     cashIncrease = su.getCashDetail(code)
+    prepareJieJin = su.PrePareToJieJin(code)
 
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
@@ -315,7 +316,8 @@ def multiThradExector(code):
                 'increaseHight': 1 if developPercentHigh[2] else 0,
 
                 'prepareIncrease': prepareIncrease,
-                'cashIncrease': cashIncrease
+                'cashIncrease': cashIncrease,
+                'prepareJieJin': prepareJieJin
             })
     except Exception, e:
         print 'holing rank:', code
@@ -430,6 +432,7 @@ def formatStock(arr):
         profitIncrment = item['profitIncrment']
         prepareIncrease = item['prepareIncrease']
         cashIncrease = item['cashIncrease']
+        prepareJieJin = item['prepareJieJin']
 
         if itemIsGood(item):
             devDesc = '研发占比%.2f' % devPercent
@@ -443,9 +446,10 @@ def formatStock(arr):
             fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
             fundCountDesc = '机构数量：%d' % countOfFund
             prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
+            prepareJieJin = '有大于0.5倍数据准备解禁'
 
             print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, '利润:%s/%s' % (income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
-                fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc
+                fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJin
         else:
             pass
 

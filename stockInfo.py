@@ -42,6 +42,9 @@ sdltgd = 'http://f10.eastmoney.com/ShareholderResearch/ShareholderResearchAjax?c
 # QFII以及保险、社保数量
 qfiicount = 'http://data.eastmoney.com/zlsj/detail.aspx?type=ajax&st=2&sr=-1&p=1&ps=100&jsObj=NMfupkBs&stat=0&code=%s'
 
+# 禁售股解禁列表
+jiejinList = 'http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?callback=jQuery1123005972771630998919_1611931755046&st=ltsj&sr=-1&ps=50&p=1&token=70f12f2f4f091e459a279469fe49eca5&type=XSJJ_NJ_PC&js=%7B%22data%22%3A(x)%2C%22pages%22%3A(tp)%2C%22font%22%3A(font)%7D&filter=(gpdm%3D%27'
+jiejinSuffix = '%27'
 
 #近半年的K线数据
 halfYearHsl = 'http://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery1124005434882013261677_1595068788894&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf61&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&beg=0&end=20500000&_=1595068788972&secid='
@@ -199,6 +202,17 @@ def getJsonObj2s(obj):
         return simplejson.loads(sepString)
     else:
         return None
+
+def getJsonObjJieJin(obj):
+    if not obj: return None
+    if hasHTML(obj): return None
+    partern = re.compile("\[{.*?}\]")
+    list = re.findall(partern, obj)
+    if list and len(list) > 0:
+        s = list[0]
+        return simplejson.loads(s)
+    return None
+
 
 def getJsonObj3(obj):
     if not obj: return None
@@ -824,6 +838,28 @@ class StockUtils(object):
         except Exception, e:
             print e, code
 
+    def PrePareToJieJin(self, code):
+        res = getHtmlFromUrl(jiejinList + code + jiejinSuffix)
+        obj = getJsonObjJieJin(res)
+        if obj and len(obj) > 0:
+            for item in obj:
+                timeS = item['ltsj']
+                percent = item['zb']
+                # if percent >= 0.5
+                stamp = datetime.strptime(timeS[0:10], '%Y-%m-%d')
+                # datetime.(dd, "%Y-%m-%d %H:%M:%S")
+                currentStamp = datetime.now()
+                stampAfter30days = currentStamp + timedelta(days=30)
+                stampBefore30days = currentStamp - timedelta(days=30)
+
+                timeinterval1 = (stamp - stampBefore30days).days
+                timeinterval2 = (stampAfter30days - stamp).days
+
+                if 0 < timeinterval1 <= 30 or 0 < timeinterval2 <= 30:
+                    if percent >= 0.5:
+                        return True
+
+        return False
 
     def sdgdTotalPercent(self, code):
         percent = 0
