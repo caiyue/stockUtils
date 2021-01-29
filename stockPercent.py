@@ -276,7 +276,7 @@ def multiThradExector(code):
     developPercentHigh = su.getDevelopPercentOfCost(code)
     prepareIncrease = su.prepareToIncreaseLastWeek(code)
     cashIncrease = su.getCashDetail(code)
-    prepareJieJin = su.PrePareToJieJin(code)
+    prepareJieJinPercent = su.PrePareToJieJin(code)
 
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
@@ -317,7 +317,7 @@ def multiThradExector(code):
 
                 'prepareIncrease': prepareIncrease,
                 'cashIncrease': cashIncrease,
-                'prepareJieJin': prepareJieJin
+                'prepareJieJinPercent': prepareJieJinPercent
             })
     except Exception, e:
         print 'holing rank:', code
@@ -432,7 +432,7 @@ def formatStock(arr):
         profitIncrment = item['profitIncrment']
         prepareIncrease = item['prepareIncrease']
         cashIncrease = item['cashIncrease']
-        prepareJieJin = item['prepareJieJin']
+        prepareJieJinPercent = item['prepareJieJinPercent']
 
         if itemIsGood(item):
             devDesc = '研发占比%.2f' % devPercent
@@ -446,10 +446,10 @@ def formatStock(arr):
             fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
             fundCountDesc = '机构数量：%d' % countOfFund
             prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
-            prepareJieJin = '有大于0.5倍数据准备解禁'
+            prepareJieJinDesc = '有大于0.5倍数据准备解禁' if prepareJieJinPercent >= 0.5 else ''
 
             print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, '利润:%s/%s' % (income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
-                fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJin
+                fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc
         else:
             pass
 
@@ -561,6 +561,10 @@ def mainMethod():
 
     print '\n十大股东占比排行：'
     ret = sorted(ranks, key=lambda x: x['sdPercent'], reverse=True)
+    formatStock(ret)
+
+    print '\n解禁占比占比排行：'
+    ret = sorted(ranks, key=lambda x: x['prepareJieJinPercent'], reverse=True)
     formatStock(ret)
 
     def filter_increase(n):

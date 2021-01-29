@@ -857,9 +857,9 @@ class StockUtils(object):
 
                 if 0 < timeinterval1 <= 30 or 0 < timeinterval2 <= 30:
                     if percent >= 0.5:
-                        return True
+                        return percent
 
-        return False
+        return 0
 
     def sdgdTotalPercent(self, code):
         percent = 0
