@@ -763,7 +763,7 @@ class StockUtils(object):
             year = s['rq']
             count = s['bdsl']
 
-            if '2019' or '2020' in year:
+            if '2019' or '2020' or '2021' in year:
                 num = float(count)
                 total += num
             else:
