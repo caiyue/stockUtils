@@ -448,7 +448,7 @@ def formatStock(arr):
             prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
             prepareJieJinDesc = '有大于0.5倍数据准备解禁' if prepareJieJinPercent >= 0.5 else ''
 
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, '利润:%s/%s' % (income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
+            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, '利润:%s/%s' % (income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
                 fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc
         else:
             pass
