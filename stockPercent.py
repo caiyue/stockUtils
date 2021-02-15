@@ -357,7 +357,7 @@ def itemIsGood(item):
     cashIncrease = item['cashIncrease']
 
     #如果筹码太散，股价不容易拉升，所以过滤下
-    if sdPercent < 40:
+    if sdPercent < 40 and not(len(je) > 0 and je[0] >= 80):
         return False
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
