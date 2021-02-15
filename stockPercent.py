@@ -336,6 +336,14 @@ def prepareIncreaseFunc(prepareIncrease):
     else:
         return ''
 
+def incomeIs2Small(income):
+    if income:
+        if u'万' in income:
+            return float(income[0: -1]) < 15000
+        elif u'亿' in income:
+            return float(income[0: -1]) < 1.5
+    return True
+
 def itemIsGood(item):
     code = item['code']
     name = item['name']
@@ -351,10 +359,17 @@ def itemIsGood(item):
     devPercent = item['devPercent']
     increaseHight = item['increaseHight']
 
+    income = item['income']
+    profit = item['profit']
+
     incodeIncremnt = item['incodeIncremnt']
     profitIncrment = item['profitIncrment']
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
+
+    # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
+    if incomeIs2Small(income):
+        return False
 
     #如果筹码太散，股价不容易拉升，所以过滤下
     if sdPercent < 40 and not(len(je) > 0 and je[0] >= 80):
