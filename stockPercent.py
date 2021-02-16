@@ -176,77 +176,10 @@ def filterGood(ret):
             isOk = endCount >= maxCount * 0.80 or \
                    endCount >= averageCount
             # 不再根据外资投资比例筛选股票
-            if True:
+            if isOk:
                 outArray.append(lastDataItem)
 
     return outArray
-
-
-def isGoodStock(code):
-    # 获取的是单个季度的数据  例如6.30的财报只是3个月的，而不是6个月的 这里分析单个季度的数据
-    li = StockUtils().roeStringForCode(code, returnData=True)
-    if li:
-        # 最近的季报
-        recent = li[0]
-        roe = str(recent.roe if recent.roe != '--' else 0)
-        incodeIncremnt = recent.incomeRate if recent.incomeRate != '--' else '0'
-        profitIncrment = recent.profitRate if recent.profitRate != '--' else '0'
-        jll = recent.jinglilv if recent.jinglilv != '--' else '0'
-
-        # roe 在4个季度有周期性，这里取偏低的中间值
-        if float(roe) >= 2:
-            if (float(incodeIncremnt) >= incomeBaseIncrease and float(profitIncrment) >= profitBaseIncrease and float(
-                    jll) > 11):
-                return True
-            else:
-                return False
-        else:
-            return False
-
-
-def printInfo(item, onlyCode=False):
-    su = StockUtils()
-    if onlyCode:
-        syl = su.getHslAndSylForCode(item)
-        developPercent = su.getDevelopPercentOfCost(item)
-        cashIncrease = su.getCashDetail(item)
-        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit or not cashIncrease:
-            return
-        name = su.getStockNameFromCode(item)
-        holdings = su.getAverageHolding(item)
-        increaseHigh = '近两年高速成长' if developPercent[2] else ''
-        developDesc = descForCode(developPercent)
-
-        commentCount = su.getCommentNumberIn3MonthsForCode(item)
-        ggzc = su.getGGZCStock(item)
-        inProgressProject = '在建工程较多' if su.inprogressProject(item) else ''
-        # cashIncrease = '现金流增长较多' if su.cashIncrease(item) else ''
-        prepareIncrease = prepareIncreaseFunc(su.prepareToIncreaseLastWeek(item))
-        cashDetail = '经营现金流增长' if cashIncrease else ''
-
-        print item, name, '市盈率:', syl, ' 评级数:', commentCount, \
-            developDesc, increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
-            inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
-    else:
-        developPercent = su.getDevelopPercentOfCost(item[0])
-        syl = su.getHslAndSylForCode(item[0])
-        cashIncrease = su.getCashDetail(item[0])
-        if not developPercent[0] >= 1 or syl <= 0 or syl > sylLimit or not cashIncrease:
-            return
-        developDesc = descForCode(developPercent)
-        increaseHigh = '近两年高速成长' if developPercent[2] else ''
-        commentCount = su.getCommentNumberIn3MonthsForCode(item[0])
-        holdings = su.getAverageHolding(item[0])
-        ggzc = su.getGGZCStock(item[0])
-        inProgressProject = '在建工程较多' if su.inprogressProject(item[0]) else ''
-        # cashIncrease = '现金流增长较多' if su.cashIncrease(item[0]) else ''
-        prepareIncrease = prepareIncreaseFunc(su.prepareToIncreaseLastWeek(item[0]))
-        cashDetail = '经营现金流增长' if cashIncrease else ''
-
-        print item[0], item[1], item[3], '市盈率:', syl, ' 评级数:', commentCount, \
-            developDesc, increaseHigh, cashDetail, '高管增持/不变' if ggzc else '', ' ', \
-            inProgressProject, '人均持股:' + str(holdings[1]) + 'W' if holdings[0] else '', prepareIncrease
-
 
 def descForCode(ret):
     code = ret[0]
@@ -260,13 +193,15 @@ def descForCode(ret):
     return ''
 
 
-ranks = []
-cachedCodes = []
+ranks = {}
 cachedThreads = []
-def multiThradExector(code):
+# 最多同时发50个线程
+pool_sema = threading.BoundedSemaphore(value=20)
+def multiThradExector(code, lock):
     su = StockUtils()
     syl = su.getHslAndSylForCode(code)
     if syl < 0 or syl > sylLimit:
+        lock.release()
         return
     holdings = su.getAverageHolding(code)
     name = su.getStockNameFromCode(code)
@@ -292,7 +227,7 @@ def multiThradExector(code):
             profit = recent.profit
 
         if code and name and holdings and len(holdings) > 0:
-            ranks.append({
+            ranks[code] = {
                 'code': code,
                 'name': name,
                 'syl': syl,
@@ -318,17 +253,20 @@ def multiThradExector(code):
                 'prepareIncrease': prepareIncrease,
                 'cashIncrease': cashIncrease,
                 'prepareJieJinPercent': prepareJieJinPercent
-            })
+            }
     except Exception, e:
         print 'holing rank:', code
+    finally:
+        lock.release()
 
 def holdingRank(code):
-    if code and code not in cachedCodes:
-        cachedCodes.append(code)
-        # 多线程优化
-        thread = threading.Thread(target=multiThradExector, args=(code,))
+    if code not in ranks:
+        # 如果能拿到锁就启动线程，在线程结束后释放锁
+        pool_sema.acquire(blocking=True)
+        thread = threading.Thread(target=multiThradExector, args=(code, pool_sema))
         cachedThreads.append(thread)
         thread.start()
+
 
 def prepareIncreaseFunc(prepareIncrease):
     if prepareIncrease and prepareIncrease[0]:
@@ -424,49 +362,52 @@ def itemIsGood(item):
         return True
     return False
 
+def printInfo(item):
+    code = item['code']
+    name = item['name']
+    syl = item['syl']
+    holdingsCount = item['holdingsCount']  # 股东数
+    sdPercent = item['sdPercent']
+    commentCount = item['commentCount']
+    percentOfFund = item['percentOfFund']
+    countOfFund = item['countOfFund']
+    je = item['je']
+    counts = item['counts']  # 人均持股数
+    jll = item['jll']
+    devPercent = item['devPercent']
+    devHigh = item['devHigh']
+    increaseHight = item['increaseHight']
+
+    income = item['income']
+    profit = item['profit']
+    incodeIncremnt = item['incodeIncremnt']
+    profitIncrment = item['profitIncrment']
+    prepareIncrease = item['prepareIncrease']
+    cashIncrease = item['cashIncrease']
+    prepareJieJinPercent = item['prepareJieJinPercent']
+
+    devDesc = '研发占比%.2f' % devPercent
+    increaseHight = '近两年高速成长' if increaseHight else ''
+    cashDesc = '经营现金流增长' if cashIncrease else ''
+    currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
+        incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
+        ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
+    currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
+    sdPercentDesc = '十大股东总计:' + str(sdPercent)
+    fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
+    fundCountDesc = '机构数量：%d' % countOfFund
+    prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
+    prepareJieJinDesc = '有大于0.5倍数据准备解禁' if prepareJieJinPercent >= 0.5 else ''
+
+    print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, '利润:%s/%s' % (
+    income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
+        fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc
+
+
 def formatStock(arr):
     for item in arr:
-        code = item['code']
-        name = item['name']
-        syl = item['syl']
-        holdingsCount = item['holdingsCount']  # 股东数
-        sdPercent = item['sdPercent']
-        commentCount = item['commentCount']
-        percentOfFund = item['percentOfFund']
-        countOfFund = item['countOfFund']
-        je = item['je']
-        counts = item['counts']  # 人均持股数
-        jll = item['jll']
-        devPercent = item['devPercent']
-        devHigh = item['devHigh']
-        increaseHight = item['increaseHight']
-
-        income = item['income']
-        profit = item['profit']
-        incodeIncremnt = item['incodeIncremnt']
-        profitIncrment = item['profitIncrment']
-        prepareIncrease = item['prepareIncrease']
-        cashIncrease = item['cashIncrease']
-        prepareJieJinPercent = item['prepareJieJinPercent']
-
         if itemIsGood(item):
-            devDesc = '研发占比%.2f' % devPercent
-            increaseHight = '近两年高速成长' if increaseHight else ''
-            cashDesc = '经营现金流增长' if cashIncrease else ''
-            currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
-            incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
-                ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
-            currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
-            sdPercentDesc = '十大股东总计:' + str(sdPercent)
-            fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
-            fundCountDesc = '机构数量：%d' % countOfFund
-            prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
-            prepareJieJinDesc = '有大于0.5倍数据准备解禁' if prepareJieJinPercent >= 0.5 else ''
-
-            print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, '利润:%s/%s' % (income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
-                fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc
-        else:
-            pass
+          printInfo(item)
 
 def princleple():
     print '''
@@ -520,71 +461,62 @@ def mainMethod():
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
     #sendReq(fourMonthAgoDate, currentDate)
-    outArray = getSortedValue()
-    codeArray = [x[0] for x in outArray]
-    if outArray:
-        outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
-        print '\n外资持股增长+业绩高速增长+净利率高如下:'
-        for item in outArray:
-            # 调试用
-            if item[0] == '300726':
-                print 'aa'
-            isgood = isGoodStock(item[0])
-            if isgood:
-                holdingRank(item[0])
-                printInfo(item, False)
-
-    print '\n外资暂无持股，但是业绩很好的股票：'
     codes = su.getAllStockList()
     for code in codes:
         holdingRank(code)
-        if code in codeArray:
-            continue
-        else:
-            ret = isGoodStock(code)
-            if ret:
-                printInfo(code, True)
 
     # 等待所有线程结束
     for thread in cachedThreads:
         thread.join()
 
+    print '\n外资持股增长+业绩高速增长+净利率高如下:'
+    outArray = getSortedValue()
+    codeArray = [x[0] for x in outArray]
+    if outArray:
+        outArray = sorted(outArray, key=lambda x: float(x[3]), reverse=True)
+        for item in outArray:
+            code = item[0]
+            value = ranks[code] if code in ranks else None
+            if value and itemIsGood(value):
+                printInfo(value)
+
     # 直接结果
+    values = ranks.values()
     print '\n人均持股金额排行：'
-    ret = sorted(ranks, key=lambda x: x['count'], reverse=True)
+    ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
     print '\n券商推荐排行：'
-    ret = sorted(ranks, key=lambda x: x['commentCount'], reverse=True)
+    ret = sorted(values, key=lambda x: x['commentCount'], reverse=True)
     formatStock(ret)
 
     print '\n利润增速排行：'
-    ret = sorted(ranks, key=lambda x: x['profitIncrment'], reverse=True)
+    ret = sorted(values, key=lambda x: x['profitIncrment'], reverse=True)
     formatStock(ret)
 
     print '\n研发占比排行：'
-    ret = sorted(ranks, key=lambda x: x['devPercent'], reverse=True)
+    ret = sorted(values, key=lambda x: x['devPercent'], reverse=True)
     formatStock(ret)
 
     print '\n股东人数排行：'
-    ret = sorted(ranks, key=lambda x: x['holdingsCount'], reverse=False)
+    ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
 
     print '\n基金数量排行：'
-    ret = sorted(ranks, key=lambda x: x['countOfFund'], reverse=True)
+    ret = sorted(values, key=lambda x: x['countOfFund'], reverse=True)
     formatStock(ret)
 
     print '\n十大股东占比排行：'
-    ret = sorted(ranks, key=lambda x: x['sdPercent'], reverse=True)
+    ret = sorted(values, key=lambda x: x['sdPercent'], reverse=True)
     formatStock(ret)
 
     print '\n解禁占比占比排行：'
-    ret = sorted(ranks, key=lambda x: x['prepareJieJinPercent'], reverse=True)
+    ret = sorted(values, key=lambda x: x['prepareJieJinPercent'], reverse=True)
     formatStock(ret)
 
     def filter_increase(n):
         return n['prepareIncrease'] and n['prepareIncrease'][0];
-    increaseList = filter(filter_increase, ranks)
+    increaseList = filter(filter_increase, values)
     s = ''
     for item in increaseList:
         if itemIsGood(item):
