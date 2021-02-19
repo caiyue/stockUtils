@@ -604,8 +604,8 @@ class StockUtils(object):
 
         return s
 
-    '''最近3个季度平均超过5500w的在建工程'''
-    def inprogressProject(self, code):
+    '''最近3个季度平均超过5500w的在建工程,应收账款'''
+    def getCompanyBill(self, code):
         url = inprogressProject % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url)
         if res:
@@ -624,9 +624,9 @@ class StockUtils(object):
                             maxValue = float(num)
                     else:
                         total += 0
-            return maxValue >= 55000000 or total/len(arr) >= 55000000
-        return False
-
+                bill = obj[0]['ACCOUNTBILLREC']
+            return maxValue >= 55000000 or total/len(arr) >= 55000000, float(bill) if bill and bill != '--' else 0
+        return False, 0
 
     '''现金流增长3000w以上'''
     def cashIncrease(self, code):

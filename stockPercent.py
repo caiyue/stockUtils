@@ -212,7 +212,7 @@ def multiThradExector(code, lock):
     prepareIncrease = su.prepareToIncreaseLastWeek(code)
     cashIncrease = su.getCashDetail(code)
     prepareJieJinPercent = su.PrePareToJieJin(code)
-
+    bill = su.getCompanyBill(code)[1]
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
     jll = 0
@@ -245,6 +245,7 @@ def multiThradExector(code, lock):
                 'profit': profit,
                 'incodeIncremnt': incodeIncremnt,
                 'profitIncrment': profitIncrment,
+                'bill': bill,
 
                 'devPercent': developPercentHigh[1],
                 'devHigh': developPercentHigh[0] >= 1,
@@ -382,6 +383,8 @@ def printInfo(item):
     profit = item['profit']
     incodeIncremnt = item['incodeIncremnt']
     profitIncrment = item['profitIncrment']
+    bill = item['bill']
+
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
     prepareJieJinPercent = item['prepareJieJinPercent']
@@ -389,19 +392,20 @@ def printInfo(item):
     devDesc = '研发占比%.2f' % devPercent
     increaseHight = '近两年高速成长' if increaseHight else ''
     cashDesc = '经营现金流增长' if cashIncrease else ''
-    currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
+    currentIncreaseHight = '当季超高增长:[%s/%s]' % (
         incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
-        ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
+        ('当季高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
     currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
     sdPercentDesc = '十大股东总计:' + str(sdPercent)
     fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
-    fundCountDesc = '机构数量：%d' % countOfFund
+    fundCountDesc = '机构数量:%d' % countOfFund
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
-    prepareJieJinDesc = '有大于0.5倍数据准备解禁' if prepareJieJinPercent >= 0.5 else ''
+    prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
+    billDesc = '应付款:%.fW' % (float(bill)/10000)
 
-    print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, '利润:%s/%s' % (
+    print code, name, '市盈率:', syl, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
-        fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc
+        fundPercentDesc, fundCountDesc, '股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc, billDesc
 
 
 def formatStock(arr):
@@ -486,6 +490,10 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
+    print '\n基金数量排行：'
+    ret = sorted(values, key=lambda x: x['countOfFund'], reverse=True)
+    formatStock(ret)
+
     print '\n券商推荐排行：'
     ret = sorted(values, key=lambda x: x['commentCount'], reverse=True)
     formatStock(ret)
@@ -502,12 +510,12 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
 
-    print '\n基金数量排行：'
-    ret = sorted(values, key=lambda x: x['countOfFund'], reverse=True)
-    formatStock(ret)
-
     print '\n十大股东占比排行：'
     ret = sorted(values, key=lambda x: x['sdPercent'], reverse=True)
+    formatStock(ret)
+
+    print '\n公司应付款排行：'
+    ret = sorted(values, key=lambda x: float(x['bill']), reverse=False)
     formatStock(ret)
 
     print '\n解禁占比占比排行：'
