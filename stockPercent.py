@@ -401,7 +401,7 @@ def printInfo(item):
     fundCountDesc = '机构数量:%d' % countOfFund
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
     prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
-    billDesc = '应付款:%.fW' % (float(bill)/10000)
+    billDesc = '应收款:%.fW' % (float(bill)/10000)
 
     print code, name, '市盈率:', syl, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
@@ -514,7 +514,7 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['sdPercent'], reverse=True)
     formatStock(ret)
 
-    print '\n公司应付款排行：'
+    print '\n公司应收款排行：'
     ret = sorted(values, key=lambda x: float(x['bill']), reverse=False)
     formatStock(ret)
 
