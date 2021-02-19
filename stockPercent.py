@@ -196,7 +196,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发50个线程
-pool_sema = threading.BoundedSemaphore(value=20)
+pool_sema = threading.BoundedSemaphore(value=10)
 def multiThradExector(code, lock):
     su = StockUtils()
     syl = su.getHslAndSylForCode(code)
@@ -343,13 +343,17 @@ def itemIsGood(item):
     isOK = False
     if jll >= 11:
         if increaseHight:
-            isOK = incodeIncremnt >= 5 and profitIncrment >= -10
-        elif len(je) >= 1 and je[0] >= 100 and jll >= 20:
+            isOK = incodeIncremnt >= 5 and profitIncrment >= 5
+        elif len(je) >= 1 and je[0] >= 50 and countOfFund > 50 and jll >= 20:
             isOK = True
         else:
             isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
-    elif jll >= 8 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
-        isOK = True
+    elif jll >= 8:
+        if increaseHight:
+            if incodeIncremnt >= 30 and profitIncrment >= 30:
+                isOK = True
+        elif incodeIncremnt >= 50 and profitIncrment >= 50:
+            isOK = True
 
     # 资金聚集筛选条件
     # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
