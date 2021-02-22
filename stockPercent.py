@@ -50,14 +50,12 @@ def executeSQL(sql):
     else:
         return
 
-
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
         sql = 'insert into %s(code,name,total,percent,date) value (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % \
               ('stock', code, name, total, percent, hold_date)
         print sql
         executeSQL(sql)
-
 
 def stripString(res):
     if not res:
@@ -195,8 +193,8 @@ def descForCode(ret):
 
 ranks = {}
 cachedThreads = []
-# 最多同时发50个线程
-pool_sema = threading.BoundedSemaphore(value=20)
+# 最多同时发10个线程
+pool_sema = threading.BoundedSemaphore(value=10)
 def multiThradExector(code, lock):
     su = StockUtils()
     syl = su.getHslAndSylForCode(code)
