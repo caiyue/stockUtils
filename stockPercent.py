@@ -515,7 +515,7 @@ def mainMethod():
     formatStock(ret)
 
     print '\n市盈率排行：'
-    ret = sorted(values, key=lambda x: float(x['syl']), reverse=True)
+    ret = sorted(values, key=lambda x: float(x['syl']), reverse=False)
     formatStock(ret)
 
     print '\n十大股东占比排行：'
