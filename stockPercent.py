@@ -340,7 +340,7 @@ def itemIsGood(item):
     isOK = False
     if jll >= 11:
         if increaseHight:
-            isOK = incodeIncremnt >= 5 and profitIncrment >= -10
+            isOK = incodeIncremnt >= 5 and profitIncrment >= -15
         elif len(je) >= 1 and je[0] >= 100 and jll >= 20:
             isOK = True
         else:
