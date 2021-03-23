@@ -311,8 +311,11 @@ def itemIsGood(item):
         return False
 
     #如果筹码太散，股价不容易拉升，所以过滤下，基金扎堆除外
-    if sdPercent < 40 and not(len(je) > 0 and je[0] >= 80) and countOfFund < 100 and not increaseHight:
-        return False
+    if not increaseHight:
+        if 0 < sdPercent < 40 and countOfFund < 100:
+            return False
+        elif len(je) > 0 and je[0] < 50:
+            return False
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
     # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
@@ -343,7 +346,7 @@ def itemIsGood(item):
     isOK = False
     if jll >= 11:
         if increaseHight:
-            isOK = incodeIncremnt >= 5 and profitIncrment >= 5
+            isOK = incodeIncremnt >= 5 and profitIncrment >= -15
         elif len(je) >= 1 and je[0] >= 50 and countOfFund > 50 and jll >= 20:
             isOK = True
         else:
