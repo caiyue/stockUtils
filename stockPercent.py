@@ -50,12 +50,14 @@ def executeSQL(sql):
     else:
         return
 
+
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
         sql = 'insert into %s(code,name,total,percent,date) value (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % \
               ('stock', code, name, total, percent, hold_date)
         print sql
         executeSQL(sql)
+
 
 def stripString(res):
     if not res:
@@ -193,7 +195,7 @@ def descForCode(ret):
 
 ranks = {}
 cachedThreads = []
-# 最多同时发10个线程
+# 最多同时发50个线程
 pool_sema = threading.BoundedSemaphore(value=10)
 def multiThradExector(code, lock):
     su = StockUtils()
@@ -211,7 +213,6 @@ def multiThradExector(code, lock):
     cashIncrease = su.getCashDetail(code)
     prepareJieJinPercent = su.PrePareToJieJin(code)
     bill = su.getCompanyBill(code)[1]
-
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
     jll = 0
@@ -346,12 +347,16 @@ def itemIsGood(item):
     if jll >= 11:
         if increaseHight:
             isOK = incodeIncremnt >= 5 and profitIncrment >= -15
-        elif len(je) >= 1 and je[0] >= 80 and jll >= 18:
+        elif len(je) >= 1 and je[0] >= 50 and countOfFund > 50 and jll >= 20:
             isOK = True
         else:
             isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
-    elif jll >= 8 and increaseHight and incodeIncremnt >= 30 and profitIncrment >= 30:
-        isOK = True
+    elif jll >= 8:
+        if increaseHight:
+            if incodeIncremnt >= 30 and profitIncrment >= 30:
+                isOK = True
+        elif incodeIncremnt >= 50 and profitIncrment >= 50:
+            isOK = True
 
     # 资金聚集筛选条件
     # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
@@ -385,28 +390,29 @@ def printInfo(item):
     profit = item['profit']
     incodeIncremnt = item['incodeIncremnt']
     profitIncrment = item['profitIncrment']
+    bill = item['bill']
+
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
     prepareJieJinPercent = item['prepareJieJinPercent']
 
-    bill = item['bill']
-
     devDesc = '研发占比%.2f' % devPercent
     increaseHight = '近两年高速成长' if increaseHight else ''
     cashDesc = '经营现金流增长' if cashIncrease else ''
-    currentIncreaseHight = '当季度超高增长:[%s/%s]' % (
+    currentIncreaseHight = '当季超高增长:[%s/%s]' % (
         incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
-        ('当季度高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
+        ('当季高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
     currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
     sdPercentDesc = '十大股东总计:' + str(sdPercent)
     fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
-    fundCountDesc = '机构数量：%d' % countOfFund
+    fundCountDesc = '机构数量:%d' % countOfFund
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
-    prepareJieJinDesc = '有大于0.5倍数据准备解禁' if prepareJieJinPercent >= 0.5 else ''
+    prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
+    billDesc = '应收款:%.fW' % (float(bill)/10000)
 
-    print code, name, '市盈率:', syl, ' 评级数:', commentCount, je, counts, '利润:%s/%s' % (
+    print code, name, '市盈率:', syl, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
-        fundPercentDesc, fundCountDesc, '最新股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc
+        fundPercentDesc, fundCountDesc, '股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc, billDesc
 
 
 def formatStock(arr):
@@ -514,6 +520,10 @@ def mainMethod():
     print '\n股东人数排行：'
     ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
+
+    # print '\n市盈率排行：'
+    # ret = sorted(values, key=lambda x: float(x['syl']), reverse=False)
+    # formatStock(ret)
 
     print '\n十大股东占比排行：'
     ret = sorted(values, key=lambda x: x['sdPercent'], reverse=True)
