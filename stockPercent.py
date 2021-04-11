@@ -497,6 +497,10 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
+    print '\n基金占比排行：'
+    ret = sorted(values, key=lambda x: float(x['percentOfFund']), reverse=True)
+    formatStock(ret)
+
     print '\n基金数量排行：'
     ret = sorted(values, key=lambda x: x['countOfFund'], reverse=True)
     formatStock(ret)
@@ -517,9 +521,9 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
 
-    print '\n市盈率排行：'
-    ret = sorted(values, key=lambda x: float(x['syl']), reverse=False)
-    formatStock(ret)
+    # print '\n市盈率排行：'
+    # ret = sorted(values, key=lambda x: float(x['syl']), reverse=False)
+    # formatStock(ret)
 
     print '\n十大股东占比排行：'
     ret = sorted(values, key=lambda x: x['sdPercent'], reverse=True)
