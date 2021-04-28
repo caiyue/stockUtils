@@ -344,6 +344,7 @@ def itemIsGood(item):
 
     # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
     isOK = False
+    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
     if jll >= 11:
         if increaseHight:
             isOK = incodeIncremnt >= 5 and profitIncrment >= 5
@@ -351,12 +352,6 @@ def itemIsGood(item):
             isOK = True
         else:
             isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
-    elif jll >= 8:
-        if increaseHight:
-            if incodeIncremnt >= 30 and profitIncrment >= 30:
-                isOK = True
-        elif incodeIncremnt >= 50 and profitIncrment >= 50:
-            isOK = True
 
     # 资金聚集筛选条件
     # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
