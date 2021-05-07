@@ -9,6 +9,12 @@ stocklistName = 'stocklist'
 
 
 '''
+修复Python找不到数据的问题
+install_name_tool -change libmysqlclient.18.dylib  /usr/local/mysql/lib/libmysqlclient.18.dylib  /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/_mysql.so
+'''
+
+
+'''
 CREATE TABLE `stock` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` char(10) DEFAULT NULL,

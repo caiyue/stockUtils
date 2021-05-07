@@ -310,6 +310,10 @@ def itemIsGood(item):
     if incomeIs2Small(income):
         return False
 
+    # 一般是地产、银行等不能告诉成长的企业
+    if syl <= 10:
+        return False
+
     #如果筹码太散，股价不容易拉升，所以过滤下，基金扎堆除外
     if not increaseHight:
         if 0 < sdPercent < 40 and countOfFund < 100:
