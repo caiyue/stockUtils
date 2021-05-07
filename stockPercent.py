@@ -314,6 +314,10 @@ def itemIsGood(item):
     if syl <= 10:
         return False
 
+    # 如果证券公司都不关注，而且过去业绩不咋地，那当前高增长都是暂时的
+    if commentCount <= 0 and not increaseHight:
+        return False
+
     #如果筹码太散，股价不容易拉升，所以过滤下，基金扎堆除外
     if not increaseHight:
         if 0 < sdPercent < 40 and countOfFund < 100:
