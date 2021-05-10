@@ -492,7 +492,10 @@ class StockUtils(object):
                         increaseHight = notEmpty and ((float(incomeIncreaseByYear) >= 25 and float(profileIncreaseByYear) >= 20) or
                                                       (float(incomeIncreaseByYear) >= 30 and float(profit) >= 400000000 and profit * 1.0 / income >= 0.1) or
                                                       (float(incomeIncreaseByYear) >= 20 and float(profileIncreaseByYear) >= 20 and float(profit) >= 500000000) or
-                                                      (float(incomeIncreaseByYear) >= 15 and float(profileIncreaseByYear) >= 15 and float(profit) >= 1000000000))
+                                                      (float(incomeIncreaseByYear) >= 15 and float(profileIncreaseByYear) >= 15 and float(profit) >= 1000000000) or
+                                                      (float(incomeIncreaseByYear) >= 10 and float(profileIncreaseByYear) >= 10 and float(profit) >= 2000000000) or
+                                                      (float(incomeIncreaseByYear) >= 5 and float(profileIncreaseByYear) >= 5 and float(profit) >= 3000000000)
+                                                      )
                         if not increaseHight or count == 2:
                             break
                     except Exception,e:
