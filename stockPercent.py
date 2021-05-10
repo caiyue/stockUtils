@@ -32,7 +32,8 @@ incomeBaseIncrease = 25
 profitBaseIncrease = 25
 
 sylLimit = 250
-shizhiLimit = 25
+shizhiLimit = 20
+jllLimit = 15
 
 def mysql_init():
     cur = conn.cursor()
@@ -171,10 +172,10 @@ def filterGood(ret):
             lastDataItem = item[-1]
             allCountArray = [int(x[2]) for x in item]
             averageCount = sum(allCountArray) / len(allCountArray)
+            startCount = allCountArray[0]
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
-            isOk = endCount >= maxCount * 0.80 or \
-                   endCount >= averageCount
+            isOk = endCount >= maxCount * 0.80 > startCount
             # 不再根据外资投资比例筛选股票
             if isOk:
                 outArray.append(lastDataItem)
@@ -315,15 +316,20 @@ def itemIsGood(item):
         return False
 
     # 如果证券公司都不关注，而且过去业绩不咋地，那当前高增长都是暂时的
-    if commentCount <= 0 and not increaseHight:
+    if commentCount <= 0:
         return False
 
-    #如果筹码太散，股价不容易拉升，所以过滤下，基金扎堆除外
-    if not increaseHight:
-        if 0 < sdPercent < 40 and countOfFund < 100:
-            return False
-        elif len(je) > 0 and je[0] < 50:
-            return False
+    #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
+    if sdPercent < 40:
+        return False
+
+    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
+    if jll < jllLimit:
+        return False
+
+    #  还没有资金进入
+    if len(je) >= 1 and je[0] < shizhiLimit:
+        return False
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
     # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
@@ -337,36 +343,20 @@ def itemIsGood(item):
     # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
     # 或者 人均持股金额 大于100w
 
-    # 主要用来过滤新股
-    if not increaseHight:
-        if len(je) >= 1 and je[0] < shizhiLimit and jll < 11:
-            return False
-        if len(je) >= 3 and len(holdingsCount) >= 3 and je[0] < shizhiLimit and \
-                (not je[0] > je[1] > je[2] or not holdingsCount[0] < holdingsCount[1] < holdingsCount[2]):
-            return False
-
-    # 如果不是高速成长的公司，经营现金流差的公司，再给一次机会，看当前季度增长是否高，否则直接过滤掉
-    if not increaseHight and not cashIncrease:
-        if not (incodeIncremnt >= 50 and profitIncrment >= 50):
-            return False
-
     # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
     isOK = False
-    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
-    if jll >= 11:
-        if increaseHight:
-            isOK = incodeIncremnt >= 5 and profitIncrment >= 5
-        elif len(je) >= 1 and je[0] >= 50 and countOfFund > 50 and jll >= 20:
-            isOK = True
-        else:
-            isOK = incodeIncremnt >= incomeBaseIncrease and profitIncrment >= profitBaseIncrease
+    if not increaseHight:
+        if not (incodeIncremnt >= 40 and profitIncrment >= 40):
+            return False
+        isOK = True
+    else:
+        isOK = incodeIncremnt >= 5 and profitIncrment >= 5
 
     # 资金聚集筛选条件
     # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
     isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
                 increaseHight or \
                 (incodeIncremnt >= 40 and profitIncrment >= 40) or \
-                (devPercent > 1.0 and jll >= 18) or \
                 (len(je) >= 1 and je[0] >= 100)
 
     if isOK and isCollect:
