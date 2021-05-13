@@ -228,6 +228,7 @@ def multiThradExector(code, lock):
             profit = recent.profit
 
         if code and name and holdings and len(holdings) > 0:
+            billPercent = getNumFromStr(bill) * 1.0 / getNumFromStr(income)
             ranks[code] = {
                 'code': code,
                 'name': name,
@@ -247,6 +248,7 @@ def multiThradExector(code, lock):
                 'incodeIncremnt': incodeIncremnt,
                 'profitIncrment': profitIncrment,
                 'bill': bill,
+                'billPercent': billPercent,  # 应收款占比
 
                 'devPercent': developPercentHigh[1],
                 'devHigh': developPercentHigh[0] >= 1,
@@ -276,13 +278,20 @@ def prepareIncreaseFunc(prepareIncrease):
     else:
         return ''
 
-def incomeIs2Small(income):
+def getNumFromStr(income):
     if income:
-        if u'万' in income:
-            return float(income[0: -1]) < 15000
+        if isinstance(income, float):
+            return income
+        elif u'万' in income:
+            return float(income[0: -1]) * 10000
         elif u'亿' in income:
-            return float(income[0: -1]) < 1.5
-    return True
+            return float(income[0: -1]) * 10000 * 10000
+        else:
+            return float(income)
+    return 0
+
+def incomeIs2Small(income):
+    return getNumFromStr(income) < 15000 * 10000
 
 def itemIsGood(item):
     code = item['code']
@@ -384,6 +393,7 @@ def printInfo(item):
     incodeIncremnt = item['incodeIncremnt']
     profitIncrment = item['profitIncrment']
     bill = item['bill']
+    billPercent = item['billPercent']
 
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
@@ -401,7 +411,7 @@ def printInfo(item):
     fundCountDesc = '机构数量:%d' % countOfFund
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
     prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
-    billDesc = '应收款:%.fW' % (float(bill)/10000)
+    billDesc = '应收款:%.fW|%%%.f' % (float(bill)/10000, billPercent * 100)
 
     print code, name, '市盈率:', syl, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
@@ -466,6 +476,7 @@ def mainMethod():
     #
     #sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
+    #codes = ['603218', '300408', '603466']
     for code in codes:
         holdingRank(code)
 
@@ -514,16 +525,8 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
 
-    # print '\n市盈率排行：'
-    # ret = sorted(values, key=lambda x: float(x['syl']), reverse=False)
-    # formatStock(ret)
-
-    print '\n十大股东占比排行：'
-    ret = sorted(values, key=lambda x: x['sdPercent'], reverse=True)
-    formatStock(ret)
-
-    print '\n公司应收款排行：'
-    ret = sorted(values, key=lambda x: float(x['bill']), reverse=False)
+    print '\n公司应收款占比排行：'
+    ret = sorted(values, key=lambda x: float(x['billPercent']), reverse=False)
     formatStock(ret)
 
     print '\n解禁占比占比排行：'
