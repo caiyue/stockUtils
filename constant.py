@@ -9,6 +9,16 @@ stocklistName = 'stocklist'
 
 
 '''
+mysqlclient 1.3.0 
+
+MySQL-python是python和数据库的连接器，会通过mysqlclient来链接数据库
+
+这2个是必须要的
+
+'''
+
+
+'''
 修复Python找不到数据的问题
 install_name_tool -change libmysqlclient.18.dylib  /usr/local/mysql/lib/libmysqlclient.18.dylib  /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/_mysql.so
 '''
