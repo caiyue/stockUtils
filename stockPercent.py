@@ -329,7 +329,7 @@ def itemIsGood(item):
         return False
 
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
-    if sdPercent < 40:
+    if sdPercent < 50:
         return False
 
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
