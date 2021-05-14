@@ -333,7 +333,7 @@ def itemIsGood(item):
         return False
 
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
-    if sdPercent < 50:
+    if sdPercent < 45:
         return False
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是250%，单个季度收入/整体的待收账款)
