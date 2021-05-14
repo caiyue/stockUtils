@@ -228,7 +228,7 @@ def multiThradExector(code, lock):
             profit = recent.profit
 
         if code and name and holdings and len(holdings) > 0:
-            billPercent = getNumFromStr(bill) * 1.0 / getNumFromStr(income)
+            billPercent = getNumFromStr(bill) * 1.0 / 4.0 / getNumFromStr(income)
             ranks[code] = {
                 'code': code,
                 'name': name,
@@ -336,8 +336,9 @@ def itemIsGood(item):
     if sdPercent < 45:
         return False
 
-    # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是250%，单个季度收入/整体的待收账款)
-    if billPercent >= 2.4:
+    # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是50%，整体的待收账款/4/单个季度收入)
+    # 50%意味卖出100块钱，50块钱暂时收不回来，话语权太弱
+    if billPercent >= 0.5:
         return False
 
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
@@ -366,7 +367,7 @@ def itemIsGood(item):
         if incodeIncremnt >= 40 and profitIncrment >= 40:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下(这里暂定季度待首款10%,按照年也就是120%)
-        elif jll >= 20 and billPercent <= 1.2 and countOfFund > 50 and commentCount >= 5:
+        elif jll >= 20 and billPercent <= 0.3 and countOfFund > 50 and commentCount >= 5:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
