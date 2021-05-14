@@ -337,11 +337,11 @@ def itemIsGood(item):
         return False
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是250%，单个季度收入/整体的待收账款)
-    if billPercent >= 2.5:
+    if billPercent >= 2.4:
         return False
 
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
-    if jll < jllLimit:
+    if round(jll) < jllLimit:
         return False
 
     #  还没有资金进入
@@ -373,10 +373,10 @@ def itemIsGood(item):
 
     # 资金聚集筛选条件
     # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
-    isCollect = (len(je) >= 3 and je[0] > je[1] > je[2]) or \
+    isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2]) or \
                 increaseHight or \
                 (incodeIncremnt >= 40 and profitIncrment >= 40) or \
-                (len(je) >= 1 and je[0] >= 100)
+                (len(je) >= 1 and je[0] >= 80)
 
     if isOK and isCollect:
         return True
