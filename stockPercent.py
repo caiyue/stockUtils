@@ -361,9 +361,11 @@ def itemIsGood(item):
     # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
     isOK = False
     if not increaseHight:
-        if not (incodeIncremnt >= 40 and profitIncrment >= 40):
-            return False
-        isOK = True
+        if incodeIncremnt >= 40 and profitIncrment >= 40:
+            isOK = True
+        # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下(这里暂定季度待首款10%,按照年也就是120%)
+        elif jll >= 20 and billPercent <= 1.2:
+            isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
 
