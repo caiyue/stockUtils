@@ -336,6 +336,10 @@ def itemIsGood(item):
     if countOfFund <= 0:
         return False
 
+    # 业绩差的直接过滤
+    if incodeIncremnt <= 0 and profitIncrment <= 0:
+        return False
+
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
     if sdPercent < 45:
         return False
