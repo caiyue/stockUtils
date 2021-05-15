@@ -367,7 +367,7 @@ def itemIsGood(item):
         if incodeIncremnt >= 40 and profitIncrment >= 40:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下(这里暂定季度待首款10%,按照年也就是120%)
-        elif jll >= 20 and billPercent <= 0.3 and countOfFund > 30 and commentCount >= 5:
+        elif jll >= 20 and billPercent <= 0.3 and countOfFund > 15 and commentCount >= 5:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
