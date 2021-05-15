@@ -329,8 +329,8 @@ def itemIsGood(item):
         return False
 
     # 如果证券公司都不关注，而且过去业绩不咋地，那当前高增长都是暂时的
-    if commentCount <= 0:
-        return False
+    # if commentCount <= 0:
+    #     return False
 
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
     if sdPercent < 45:
@@ -367,7 +367,7 @@ def itemIsGood(item):
         if incodeIncremnt >= 40 and profitIncrment >= 40:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下(这里暂定季度待首款10%,按照年也就是120%)
-        elif jll >= 20 and billPercent <= 0.3 and countOfFund > 50 and commentCount >= 5:
+        elif jll >= 20 and billPercent <= 0.3 and countOfFund > 30 and commentCount >= 5:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
