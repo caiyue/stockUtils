@@ -329,8 +329,8 @@ def itemIsGood(item):
         return False
 
     # 如果证券公司都不关注，而且过去业绩不咋地，那当前高增长都是暂时的
-    # if commentCount <= 0:
-    #     return False
+    if commentCount <= 0:
+        return False
 
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
     if sdPercent < 45:
@@ -379,7 +379,7 @@ def itemIsGood(item):
                 (incodeIncremnt >= 40 and profitIncrment >= 40) or \
                 (len(je) >= 1 and je[0] >= 80)
 
-    if isOK and isCollect:
+    if isOK:
         return True
     return False
 
