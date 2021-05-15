@@ -32,7 +32,7 @@ incomeBaseIncrease = 25
 profitBaseIncrease = 25
 
 sylLimit = 250
-shizhiLimit = 20
+jeLimit = 15  # 有些新股好公司确定很低
 jllLimit = 15
 
 def mysql_init():
@@ -346,7 +346,7 @@ def itemIsGood(item):
         return False
 
     #  还没有资金进入
-    if len(je) >= 1 and je[0] < shizhiLimit:
+    if len(je) >= 1 and je[0] < jeLimit:
         return False
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
