@@ -332,6 +332,10 @@ def itemIsGood(item):
     if commentCount <= 0:
         return False
 
+    # 如果连一家基金都看不上，得多垃圾啊
+    if countOfFund <= 0:
+        return False
+
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
     if sdPercent < 45:
         return False
