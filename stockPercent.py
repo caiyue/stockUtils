@@ -337,7 +337,7 @@ def itemIsGood(item):
         return False
 
     # 业绩差的直接过滤
-    if incodeIncremnt <= 0 and profitIncrment <= 0:
+    if incodeIncremnt <= 0 or profitIncrment <= 0:
         return False
 
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
@@ -378,7 +378,7 @@ def itemIsGood(item):
         elif incodeIncremnt >= 30 and profitIncrment >= 30 and billPercent <= 0.2:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下
-        elif jll >= 20 and billPercent <= 0.3 and countOfFund >= 5 and commentCount >= 3:
+        elif jll >= 20 and billPercent <= 0.3 and countOfFund >= 10 and commentCount >= 5:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
