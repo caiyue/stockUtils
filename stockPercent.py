@@ -346,7 +346,7 @@ def itemIsGood(item):
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是60%，整体的待收账款/4/单个季度收入)
     # 50%意味卖出100块钱，60块钱暂时收不回来，话语权太弱
-    if billPercent >= 0.6:
+    if billPercent >= 0.55:
         return False
 
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
@@ -374,8 +374,11 @@ def itemIsGood(item):
     if not increaseHight:
         if incodeIncremnt >= 40 and profitIncrment >= 40:
             isOK = True
-        # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下(这里暂定季度待首款10%,按照年也就是120%)
-        elif jll >= 20 and billPercent <= 0.3 and countOfFund > 15 and commentCount >= 5:
+        # 次新股
+        elif incodeIncremnt >= 30 and profitIncrment >= 30 and billPercent <= 0.2:
+            isOK = True
+        # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下
+        elif jll >= 20 and billPercent <= 0.3 and countOfFund >= 5 and commentCount >= 3:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
