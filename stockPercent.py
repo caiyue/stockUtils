@@ -31,7 +31,7 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 incomeBaseIncrease = 25
 profitBaseIncrease = 25
 
-sylLimit = 250
+sylLimit = 300
 jeLimit = 15  # 有些新股好公司确定很低
 jllLimit = 15
 
@@ -321,8 +321,8 @@ def itemIsGood(item):
     cashIncrease = item['cashIncrease']
 
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
-    if incomeIs2Small(income):
-        return False
+    # if incomeIs2Small(income):
+    #     return False
 
     # 一般是地产、银行等不能告诉成长的企业
     if syl <= 10:
