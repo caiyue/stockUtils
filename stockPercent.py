@@ -378,7 +378,7 @@ def itemIsGood(item):
         elif incodeIncremnt >= 30 and profitIncrment >= 30 and billPercent <= 0.2:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下
-        elif jll >= 20 and billPercent <= 0.3 and countOfFund >= 10 and commentCount >= 5:
+        elif jll >= 20 and billPercent <= 0.3 and countOfFund >= 15 and commentCount >= 5:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
