@@ -328,10 +328,6 @@ def itemIsGood(item):
     if syl <= 10:
         return False
 
-    # 如果证券公司都不关注，而且过去业绩不咋地，那当前高增长都是暂时的
-    if commentCount <= 0:
-        return False
-
     # 如果连一家基金都看不上，得多垃圾啊
     if countOfFund <= 0:
         return False
@@ -353,9 +349,24 @@ def itemIsGood(item):
     if round(jll) < jllLimit:
         return False
 
-    #  还没有资金进入
-    if len(je) >= 1 and je[0] < jeLimit:
-        return False
+    # 下面两个指标有可能会把新股数据过滤掉,这里适配下新股
+    # 刚上市的企业有可能就是没有券商关注，所以这个指标不用在意，但是前提是这个公司要有很强的竞争力
+    # if commentCount <= 0:
+    #     return False
+
+    #  还没有资金进入(发现好企业就行，刚上市有可能就是比较小)
+    # if len(je) >= 1 and je[0] < jeLimit:
+    #     return False
+
+    # 将上面的代码优化下，适配下次新股
+    conditionComment = commentCount <= 0
+    conditionJe =  len(je) >= 1 and je[0] < jeLimit
+    conditionAnother = jll >= 20 and billPercent < 0.15
+
+    if conditionComment or conditionJe:
+        if not conditionAnother:
+            return False
+
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
     # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
