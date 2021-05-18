@@ -352,21 +352,19 @@ def itemIsGood(item):
     if round(jll) < jllLimit:
         return False
 
-    # 下面两个指标有可能会把新股数据过滤掉,这里适配下新股
-    # 刚上市的企业有可能就是没有券商关注，所以这个指标不用在意，但是前提是这个公司要有很强的竞争力
-    # if commentCount <= 0:
-    #     return False
+    # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐
+    if commentCount <= 0:
+        return False
 
     #  还没有资金进入(发现好企业就行，刚上市有可能就是比较小)
     # if len(je) >= 1 and je[0] < jeLimit:
     #     return False
 
     # 将上面的代码优化下，适配下次新股
-    conditionComment = commentCount <= 0
     conditionJe = len(je) >= 1 and je[0] < jeLimit
     conditionAnother = jll >= 20 and billPercent < 0.15
 
-    if conditionComment or conditionJe:
+    if conditionJe:
         if not conditionAnother:
             return False
 
