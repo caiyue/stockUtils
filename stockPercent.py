@@ -320,8 +320,16 @@ def itemIsGood(item):
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
 
+
+
     # 去除垃圾赛道
-    if u'证券' or u'银行' or u'地产' or u'租赁' or u'企业' or u'媒体' or u'传媒' in name:
+    if u'证券' in name \
+            or u'银行' in name \
+            or u'地产' in name \
+            or u'租赁' in name \
+            or u'企业' in name \
+            or u'媒体' in name \
+            or u'传媒' in name:
         return False
 
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
