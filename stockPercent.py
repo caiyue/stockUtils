@@ -342,11 +342,12 @@ def itemIsGood(item):
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
     # 50%意味卖出100块钱，60块钱暂时收不回来，话语权太弱
-    if billPercent >= 0.40:
+
+    if billPercent >= 0.5:
+        return False
+    elif billPercent >= 0.40:
         if not increaseHight:
             return False
-    elif billPercent >= 0.5:
-        return False
 
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
     if round(jll) < jllLimit:
