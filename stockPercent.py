@@ -293,7 +293,7 @@ def getNumFromStr(income):
     return 0
 
 def incomeIs2Small(income):
-    return getNumFromStr(income) < 15000 * 10000
+    return getNumFromStr(income) < 12000 * 10000
 
 def itemIsGood(item):
     code = item['code']
@@ -320,9 +320,13 @@ def itemIsGood(item):
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
 
+    # 去除垃圾赛道
+    if u'证券' or u'银行' or u'地产' or u'租赁' or u'企业' or u'媒体' or u'传媒' in name:
+        return False
+
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
-    # if incomeIs2Small(income):
-    #     return False
+    if incomeIs2Small(income):
+        return False
 
     # 一般是地产、银行等不能告诉成长的企业
     if syl <= 10:
