@@ -337,6 +337,14 @@ def itemIsGood(item):
     if syl <= 10 or syl > sylLimit:
         return False
 
+    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
+    if round(jll) < jllLimit:
+        return False
+
+    # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐
+    if commentCount <= 0:
+        return False
+
     # 如果连一家基金都看不上，得多垃圾啊
     if countOfFund <= 0:
         return False
@@ -363,14 +371,6 @@ def itemIsGood(item):
     elif billPercent >= 0.40:
         if not increaseHight:
             return False
-
-    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
-    if round(jll) < jllLimit:
-        return False
-
-    # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐
-    if commentCount <= 0:
-        return False
 
     #  还没有资金进入(发现好企业就行，刚上市有可能就是比较小)
     # if len(je) >= 1 and je[0] < jeLimit:
