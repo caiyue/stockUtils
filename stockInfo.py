@@ -903,16 +903,23 @@ class StockUtils(object):
         return list(set(stockList)) if stockList and len(stockList) > 0 else []
 
     @classmethod
-    def getHslAndSylForCode(self,code):
+    def getHslSylAndJlvForCode(self, code):
         '''市盈率、市值相关数据'''
         url = hslUrl % (str(getMark10Id(code)) + '.' + code)
         res = getHtmlFromUrl(url)
         obj = getJsonObj2s(res)
         if not obj:
-            return 0
+            return None
         else:
-            return obj['f162']
-
+            return {
+                "syl": obj['f162'],  # 市盈率
+                "hsl": obj['f168'],  # 换手率
+                "fzl": obj['f188'],  # 负债率
+                "sz": obj['f116'],   # 元
+                "jll": obj['f187'],  # 净利率,
+                "incomeIncrement": obj['f184'], # 收入增长率
+                "profitIncrment": obj['f185']   # 利润增长率
+            }
 
 def getlastseason():
     currentTimeStamp = datetime.now()

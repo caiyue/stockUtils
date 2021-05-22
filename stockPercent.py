@@ -200,10 +200,7 @@ cachedThreads = []
 pool_sema = threading.BoundedSemaphore(value=10)
 def multiThradExector(code, lock):
     su = StockUtils()
-    syl = su.getHslAndSylForCode(code)
-    if syl < 0 or syl > sylLimit:
-        lock.release()
-        return
+    companyDetail = su.getHslSylAndJlvForCode(code)
     holdings = su.getAverageHolding(code)
     name = su.getStockNameFromCode(code)
     sdPercent = su.sdgdTotalPercent(code)
@@ -216,14 +213,11 @@ def multiThradExector(code, lock):
     bill = su.getCompanyBill(code)[1]
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
-    jll = 0
+
     try:
         if roe:
             # 最近的季报
             recent = roe[0]
-            jll = float(recent.jinglilv if recent.jinglilv != '--' else '0')
-            incodeIncremnt = float(recent.incomeRate if recent.incomeRate != '--' else 0)
-            profitIncrment = float(recent.profitRate if recent.profitRate != '--' else 0)
             income = recent.income
             profit = recent.profit
 
@@ -232,7 +226,8 @@ def multiThradExector(code, lock):
             ranks[code] = {
                 'code': code,
                 'name': name,
-                'syl': syl,
+                'sz': companyDetail['sz'],
+                'syl': companyDetail['syl'],
                 'sdPercent': sdPercent,  # 十大股东占比,
                 'commentCount': commentCount,  # 券商评级数量,
                 'percentOfFund': fundInfo[0],  # 基金流通股占比
@@ -242,11 +237,13 @@ def multiThradExector(code, lock):
                 'counts': holdings[2],  # 人均持股数据,
                 'holdingsCount': holdings[3],  # 股东人数
 
-                'jll': jll,
+                'jll':  companyDetail['jll'],
                 'income': income,
                 'profit': profit,
-                'incodeIncremnt': incodeIncremnt,
-                'profitIncrment': profitIncrment,
+                'incodeIncremnt': companyDetail['incomeIncrement'],
+                'profitIncrment': companyDetail['profitIncrment'],
+                'fzl': companyDetail['fzl'],
+
                 'bill': bill,
                 'billPercent': billPercent,  # 应收款占比
 
@@ -259,7 +256,7 @@ def multiThradExector(code, lock):
                 'prepareJieJinPercent': prepareJieJinPercent
             }
     except Exception, e:
-        print 'holing rank:', code
+        print 'holing rank exception:', code
     finally:
         lock.release()
 
@@ -307,6 +304,8 @@ def itemIsGood(item):
     je = item['je']
     counts = item['counts']  # 人均持股数
     jll = item['jll']
+    fzl = item['fzl']
+
     devPercent = item['devPercent']
     increaseHight = item['increaseHight']
 
@@ -319,8 +318,6 @@ def itemIsGood(item):
     profitIncrment = item['profitIncrment']
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
-
-
 
     # 去除垃圾赛道
     if u'证券' in name \
@@ -337,7 +334,7 @@ def itemIsGood(item):
         return False
 
     # 一般是地产、银行等不能告诉成长的企业
-    if syl <= 10:
+    if syl <= 10 or syl > sylLimit:
         return False
 
     # 如果连一家基金都看不上，得多垃圾啊
@@ -352,12 +349,14 @@ def itemIsGood(item):
     if sdPercent < 45:
         return False
 
-    # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
-    # 50%意味卖出100块钱，60块钱暂时收不回来，话语权太弱
+    # 负债率太高，说明公司资金经营有风险
+    if fzl >= 45:
+        if not increaseHight:
+            return False
 
-    if billPercent >= 0.5:
-        return False
-    elif billPercent >= 0.40:
+    # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
+    # 40%意味卖出100块钱，40块钱暂时收不回来，话语权太弱
+    if billPercent >= 0.40:
         if not increaseHight:
             return False
 
@@ -431,12 +430,16 @@ def printInfo(item):
     je = item['je']
     counts = item['counts']  # 人均持股数
     jll = item['jll']
+    fzl = item['fzl']
+
     devPercent = item['devPercent']
     devHigh = item['devHigh']
+
     increaseHight = item['increaseHight']
 
     income = item['income']
     profit = item['profit']
+
     incodeIncremnt = item['incodeIncremnt']
     profitIncrment = item['profitIncrment']
     bill = item['bill']
@@ -448,8 +451,8 @@ def printInfo(item):
 
     devDesc = '研发占比%.2f' % devPercent
     increaseHight = '近两年高速成长' if increaseHight else ''
-    cashDesc = '经营现金流增长' if cashIncrease else ''
-    currentIncreaseHight = '当季超高增长:[%s/%s]' % (
+    fuzhaiDesc = '负债率：%.2f' % fzl
+    currentIncreaseHight = '当季超高增长:[%.2f/%.2f]' % (
         incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
         ('当季高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
     currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
@@ -461,8 +464,8 @@ def printInfo(item):
     billDesc = '应收款:%.fW|%%%.f' % (float(bill)/10000, billPercent * 100)
 
     print code, name, '市盈率:', syl, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
-    income, profit), devDesc, increaseHight, currentIncreaseHight, cashDesc, sdPercentDesc, \
-        fundPercentDesc, fundCountDesc, '股东数:' + str(currentHodingCount), prepareIncreaseDesc, prepareJieJinDesc, billDesc
+    income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
+        fundPercentDesc, fundCountDesc, '股东数:%.0f:' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc
 
 
 def formatStock(arr):
@@ -512,7 +515,7 @@ def mainMethod():
     #
     #sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
-    #codes = ['688122', '300726', '002985']
+    #codes = ['600031']
     for code in codes:
         holdingRank(code)
 
