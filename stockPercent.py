@@ -350,13 +350,17 @@ def itemIsGood(item):
         return False
 
     # 负债率太高，说明公司资金经营有风险
-    if fzl >= 45:
+    if fzl >= 55:
+        return False
+    elif fzl >= 45:
         if not increaseHight:
             return False
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
     # 40%意味卖出100块钱，40块钱暂时收不回来，话语权太弱
-    if billPercent >= 0.40:
+    if billPercent >= 0.45:
+        return False
+    elif billPercent >= 0.40:
         if not increaseHight:
             return False
 
