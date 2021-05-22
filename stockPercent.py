@@ -519,7 +519,7 @@ def mainMethod():
     #
     #sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
-    #codes = ['600031']
+    #codes = ['600031', '688139', '600845']
     for code in codes:
         holdingRank(code)
 
@@ -540,7 +540,7 @@ def mainMethod():
 
     # 直接结果
     values = ranks.values()
-    count = values.count()
+    count = len(values)
     print '\n人均持股金额排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
