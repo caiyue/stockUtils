@@ -536,39 +536,40 @@ def mainMethod():
 
     # 直接结果
     values = ranks.values()
-    print '\n人均持股金额排行：'
+    count = values.count()
+    print '\n人均持股金额排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
-    print '\n基金占比排行：'
+    print '\n基金占比排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: float(x['percentOfFund']), reverse=True)
     formatStock(ret)
 
-    print '\n基金数量排行：'
+    print '\n基金数量排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['countOfFund'], reverse=True)
     formatStock(ret)
 
-    print '\n券商推荐排行：'
+    print '\n券商推荐排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['commentCount'], reverse=True)
     formatStock(ret)
 
-    print '\n利润增速排行：'
+    print '\n利润增速排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['profitIncrment'], reverse=True)
     formatStock(ret)
 
-    print '\n研发占比排行：'
+    print '\n研发占比排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['devPercent'], reverse=True)
     formatStock(ret)
 
-    print '\n股东人数排行：'
+    print '\n股东人数排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
 
-    print '\n公司应收款占比排行：'
+    print '\n公司应收款占比排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: float(x['billPercent']), reverse=False)
     formatStock(ret)
 
-    print '\n解禁占比占比排行：'
+    print '\n解禁占比占比排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['prepareJieJinPercent'], reverse=True)
     formatStock(ret)
 
