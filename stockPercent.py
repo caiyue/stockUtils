@@ -540,7 +540,10 @@ def mainMethod():
 
     # 直接结果
     values = ranks.values()
-    count = len(values)
+    def filter_isGood(n):
+        return itemIsGood(n)
+    count = len(filter(filter_isGood, values))
+
     print '\n人均持股金额排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
