@@ -197,7 +197,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发50个线程
-pool_sema = threading.BoundedSemaphore(value=10)
+pool_sema = threading.BoundedSemaphore(value=50)
 def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
@@ -341,10 +341,6 @@ def itemIsGood(item):
     if round(jll) < jllLimit:
         return False
 
-    # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐
-    if commentCount <= 0:
-        return False
-
     # 如果连一家基金都看不上，得多垃圾啊
     if countOfFund <= 0:
         return False
@@ -356,6 +352,14 @@ def itemIsGood(item):
     #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
     if sdPercent < 45:
         return False
+
+    # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐
+    if commentCount <= 0:
+        return False
+    elif commentCount <= 2:
+        if not increaseHight:
+            if billPercent >= 0.1:
+                return False
 
     # 负债率太高，说明公司资金经营有风险
     if fzl >= 55:
@@ -370,18 +374,6 @@ def itemIsGood(item):
         return False
     elif billPercent >= 0.40:
         if not increaseHight:
-            return False
-
-    #  还没有资金进入(发现好企业就行，刚上市有可能就是比较小)
-    # if len(je) >= 1 and je[0] < jeLimit:
-    #     return False
-
-    # 将上面的代码优化下，适配下次新股
-    conditionJe = len(je) >= 1 and je[0] < jeLimit
-    conditionAnother = jll >= 20 and billPercent < 0.15
-
-    if conditionJe:
-        if not conditionAnother:
             return False
 
 
