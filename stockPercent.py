@@ -578,7 +578,9 @@ def mainMethod():
     s = ''
     for item in increaseList:
         if itemIsGood(item):
-            s = s + item['code'] + ' ' + item['name'] + ' ' + str(item['je']) + ' ' + str(item['incodeIncremnt']) + '/' + str(item['profitIncrment']) + '\n'
+            s = s + item['code'] + ' ' + item['name'] + ' ' + str(item['je']) + ' ' \
+                + str(item['incodeIncremnt']) + '/' + str(item['profitIncrment']) + ' ' \
+                + str(item['billPercent']) + '\n'
     sendMail('筛选列表【W】缩量买入', s)
 
 if __name__ == '__main__':
