@@ -355,9 +355,8 @@ def itemIsGood(item):
 
     # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐，或者实在是太强势了，也可以
     if commentCount <= 0:
-        if billPercent >= 0.1:
+        if billPercent > 0.05:
             return False
-
     elif commentCount <= 2:
         if not increaseHight:
             if billPercent >= 0.1:
@@ -372,9 +371,9 @@ def itemIsGood(item):
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
     # 40%意味卖出100块钱，40块钱暂时收不回来，话语权太弱
-    if billPercent >= 0.45:
+    if billPercent >= 0.40:
         return False
-    elif billPercent >= 0.40:
+    elif billPercent >= 0.35:
         if not increaseHight:
             return False
 
