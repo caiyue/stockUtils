@@ -145,7 +145,6 @@ def returnPercent(tu):
     else:
         return 0
 
-
 def getSortedValue():
     sql = 'select code, name, total, percent, date from stock order by name, date asc'
     cusor = executeSQL(sql)
@@ -196,8 +195,8 @@ def descForCode(ret):
 
 ranks = {}
 cachedThreads = []
-# 最多同时发50个线程
-pool_sema = threading.BoundedSemaphore(value=50)
+# 最多同时发100个线程
+pool_sema = threading.BoundedSemaphore(value=100)
 def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
