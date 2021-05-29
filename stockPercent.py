@@ -326,6 +326,10 @@ def itemIsGood(item):
             or u'租赁' in name \
             or u'企业' in name \
             or u'媒体' in name \
+            or u'港' in name \
+            or u'水务' in name \
+            or u'泵' in name \
+            or u'种' in name \
             or u'传媒' in name:
         return False
 
@@ -370,9 +374,12 @@ def itemIsGood(item):
             return False
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
-    # 40%意味卖出100块钱，40块钱暂时收不回来，话语权太弱
+    # 40%意味卖出100块钱，30块钱暂时收不回来，话语权太弱，一定要找话语权强的
     if billPercent > 0.35:
         return False
+    elif billPercent > 0.3:
+        if not increaseHight:
+            return  False
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
     # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
