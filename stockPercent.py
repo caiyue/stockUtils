@@ -325,12 +325,15 @@ def itemIsGood(item):
             or u'地产' in name \
             or u'租赁' in name \
             or u'企业' in name \
-            or u'媒体' in name \
+            or u'文化' in name \
+            or u'水泥' in name \
+            or u'环保' in name \
+            or u'矿' in name \
             or u'港' in name \
-            or u'水务' in name \
+            or u'水' in name \
             or u'泵' in name \
             or u'种' in name \
-            or u'传媒' in name:
+            or u'媒' in name:
         return False
 
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了

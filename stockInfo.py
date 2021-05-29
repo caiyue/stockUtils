@@ -917,7 +917,7 @@ class StockUtils(object):
                 "fzl": obj['f188'],  # 负债率
                 "sz": obj['f116'],   # 元
                 "jll": obj['f187'],  # 净利率,
-                "incomeIncrement": obj['f184'], # 收入增长率
+                "incomeIncrement": obj['f184'],  # 收入增长率
                 "profitIncrment": obj['f185']   # 利润增长率
             }
 
