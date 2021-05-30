@@ -911,6 +911,21 @@ class StockUtils(object):
         if not obj:
             return None
         else:
+            onlineDate = str(obj['f189'])
+            days = 0
+            if onlineDate and onlineDate != '--':
+                onlineYear = onlineDate[0:4]
+                onlineMonth = onlineDate[4:6]
+                onlineDay = onlineDate[6:8]
+
+                current = datetime.today()
+                currentYear = current.year
+                currentMonth = current.month
+                currentDay = current.day
+
+                onlineFormateDate = datetime(year=int(onlineYear), month=int(onlineMonth), day=int(onlineDay))
+                days = (current - onlineFormateDate).days
+
             return {
                 "syl": obj['f162'],  # 市盈率
                 "hsl": obj['f168'],  # 换手率
@@ -918,7 +933,8 @@ class StockUtils(object):
                 "sz": obj['f116'],   # 元
                 "jll": obj['f187'],  # 净利率,
                 "incomeIncrement": obj['f184'],  # 收入增长率
-                "profitIncrment": obj['f185']   # 利润增长率
+                "profitIncrment": obj['f185'],   # 利润增长率,
+                "onlineDays": days
             }
 
 def getlastseason():

@@ -225,6 +225,7 @@ def multiThradExector(code, lock):
             ranks[code] = {
                 'code': code,
                 'name': name,
+                "onlineDays": companyDetail['onlineDays'],
                 'sz': companyDetail['sz'],
                 'syl': companyDetail['syl'],
                 'sdPercent': sdPercent,  # 十大股东占比,
@@ -318,6 +319,8 @@ def itemIsGood(item):
     prepareIncrease = item['prepareIncrease']
     cashIncrease = item['cashIncrease']
 
+    onlineDays = item['onlineDays']
+
     # 去除垃圾赛道
     if u'证券' in name \
             or u'银行' in name \
@@ -347,9 +350,10 @@ def itemIsGood(item):
     if round(jll) < jllLimit:
         return False
 
-    # 如果连一家基金都看不上，得多垃圾啊
-    if countOfFund <= 0:
-        return False
+    # 次新股有90天的缓冲期，90天后，如果连一家基金都看不上，得多垃圾啊
+    if onlineDays > 90:
+        if countOfFund <= 0:
+            return False
 
     # 业绩差的直接过滤
     if incodeIncremnt <= 0 or profitIncrment <= 0:
@@ -372,7 +376,7 @@ def itemIsGood(item):
     if fzl >= 55:
         return False
     elif fzl >= 45:
-        if not increaseHight:
+        if not increaseHight and billPercent >= 0.2:
             return False
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
@@ -381,7 +385,7 @@ def itemIsGood(item):
         return False
     elif billPercent > 0.3:
         if not increaseHight:
-            return  False
+            return False
 
     # 针对近两年不是高速成长的企业，需要这么过滤下
     # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
