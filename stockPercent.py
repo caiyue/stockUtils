@@ -31,7 +31,7 @@ szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRat
 incomeBaseIncrease = 25
 profitBaseIncrease = 25
 
-sylLimit = 300
+sylLimit = 400
 jeLimit = 15  # 有些新股好公司确定很低
 jllLimit = 15
 
@@ -290,7 +290,7 @@ def getNumFromStr(income):
     return 0
 
 def incomeIs2Small(income):
-    return getNumFromStr(income) < 12000 * 10000
+    return getNumFromStr(income) < 10000 * 10000
 
 def itemIsGood(item):
     code = item['code']
