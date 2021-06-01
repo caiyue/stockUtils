@@ -290,7 +290,7 @@ def getNumFromStr(income):
     return 0
 
 def incomeIs2Small(income):
-    return getNumFromStr(income) < 10000 * 10000
+    return getNumFromStr(income) < 12000 * 10000
 
 def itemIsGood(item):
     code = item['code']
