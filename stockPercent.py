@@ -354,7 +354,9 @@ def itemIsGood(item):
         return False
 
     # 很多公司资产很多，可是不怎么会经营，导致roe很低
-    if roe < 3.2 and not increaseHight:
+    if roe < 2.0:
+        return False
+    elif roe < 3.2 and not increaseHight:
         return False
 
     # 规模小，盈利能力再弱，真的就很不好了
