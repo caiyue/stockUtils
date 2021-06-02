@@ -196,7 +196,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
-pool_sema = threading.BoundedSemaphore(value=100)
+pool_sema = threading.BoundedSemaphore(value=50)
 def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
@@ -333,6 +333,7 @@ def itemIsGood(item):
             or u'文化' in name \
             or u'水泥' in name \
             or u'环保' in name \
+            or u'高速' in name \
             or u'矿' in name \
             or u'港' in name \
             or u'水' in name \
@@ -356,7 +357,7 @@ def itemIsGood(item):
     # 很多公司资产很多，可是不怎么会经营，导致roe很低
     if roe < 2.0:
         return False
-    elif roe < 3.2 and not increaseHight:
+    elif roe < 3.5 and not increaseHight:
         return False
 
     # 规模小，盈利能力再弱，真的就很不好了
