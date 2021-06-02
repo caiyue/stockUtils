@@ -350,6 +350,11 @@ def itemIsGood(item):
     if round(jll) < jllLimit:
         return False
 
+    # 规模小，盈利能力再弱，真的就很不好了
+    if getNumFromStr(income) < 30000 * 10000:
+        if not increaseHight and round(jll) < 20:
+            return False
+
     # 次新股有90天的缓冲期，90天后，如果连一家基金都看不上，得多垃圾啊
     if onlineDays > 90:
         if countOfFund <= 0:
