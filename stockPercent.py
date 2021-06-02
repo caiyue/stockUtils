@@ -222,6 +222,7 @@ def multiThradExector(code, lock):
 
         if code and name and holdings and len(holdings) > 0:
             billPercent = getNumFromStr(bill) * 1.0 / 4.0 / getNumFromStr(income)
+            roe = float(recent.roe) if recent.roe != '--' and len(roe) > 0 else 0
             ranks[code] = {
                 'code': code,
                 'name': name,
@@ -237,6 +238,7 @@ def multiThradExector(code, lock):
                 'counts': holdings[2],  # 人均持股数据,
                 'holdingsCount': holdings[3],  # 股东人数
 
+                'roe': roe,
                 'jll':  companyDetail['jll'],
                 'income': income,
                 'profit': profit,
@@ -305,6 +307,7 @@ def itemIsGood(item):
     counts = item['counts']  # 人均持股数
     jll = item['jll']
     fzl = item['fzl']
+    roe = item['roe']
 
     devPercent = item['devPercent']
     increaseHight = item['increaseHight']
@@ -349,6 +352,15 @@ def itemIsGood(item):
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
     if round(jll) < jllLimit:
         return False
+
+    # 很多公司资产很多，可是不怎么会经营，导致roe很低
+    if roe < 3.0:
+        return False
+
+    # 规模小，盈利能力再弱，真的就很不好了
+    if getNumFromStr(income) < 30000 * 10000:
+        if not increaseHight and round(jll) < 20:
+            return False
 
     # 次新股有90天的缓冲期，90天后，如果连一家基金都看不上，得多垃圾啊
     if onlineDays > 90:
@@ -437,6 +449,7 @@ def printInfo(item):
     counts = item['counts']  # 人均持股数
     jll = item['jll']
     fzl = item['fzl']
+    roe = item['roe']
 
     devPercent = item['devPercent']
     devHigh = item['devHigh']
@@ -455,23 +468,25 @@ def printInfo(item):
     cashIncrease = item['cashIncrease']
     prepareJieJinPercent = item['prepareJieJinPercent']
 
+    sylDesc = '%.0f' % syl
     devDesc = '研发占比%.2f' % devPercent
     increaseHight = '近两年高速成长' if increaseHight else ''
-    fuzhaiDesc = '负债率：%.2f' % fzl
-    currentIncreaseHight = '当季超高增长:[%.2f/%.2f]' % (
+    fuzhaiDesc = '负债率：%.0f' % fzl
+    currentIncreaseHight = '当季超高增长:[%.1f/%.1f]' % (
         incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
         ('当季高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
     currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
-    sdPercentDesc = '十大股东总计:' + str(sdPercent)
+    sdPercentDesc = '十大股东总计:%.0f' % sdPercent
     fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
     fundCountDesc = '机构数量:%d' % countOfFund
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
     prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
     billDesc = '应收款:%.fW|%%%.f' % (float(bill)/10000, billPercent * 100)
+    roeDesc = 'roe:%.1f' % roe
 
-    print code, name, '市盈率:', syl, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
+    print code, name, '市盈率:', sylDesc, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
-        fundPercentDesc, fundCountDesc, '股东数:%.0f:' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc
+        fundPercentDesc, fundCountDesc, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
 
 
 def formatStock(arr):
@@ -580,6 +595,10 @@ def mainMethod():
 
     print '\n解禁占比占比排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['prepareJieJinPercent'], reverse=True)
+    formatStock(ret)
+
+    print '\nROE排行[%.0f]:' % count
+    ret = sorted(values, key=lambda x: x['roe'], reverse=True)
     formatStock(ret)
 
     def filter_increase(n):
