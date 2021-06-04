@@ -123,8 +123,8 @@ def getHtmlFromUrl(url, utf8coding=False):
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
         else:
             res = ret.read()
-    except Exception:
-            print 'exception  occur', url
+    except Exception, e:
+            print 'exception  occur:%s, %s' % (e, url)
             return None
     return res
 

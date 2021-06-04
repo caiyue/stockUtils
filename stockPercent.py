@@ -9,7 +9,7 @@ import simplejson
 from datetime import datetime, timedelta
 import MySQLdb
 import threading
-from stockInfo import StockUtils
+from stockInfo import StockUtils, getHtmlFromUrl
 from send_email import sendMail
 
 import sys
@@ -121,24 +121,6 @@ def saveValueFromJson(json):
     else:
         return
 
-
-def getHtmlFromUrl(url, utf8coding=False):
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
-        req = urllib2.Request(url, headers=headers)
-        ret = urllib2.urlopen(req, timeout=10)
-        res = None
-        if utf8coding:
-            res = ret.read().decode('gbk', 'ignore').encode('utf-8')
-        else:
-            res = ret.read()
-    except Exception, e:
-        print 'exception  occur', url
-        return None
-    return res
-
-
 def returnPercent(tu):
     if len(tu) == 5:
         return tu[3]
@@ -196,7 +178,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
-pool_sema = threading.BoundedSemaphore(value=50)
+pool_sema = threading.BoundedSemaphore(value=20)
 def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
