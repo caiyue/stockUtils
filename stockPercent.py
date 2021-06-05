@@ -9,7 +9,7 @@ import simplejson
 from datetime import datetime, timedelta
 import MySQLdb
 import threading
-from stockInfo import StockUtils, getHtmlFromUrl
+from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
 from send_email import sendMail
 
 import sys
@@ -51,14 +51,12 @@ def executeSQL(sql):
     else:
         return
 
-
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
         sql = 'insert into %s(code,name,total,percent,date) value (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % \
               ('stock', code, name, total, percent, hold_date)
         print sql
         executeSQL(sql)
-
 
 def stripString(res):
     if not res:
@@ -199,44 +197,43 @@ def multiThradExector(code, lock):
             profit = recent.profit if recent.profit and recent.profit != '--' else 0
             roe = float(recent.roe) if recent.roe != '--' and len(roe) > 0 else 0
 
-        if code and companyDetail and income > 0 and profit > 0 and holdings and len(holdings) > 0:
-            billPercent = getNumFromStr(bill) * 1.0 / 4.0 / getNumFromStr(income)
-            ranks[code] = {
-                'code': code,
-                'name': companyDetail['name'],
-                "onlineDays": companyDetail['onlineDays'],
-                'sz': companyDetail['sz'],
-                'syl': companyDetail['syl'],
-                'sdPercent': sdPercent,  # 十大股东占比,
-                'commentCount': commentCount,  # 券商评级数量,
-                'percentOfFund': fundInfo[0],  # 基金流通股占比
-                'countOfFund': fundInfo[1],  # 机构数量
-                'count': holdings[0],  # 最近的持股金额
-                'je': holdings[1],  # 人均总额
-                'counts': holdings[2],  # 人均持股数据,
-                'holdingsCount': holdings[3],  # 股东人数
+            if code and companyDetail and income and profit and holdings and len(holdings) > 0:
+                billPercent = getNumFromStr(bill) * 1.0 / 4.0 / getNumFromStr(income)
+                ranks[code] = {
+                    'code': code,
+                    'name': companyDetail['name'],
+                    "onlineDays": companyDetail['onlineDays'],
+                    'sz': companyDetail['sz'],
+                    'syl': companyDetail['syl'],
+                    'sdPercent': sdPercent,  # 十大股东占比,
+                    'commentCount': commentCount,  # 券商评级数量,
+                    'percentOfFund': fundInfo[0],  # 基金流通股占比
+                    'countOfFund': fundInfo[1],  # 机构数量
+                    'count': holdings[0],  # 最近的持股金额
+                    'je': holdings[1],  # 人均总额
+                    'counts': holdings[2],  # 人均持股数据,
+                    'holdingsCount': holdings[3],  # 股东人数
 
-                'roe': roe,
-                'jll':  companyDetail['jll'],
-                'income': income,
-                'profit': profit,
-                'incodeIncremnt': companyDetail['incomeIncrement'],
-                'profitIncrment': companyDetail['profitIncrment'],
-                'fzl': companyDetail['fzl'],
+                    'roe': roe,
+                    'jll':  companyDetail['jll'],
+                    'income': income,
+                    'profit': profit,
+                    'incodeIncremnt': companyDetail['incomeIncrement'],
+                    'profitIncrment': companyDetail['profitIncrment'],
+                    'fzl': companyDetail['fzl'],
 
-                'bill': bill,
-                'billPercent': billPercent,  # 应收款占比
+                    'bill': bill,
+                    'billPercent': billPercent,  # 应收款占比
 
-                'devPercent': developPercentHigh[1],
-                'devHigh': developPercentHigh[0] >= 1,
-                'increaseHight': 1 if developPercentHigh[2] else 0,
-                'increase2Years': developPercentHigh[3],
+                    'devPercent': developPercentHigh[1],
+                    'devHigh': developPercentHigh[0] >= 1,
+                    'increaseHight': 1 if developPercentHigh[2] else 0,
+                    'increase2Years': developPercentHigh[3],
 
-                'prepareIncrease': prepareIncrease,
-                'cashIncrease': cashIncrease,
-                'prepareJieJinPercent': prepareJieJinPercent
-            }
-
+                    'prepareIncrease': prepareIncrease,
+                    'cashIncrease': cashIncrease,
+                    'prepareJieJinPercent': prepareJieJinPercent
+                }
     except Exception, e:
         print 'holing rank exception: %s:%@' % (code, e)
     finally:
@@ -255,20 +252,6 @@ def prepareIncreaseFunc(prepareIncrease):
         return '连续3天上涨[%s]' %  prepareIncrease[1]
     else:
         return ''
-
-def getNumFromStr(income):
-    if income == '--':
-        return 0
-    if income:
-        if isinstance(income, float):
-            return income
-        elif u'万' in income:
-            return float(income[0: -1]) * 10000
-        elif u'亿' in income:
-            return float(income[0: -1]) * 10000 * 10000
-        else:
-            return float(income)
-    return 0
 
 def incomeIs2Small(income):
     return getNumFromStr(income) < 12000 * 10000

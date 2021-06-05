@@ -93,7 +93,6 @@ bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConcept
 
 #公司主营业务比例
 companyBussinessPercentUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code=%s'
-
 companyNameUrl = 'http://suggest.eastmoney.com/SuggestData/Default.aspx?name=sData_1510989642587&input=%s&type=1,2,3'
 
 #公司市值下限
@@ -106,13 +105,19 @@ def getStockCodeFromHtmlString(string):
     if string and len(string):
         return string[16:22]
 
-def getFloatFromString(s):
-    if s == '--' or s == '-':
+def getNumFromStr(income):
+    if income == '--' or income == '-':
         return 0
-    elif s and len(s) > 0:
-        return float(s)
-    else:
-        return 0
+    if income:
+        if isinstance(income, float):
+            return income
+        elif u'万' in income:
+            return float(income[0: -1]) * 10000
+        elif u'亿' in income:
+            return float(income[0: -1]) * 10000 * 10000
+        else:
+            return float(income)
+    return 0
 
 def getHtmlFromUrl(url, utf8coding=False):
     try:
@@ -470,28 +475,29 @@ class StockUtils(object):
                     # RDExpense = item['RDEXP']
                     # SaleExpense = item['SALEEXP']
                     # InvestIncome = item['INVESTINCOME']
-                    incomeIncreaseByYear = item['TOTALOPERATEREVE_YOY']
-                    profileIncreaseByYear = item['NETPROFIT_YOY']
-                    income = item['TOTALOPERATEREVE']
-                    profit = item['PARENTNETPROFIT']
+                    incomeIncreaseByYear = getNumFromStr(item['TOTALOPERATEREVE_YOY'])
+                    profileIncreaseByYear = getNumFromStr(item['NETPROFIT_YOY'])
+                    income = getNumFromStr(item['TOTALOPERATEREVE'])
+                    profit = getNumFromStr(item['PARENTNETPROFIT'])
+
                     try:
-                        increaseHight = (getFloatFromString(incomeIncreaseByYear) >= 25 and getFloatFromString(profileIncreaseByYear) >= 20) or \
-                                        (getFloatFromString(incomeIncreaseByYear) >= 30 and getFloatFromString(profit) >= 400000000 and profit * 1.0 / income >= 0.1) or \
-                                        (getFloatFromString(incomeIncreaseByYear) >= 20 and getFloatFromString(profileIncreaseByYear) >= 20 and getFloatFromString(profit) >= 500000000) or \
-                                        (getFloatFromString(incomeIncreaseByYear) >= 15 and getFloatFromString(profileIncreaseByYear) >= 15 and getFloatFromString(profit) >= 1000000000) or \
-                                        (getFloatFromString(incomeIncreaseByYear) >= 10 and getFloatFromString(profileIncreaseByYear) >= 10 and getFloatFromString(profit) >= 2000000000) or \
-                                        (getFloatFromString(incomeIncreaseByYear) >= 5 and getFloatFromString(profileIncreaseByYear) >= 5 and getFloatFromString(profit) >= 3000000000)
+                        increaseHight = (incomeIncreaseByYear >= 25 and profileIncreaseByYear >= 20) or \
+                                        (incomeIncreaseByYear >= 30 and profit >= 400000000 and profit * 1.0 / income >= 0.1) or \
+                                        (incomeIncreaseByYear >= 20 and profileIncreaseByYear >= 20 and profit >= 500000000) or \
+                                        (incomeIncreaseByYear >= 15 and profileIncreaseByYear >= 15 and profit>= 1000000000) or \
+                                        (incomeIncreaseByYear >= 10 and profileIncreaseByYear>= 10 and profit >= 2000000000) or \
+                                        (incomeIncreaseByYear >= 5 and profileIncreaseByYear >= 5 and profit >= 3000000000)
 
                         # 如何业绩递增要求
-                        if getFloatFromString(incomeIncreaseByYear) > 0:
-                            increase2Years = increase2Years * True
+                        if getNumFromStr(incomeIncreaseByYear) > 0:
+                            increase2Years = increase2Years and True
                         else:
-                            increase2Years = increase2Years * False
+                            increase2Years = increase2Years and False
 
                         if not increaseHight or count == 2:
                             break
                     except Exception, e:
-                        print 'parse exception: %s:%s' % (code, e)
+                        print 'parse error:%s, %s, %s, %s, %s' % (code, incomeIncreaseByYear, profileIncreaseByYear, income, profit)
 
                 # 最近一年的研发费用
                 item = obj[0]
@@ -511,7 +517,6 @@ class StockUtils(object):
                     return 1, percent, increaseHight, increase2Years
                 else:
                     return 0, percent, increaseHight, increase2Years
-
         return 0, 0, 0, 0
 
     @classmethod
@@ -533,7 +538,6 @@ class StockUtils(object):
                 for item in data:
                     if item['emRatingName'] == u'增持' or item['emRatingName'] == u'买入' or item['lastEmRatingName'] == u'增持' or item['lastEmRatingName'] == u'买入':
                         ret.append(item)
-
         return len(ret)
 
     @classmethod
@@ -593,7 +597,6 @@ class StockUtils(object):
             for item in li:
                 s += (u'年报:' + str(item.dateOfRoe)).ljust(15, ' ') + (u'净资产收益率:' + str(item.roe) + '%').ljust(15,' ') + (u'收入同比增长率:' + str(item.incomeRate) + '%').ljust(17,' ') + (u'净利润同比增长率:' + str(item.profitRate) + '%').ljust(18,' ') + (u'总收入:' + str(item.income)).ljust(12,' ')  + (u' 总利润:' + str(item.profit)).ljust(12,' ') + (u'毛利率:' + str(item.maolilv) + '%').ljust(13,' ') + (u'净利率:' + str(item.jinglilv) + '%').ljust(13,' ') + (u'资产负债率:' + str(item.zcfzl) + '%').ljust(13,' ')
                 s += '\n'
-
         return s
 
     '''最近3个季度平均超过5500w的在建工程,应收账款'''
