@@ -476,6 +476,9 @@ class StockUtils(object):
                 increaseHight = False
                 # 最近三年的成长速度
                 count = 0
+
+                # 收入必须要递增，利润可以不要求，因为公司调整、成本、疫情
+                increase2Years = True
                 for item in obj:
                     # 最近两年成长
                     count += 1
@@ -496,31 +499,38 @@ class StockUtils(object):
                                                       (float(incomeIncreaseByYear) >= 10 and float(profileIncreaseByYear) >= 10 and float(profit) >= 2000000000) or
                                                       (float(incomeIncreaseByYear) >= 5 and float(profileIncreaseByYear) >= 5 and float(profit) >= 3000000000)
                                                       )
+
+                        # 如何业绩递增要求
+                        if notEmpty and incomeIncreaseByYear > 0:
+                            increase2Years = increase2Years * True
+                        else:
+                            increase2Years = increase2Years * False
+
                         if not increaseHight or count == 2:
                             break
                     except Exception,e:
-                        print 'parse exception: %s' % code
+                        print 'parse exception: %s:%s' % code, e
 
                 # 最近一年的研发费用
                 item=obj[0]
                 allExpense = item['TOTALOPERATEEXP']
                 RDExpense = item['RDEXP']
                 if not RDExpense or len(RDExpense) == 0 or RDExpense == '--':
-                    return 0, 0, increaseHight
+                    return 0, 0, increaseHight, increase2Years
                 if not allExpense or len(allExpense) == 0 or allExpense == '--':
-                    return 0, 0, increaseHight
+                    return 0, 0, increaseHight, increase2Years
 
                 percent = float(RDExpense) * 1.0 / float(allExpense)
                 if percent >= 0.2:
-                    return 3, percent, increaseHight
+                    return 3, percent, increaseHight, increase2Years
                 elif percent >= 0.08:
-                    return 2, percent, increaseHight
+                    return 2, percent, increaseHight, increase2Years
                 elif percent >= 0.05:
-                    return 1, percent, increaseHight
+                    return 1, percent, increaseHight, increase2Years
                 else:
-                    return 0, percent, increaseHight
+                    return 0, percent, increaseHight, increase2Years
 
-        return 0, 0, 0
+        return 0, 0, 0, 0
 
 
     @classmethod

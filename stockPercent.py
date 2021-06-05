@@ -234,6 +234,7 @@ def multiThradExector(code, lock):
                 'devPercent': developPercentHigh[1],
                 'devHigh': developPercentHigh[0] >= 1,
                 'increaseHight': 1 if developPercentHigh[2] else 0,
+                'increase2Years': developPercentHigh[3],
 
                 'prepareIncrease': prepareIncrease,
                 'cashIncrease': cashIncrease,
@@ -292,7 +293,11 @@ def itemIsGood(item):
     roe = item['roe']
 
     devPercent = item['devPercent']
+
+    # 连续收入&利润高速增长
     increaseHight = item['increaseHight']
+    # 连续收入递增
+    increase2Years = item['increase2Years']
 
     income = item['income']
     profit = item['profit']
@@ -326,6 +331,10 @@ def itemIsGood(item):
 
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
     if incomeIs2Small(income):
+        return False
+
+    # 如果收入出现了非增长，说明公司抗风险能力，太弱了
+    if not increase2Years:
         return False
 
     # 一般是地产、银行等不能告诉成长的企业
