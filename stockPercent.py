@@ -386,7 +386,7 @@ def itemIsGood(item):
     # 40%意味卖出100块钱，30块钱暂时收不回来，话语权太弱，一定要找话语权强的
     if billPercent > 0.35:
         return False
-    elif billPercent > 0.3:
+    elif billPercent > 0.25:
         if not increaseHight:
             return False
 
