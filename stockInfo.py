@@ -508,8 +508,8 @@ class StockUtils(object):
 
                         if not increaseHight or count == 2:
                             break
-                    except Exception,e:
-                        print 'parse exception: %s:%s' % code, e
+                    except Exception, e:
+                        print 'parse exception: %s:%s' % (code, e)
 
                 # 最近一年的研发费用
                 item=obj[0]
