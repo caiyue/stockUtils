@@ -96,13 +96,11 @@ companyBussinessPercentUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/Bus
 
 companyNameUrl = 'http://suggest.eastmoney.com/SuggestData/Default.aspx?name=sData_1510989642587&input=%s&type=1,2,3'
 
-
 #公司市值下限
 companySzDownLimit = 50
 companyHslDownLimit = 1.0
-pageSize  = 100
+pageSize = 100
 roeSwitch = True
-
 
 def getStockCodeFromHtmlString(string):
     if string and len(string):
@@ -111,14 +109,16 @@ def getStockCodeFromHtmlString(string):
 def getFloatFromString(s):
     if s == '--' or s == '-':
         return 0
-    else:
+    elif s and len(s) > 0:
         return float(s)
+    else:
+        return 0
 
 def getHtmlFromUrl(url, utf8coding=False):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
         req = urllib2.Request(url, headers=headers)
-        ret = urllib2.urlopen(req, timeout=60)
+        ret = urllib2.urlopen(req, timeout=100)
         if utf8coding:
             res = ret.read().decode('gbk', 'ignore').encode('utf-8')
         else:
@@ -131,7 +131,6 @@ def getHtmlFromUrl(url, utf8coding=False):
 def hasHTML(obj):
     return obj.startswith('<!DOCTYPE HTML PUBLIC')
 
-
 def getJsonObj(obj):
     if not obj:
         return None
@@ -143,13 +142,11 @@ def getJsonObj(obj):
     newobj = "{" + obj.split('={')[1]
     return simplejson.loads(newobj)
 
-
 def getJsonObjOrigin(obj):
     if not obj:return None
     if hasHTML(obj):
         return None
     o = None
-
     try:
         o = simplejson.loads(obj)
         if isinstance(o, unicode):
@@ -188,7 +185,6 @@ def getJsonObj2(obj):
         return simplejson.loads(sepString)
     else:
         return None
-
 
 def getJsonObj2s(obj):
     if not obj: return None
@@ -267,6 +263,7 @@ def getJsonObj6(obj):
             return None
     except Exception:
         print s
+
 def getJsonObj7(obj):
     if not obj: return None
     if hasHTML(obj): return None
@@ -291,12 +288,10 @@ def getHoldChangeFromRes(obj):
                 return simplejson.loads(s[5:])
             except Exception:
                 print obj
-
     return None
 
 def getCompanyListFromJsonObj(obj):
     return None
-
 
 # 深圳或者上海交易所
 def getMark10Id(code):
@@ -330,13 +325,11 @@ def getMarketCode(code,prefix = False):
         else:
             return code + '.SZ'
 
-
 class CompanyInfo(object):
     def __init__(self,code,name):
         super(CompanyInfo,self).__init__()
         self.code = code
         self.name = name
-
 
 class CompanyValueInfo(CompanyInfo):
     def __init__(self,code,name,syl,sjl,sz,hsl):
@@ -346,7 +339,6 @@ class CompanyValueInfo(CompanyInfo):
         self.sjl = sjl
         self.sz = sz
         self.hsl = hsl
-
 
 class   CompanyBussinessPercentDetailModel(CompanyInfo):
     '''主营业务收入、利润，收入占比、利润占比'''
@@ -358,7 +350,6 @@ class   CompanyBussinessPercentDetailModel(CompanyInfo):
         self.profit = profit
         self.incomePercent = incomePercent
         self.profitPercent = profitPercent
-
 
 class MostValueableCompanyInfo(CompanyInfo):
     '''最可投资价值股票,净资产收益率>15%，3年净利润复合增长率>10%'''
@@ -387,8 +378,6 @@ class RoeModel(object):
         self.jinglilv = jinglilv
         self.zcfzl = zcfzl
 
-
-
 class StockUtils(object):
     def __init__(self):
         super(StockUtils,self).__init__()
@@ -412,13 +401,9 @@ class StockUtils(object):
                 li = o['hy']
                 if li and len(li) > 0:
                     for d in li:
-                        m  = CompanyBussinessPercentDetailModel(code,None,d['rq'],d['zygc'],d['zysr'],d['zylr'],d['srbl'],d['lrbl'])
+                        m = CompanyBussinessPercentDetailModel(code,None,d['rq'],d['zygc'],d['zysr'],d['zylr'],d['srbl'],d['lrbl'])
                         if m:bussinessList.append(m)
-
         return bussinessList
-
-
-
 
     @classmethod
     def getMostValueableStockList(self):
@@ -462,15 +447,14 @@ class StockUtils(object):
             else:
                 return False
 
-
     def getDevelopPercentOfCost(self, code):
-        '''研发占比'''
+        ''' 研发占比 '''
         url = profitUrl % (getMarketCode(code, prefix=True))
         res = getHtmlFromUrl(url, False)
         obj = getJsonObjOrigin(res)
 
         if not obj:
-            return 0, 0, 0
+            return 0, 0, 0, 0
         else:
             if isinstance(obj, list) and len(obj) > 0:
                 increaseHight = False
@@ -491,17 +475,15 @@ class StockUtils(object):
                     income = item['TOTALOPERATEREVE']
                     profit = item['PARENTNETPROFIT']
                     try:
-                        notEmpty = incomeIncreaseByYear != '--' and profileIncreaseByYear != '--' and income != '--' and profit != '--'
-                        increaseHight = notEmpty and ((float(incomeIncreaseByYear) >= 25 and float(profileIncreaseByYear) >= 20) or
-                                                      (float(incomeIncreaseByYear) >= 30 and float(profit) >= 400000000 and profit * 1.0 / income >= 0.1) or
-                                                      (float(incomeIncreaseByYear) >= 20 and float(profileIncreaseByYear) >= 20 and float(profit) >= 500000000) or
-                                                      (float(incomeIncreaseByYear) >= 15 and float(profileIncreaseByYear) >= 15 and float(profit) >= 1000000000) or
-                                                      (float(incomeIncreaseByYear) >= 10 and float(profileIncreaseByYear) >= 10 and float(profit) >= 2000000000) or
-                                                      (float(incomeIncreaseByYear) >= 5 and float(profileIncreaseByYear) >= 5 and float(profit) >= 3000000000)
-                                                      )
+                        increaseHight = (getFloatFromString(incomeIncreaseByYear) >= 25 and getFloatFromString(profileIncreaseByYear) >= 20) or \
+                                        (getFloatFromString(incomeIncreaseByYear) >= 30 and getFloatFromString(profit) >= 400000000 and profit * 1.0 / income >= 0.1) or \
+                                        (getFloatFromString(incomeIncreaseByYear) >= 20 and getFloatFromString(profileIncreaseByYear) >= 20 and getFloatFromString(profit) >= 500000000) or \
+                                        (getFloatFromString(incomeIncreaseByYear) >= 15 and getFloatFromString(profileIncreaseByYear) >= 15 and getFloatFromString(profit) >= 1000000000) or \
+                                        (getFloatFromString(incomeIncreaseByYear) >= 10 and getFloatFromString(profileIncreaseByYear) >= 10 and getFloatFromString(profit) >= 2000000000) or \
+                                        (getFloatFromString(incomeIncreaseByYear) >= 5 and getFloatFromString(profileIncreaseByYear) >= 5 and getFloatFromString(profit) >= 3000000000)
 
                         # 如何业绩递增要求
-                        if notEmpty and incomeIncreaseByYear > 0:
+                        if getFloatFromString(incomeIncreaseByYear) > 0:
                             increase2Years = increase2Years * True
                         else:
                             increase2Years = increase2Years * False
@@ -512,7 +494,7 @@ class StockUtils(object):
                         print 'parse exception: %s:%s' % (code, e)
 
                 # 最近一年的研发费用
-                item=obj[0]
+                item = obj[0]
                 allExpense = item['TOTALOPERATEEXP']
                 RDExpense = item['RDEXP']
                 if not RDExpense or len(RDExpense) == 0 or RDExpense == '--':
@@ -531,7 +513,6 @@ class StockUtils(object):
                     return 0, percent, increaseHight, increase2Years
 
         return 0, 0, 0, 0
-
 
     @classmethod
     def getCommentNumberIn3MonthsForCode(self, code):
@@ -555,7 +536,6 @@ class StockUtils(object):
 
         return len(ret)
 
-
     @classmethod
     def getRoeModelListOfStockForCode(self,code):
         '''价值投资股票信息'''
@@ -575,7 +555,6 @@ class StockUtils(object):
         else:
             return None
 
-
     def getRoeModelListOfStockInYearsForCode(self,code):
         '''价值投资股票信息'''
         url = ROEOfStockInYears % (getMarketCode(code,prefix=True))
@@ -591,7 +570,7 @@ class StockUtils(object):
                 cList.append(m)
             return cList
         else:
-            return  None
+            return None
 
     @classmethod
     def roeStringForCode(self, code, returnData=False):
@@ -606,7 +585,6 @@ class StockUtils(object):
             return s
         else:
             return None
-
 
     def roeStringInYearsForCode(self, code):
         li = self.getRoeModelListOfStockInYearsForCode(code)
@@ -705,7 +683,6 @@ class StockUtils(object):
 
         return 0, [], [], []
 
-
     def fundInfoOfStock(self, code):
         url = fundInfoOfStock % getMarketCode(code, prefix=True)
         res = getHtmlFromUrl(url)
@@ -722,7 +699,6 @@ class StockUtils(object):
                 c = int(count)
             return p, c
         return 0, 0
-
 
     def find_all(self, s2, s):
         index_list = []
@@ -775,7 +751,6 @@ class StockUtils(object):
                 for o in objs:
 
                     ret.append()
-
 
     @classmethod
     def getGGZCStock(cls, code):
@@ -873,7 +848,6 @@ class StockUtils(object):
                 if 0 < timeinterval1 <= 30 or 0 < timeinterval2 <= 30:
                     if percent >= 0.5:
                         return percent
-
         return 0
 
     def sdgdTotalPercent(self, code):
@@ -937,6 +911,8 @@ class StockUtils(object):
                 days = (current - onlineFormateDate).days
 
             return {
+                "name": obj["f58"],  # name
+                "code": obj["f57"],  # code
                 "syl": obj['f162'],  # 市盈率
                 "hsl": obj['f168'],  # 换手率
                 "fzl": obj['f188'],  # 负债率

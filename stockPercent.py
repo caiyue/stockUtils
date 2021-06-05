@@ -160,7 +160,6 @@ def filterGood(ret):
             # 不再根据外资投资比例筛选股票
             if isOk:
                 outArray.append(lastDataItem)
-
     return outArray
 
 def descForCode(ret):
@@ -174,7 +173,6 @@ def descForCode(ret):
         return '研发占比很高%.5s' % percent
     return ''
 
-
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
@@ -183,7 +181,6 @@ def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
     holdings = su.getAverageHolding(code)
-    name = su.getStockNameFromCode(code)
     sdPercent = su.sdgdTotalPercent(code)
     commentCount = su.getCommentNumberIn3MonthsForCode(code)
     fundInfo = su.fundInfoOfStock(code)
@@ -194,20 +191,19 @@ def multiThradExector(code, lock):
     bill = su.getCompanyBill(code)[1]
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
-
     try:
         if roe:
             # 最近的季报
             recent = roe[0]
-            income = recent.income
-            profit = recent.profit
-
-        if code and name and holdings and len(holdings) > 0:
-            billPercent = getNumFromStr(bill) * 1.0 / 4.0 / getNumFromStr(income)
+            income = recent.income if recent.income and recent.income != '--' else 0
+            profit = recent.profit if recent.profit and recent.profit != '--' else 0
             roe = float(recent.roe) if recent.roe != '--' and len(roe) > 0 else 0
+
+        if code and companyDetail and income > 0 and profit > 0 and holdings and len(holdings) > 0:
+            billPercent = getNumFromStr(bill) * 1.0 / 4.0 / getNumFromStr(income)
             ranks[code] = {
                 'code': code,
-                'name': name,
+                'name': companyDetail['name'],
                 "onlineDays": companyDetail['onlineDays'],
                 'sz': companyDetail['sz'],
                 'syl': companyDetail['syl'],
@@ -240,8 +236,9 @@ def multiThradExector(code, lock):
                 'cashIncrease': cashIncrease,
                 'prepareJieJinPercent': prepareJieJinPercent
             }
+
     except Exception, e:
-        print 'holing rank exception:', code
+        print 'holing rank exception: %s:%@' % (code, e)
     finally:
         lock.release()
 
@@ -252,7 +249,6 @@ def holdingRank(code):
         thread = threading.Thread(target=multiThradExector, args=(code, pool_sema))
         cachedThreads.append(thread)
         thread.start()
-
 
 def prepareIncreaseFunc(prepareIncrease):
     if prepareIncrease and prepareIncrease[0]:
@@ -478,7 +474,6 @@ def printInfo(item):
     print code, name, '市盈率:', sylDesc, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
         fundPercentDesc, fundCountDesc, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
-
 
 def formatStock(arr):
     for item in arr:
