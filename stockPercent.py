@@ -2,11 +2,13 @@
 # -*-coding:utf-8 -*-
 import os
 import sys
+import time
 import urllib2, urllib, requests
 import bs4;
 import re, json
 import simplejson
 from datetime import datetime, timedelta
+from tqdm import tqdm
 import MySQLdb
 import threading
 from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
@@ -510,7 +512,10 @@ def mainMethod():
     #sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
     #codes = ['600031', '688139', '600845']
-    for code in codes:
+
+    for code in tqdm(codes):
+        # 有可能被阻塞所以这里可以加进度条
+        # sys.stdout.write('\r 进度：%d/%d' % (codes.index(code) + 1, len(codes))) # print会换行，所以必须要用sys方法
         holdingRank(code)
 
     # 等待所有线程结束
