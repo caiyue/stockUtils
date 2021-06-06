@@ -270,7 +270,7 @@ def itemIsGood(item):
     jll = item['jll']
     fzl = item['fzl']
     roe = item['roe']
-
+    sz = item['sz']
     devPercent = item['devPercent']
 
     # 连续收入&利润高速增长
@@ -306,6 +306,10 @@ def itemIsGood(item):
             or u'泵' in name \
             or u'种' in name \
             or u'媒' in name:
+        return False
+
+    # 80亿以下市值直接忽略
+    if sz < 80 * 10000 * 10000:
         return False
 
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
