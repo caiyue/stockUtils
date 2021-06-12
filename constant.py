@@ -3,20 +3,21 @@
 #author:蔡董
 #date:2017.8.16
 
-#每次更新一张表，共5张表
-stockDetailTableList = ['stock_5DayDetailData','stock_4DayDetailData','stock_3DayDetailData','stock_2DayDetailData','stock_1DayDetailData','stock1DayDetailData','stock2DayDetailData','stock3DayDetailData','stock4DayDetailData','stock5DayDetailData']
-stocklistName = 'stocklist'
-
-
 '''
-mysqlclient 1.3.0 
-
+mysqlclient 1.3.0
 MySQL-python是python和数据库的连接器，会通过mysqlclient来链接数据库
-
 这2个是必须要的
-
 '''
 
+incomeBaseIncrease = 25
+profitBaseIncrease = 25
+
+sylLimit = 400
+jeLimit = 15  # 有些新股好公司确定很低
+jllLimit = 15
+
+shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
+szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
 
 '''
 修复Python找不到数据的问题

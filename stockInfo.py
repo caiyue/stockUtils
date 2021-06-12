@@ -462,12 +462,12 @@ class StockUtils(object):
             return 0, 0, 0, 0
         else:
             if isinstance(obj, list) and len(obj) > 0:
-                increaseHight = False
+                increaseHight = True
                 # 最近三年的成长速度
                 count = 0
 
                 # 收入必须要递增，利润可以不要求，因为公司调整、成本、疫情
-                increase2Years = True
+                increase3Years = True
                 for item in obj:
                     # 最近两年成长
                     count += 1
@@ -481,20 +481,21 @@ class StockUtils(object):
                     profit = getNumFromStr(item['PARENTNETPROFIT'])
 
                     try:
-                        increaseHight = (incomeIncreaseByYear >= 25 and profileIncreaseByYear >= 20) or \
-                                        (incomeIncreaseByYear >= 30 and profit >= 400000000 and profit * 1.0 / income >= 0.1) or \
+                        # 满足3年业绩稳定增长
+                        increaseStable = (incomeIncreaseByYear >= 25 and profileIncreaseByYear >= 20) or \
                                         (incomeIncreaseByYear >= 20 and profileIncreaseByYear >= 20 and profit >= 500000000) or \
                                         (incomeIncreaseByYear >= 15 and profileIncreaseByYear >= 15 and profit>= 1000000000) or \
                                         (incomeIncreaseByYear >= 10 and profileIncreaseByYear>= 10 and profit >= 2000000000) or \
                                         (incomeIncreaseByYear >= 5 and profileIncreaseByYear >= 5 and profit >= 3000000000)
+                        increaseHight = increaseHight and increaseStable
 
-                        # 如何业绩递增要求
+                        # 符合3年业绩递增要求
                         if getNumFromStr(incomeIncreaseByYear) > 0:
-                            increase2Years = increase2Years and True
+                            increase3Years = increase3Years and True
                         else:
-                            increase2Years = increase2Years and False
+                            increase3Years = increase3Years and False
 
-                        if not increaseHight or count == 2:
+                        if count == 3:
                             break
                     except Exception, e:
                         print 'parse error:%s, %s, %s, %s, %s' % (code, incomeIncreaseByYear, profileIncreaseByYear, income, profit)
@@ -504,19 +505,19 @@ class StockUtils(object):
                 allExpense = item['TOTALOPERATEEXP']
                 RDExpense = item['RDEXP']
                 if not RDExpense or len(RDExpense) == 0 or RDExpense == '--':
-                    return 0, 0, increaseHight, increase2Years
+                    return 0, 0, increaseHight, increase3Years
                 if not allExpense or len(allExpense) == 0 or allExpense == '--':
-                    return 0, 0, increaseHight, increase2Years
+                    return 0, 0, increaseHight, increase3Years
 
                 percent = float(RDExpense) * 1.0 / float(allExpense)
                 if percent >= 0.2:
-                    return 3, percent, increaseHight, increase2Years
+                    return 3, percent, increaseHight, increase3Years
                 elif percent >= 0.08:
-                    return 2, percent, increaseHight, increase2Years
+                    return 2, percent, increaseHight, increase3Years
                 elif percent >= 0.05:
-                    return 1, percent, increaseHight, increase2Years
+                    return 1, percent, increaseHight, increase3Years
                 else:
-                    return 0, percent, increaseHight, increase2Years
+                    return 0, percent, increaseHight, increase3Years
         return 0, 0, 0, 0
 
     @classmethod

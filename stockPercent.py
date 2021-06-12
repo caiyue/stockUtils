@@ -11,8 +11,9 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import MySQLdb
 import threading
-from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
 from send_email import sendMail
+from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
+from constant import jeLimit, sylLimit, jllLimit, shurl, szurl, incomeBaseIncrease, profitBaseIncrease
 
 import sys
 
@@ -26,16 +27,6 @@ conn = MySQLdb.connect(host='localhost',
                        db='stockDB',
                        charset='utf8'
                        )
-
-shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'
-szurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sz&start=%s&end=%s'
-
-incomeBaseIncrease = 25
-profitBaseIncrease = 25
-
-sylLimit = 400
-jeLimit = 15  # 有些新股好公司确定很低
-jllLimit = 15
 
 def mysql_init():
     cur = conn.cursor()
@@ -69,7 +60,6 @@ def stripString(res):
         return li[0]
     else:
         return None
-
 
 def sendReq(startDate, endDate):
     headers = {
@@ -230,7 +220,7 @@ def multiThradExector(code, lock):
                     'devPercent': developPercentHigh[1],
                     'devHigh': developPercentHigh[0] >= 1,
                     'increaseHight': 1 if developPercentHigh[2] else 0,
-                    'increase2Years': developPercentHigh[3],
+                    'increase3Years': developPercentHigh[3],
 
                     'prepareIncrease': prepareIncrease,
                     'cashIncrease': cashIncrease,
@@ -278,7 +268,7 @@ def itemIsGood(item):
     # 连续收入&利润高速增长
     increaseHight = item['increaseHight']
     # 连续收入递增
-    increase2Years = item['increase2Years']
+    increase3Years = item['increase3Years']
 
     income = item['income']
     profit = item['profit']
@@ -319,7 +309,7 @@ def itemIsGood(item):
         return False
 
     # 如果收入出现了非增长，说明公司抗风险能力，太弱了
-    if not increase2Years:
+    if not increase3Years:
         return False
 
     # 一般是地产、银行等不能告诉成长的企业
@@ -446,7 +436,7 @@ def printInfo(item):
 
     sylDesc = '%.0f' % syl
     devDesc = '研发占比%.2f' % devPercent
-    increaseHight = '近两年高速成长' if increaseHight else ''
+    increaseHight = '近三年高速成长' if increaseHight else ''
     fuzhaiDesc = '负债率：%.0f' % fzl
     currentIncreaseHight = '当季超高增长:[%.1f/%.1f]' % (
         incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
