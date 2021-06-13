@@ -66,7 +66,7 @@ def getM3u8Content(url):
 
 def mainMethod():
     listUrl = 'https://wm.u37tv.com/link/zhip/page/%s'
-    for i in range(2, 100):
+    for i in range(5, 100):
         realUrl = listUrl % i
         listRes = getHtmlFromUrl(realUrl)
         hrefRe = re.compile("class=\"thumb\" href=\".*?\"")

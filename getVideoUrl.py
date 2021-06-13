@@ -3,10 +3,10 @@
 #author:蔡董
 #date:2017.4.16
 
-import  os
-import  sys
-import  urllib
-import  re
+import os
+import sys
+import urllib
+import re
 import os.path as fpath
 import urllib2
 from wgety.wgety import Wgety
