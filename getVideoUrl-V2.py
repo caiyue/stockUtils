@@ -59,9 +59,10 @@ def getM3u8Content(url):
             for line in tqdm(m3u8Content.split('\n')):
                 if not line.startswith('#'):
                     response = requests.get(video_domain + line, stream=True, verify=True)
-                    for chunk in response.iter_content(chunk_size=1024):
-                        if chunk:
-                            file.write(chunk)
+                    if response.status_code == 200:
+                        for chunk in response.iter_content(chunk_size=1024):
+                            if chunk:
+                                file.write(chunk)
 
 def mainMethod():
     listUrl = 'https://wm.u37tv.com/link/zhip/page/%s'
