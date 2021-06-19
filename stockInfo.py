@@ -716,6 +716,7 @@ class StockUtils(object):
             if jjccList and len(jjccList) > 0:
                 percent = jjccList[0].get('TOTAL_SHARES_RATIO')
                 return getNumFromStr(percent)
+        return 0
 
     def find_all(self, s2, s):
         index_list = []

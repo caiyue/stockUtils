@@ -172,8 +172,7 @@ def multiThradExector(code, lock):
     companyHoldingPercent = su.getCompanyShareHoldingPercent(code)
     sdPercent = su.sdgdTotalPercent(code)
     commentCount = su.getCommentNumberIn3MonthsForCode(code)
-    # fundInfo = su.fundInfoOfStock(code)
-
+    fundInfo = su.fundInfoOfStock(code)
     developPercentHigh = su.getDevelopPercentOfCost(code)
     prepareIncrease = su.prepareToIncreaseLastWeek(code)
     cashIncrease = su.getCashDetail(code)
@@ -205,7 +204,10 @@ def multiThradExector(code, lock):
                     'je': holdings[1],  # 人均总额
                     'counts': holdings[2],  # 人均持股数据,
                     'holdingsCount': holdings[3],  # 股东人数
+
                     'companyHoldingPercent': companyHoldingPercent,  # 机构流通股持仓占比(基金+公司自身)
+                    'percentOfFund': fundInfo[0],  # 基金流通股占比
+                    'countOfFund': fundInfo[1],  # 机构数量
 
                     'roe': roe,
                     'jll':  companyDetail['jll'],
@@ -264,6 +266,7 @@ def itemIsGood(item):
     roe = item['roe']
     sz = item['sz']
     devPercent = item['devPercent']
+    countOfFund = item['countOfFund']
 
     # 连续收入&利润高速增长
     increaseHight = item['increaseHight']
@@ -387,7 +390,7 @@ def itemIsGood(item):
         elif incodeIncremnt >= 30 and profitIncrment >= 30 and billPercent <= 0.2:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下
-        elif jll >= 20 and billPercent <= 0.2 and companyHoldingPercent >= jjccPercent:
+        elif jll >= 20 and billPercent <= 0.2 and companyHoldingPercent >= jjccPercent and countOfFund >= 15 and commentCount >= 5:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
