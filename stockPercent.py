@@ -13,7 +13,7 @@ import MySQLdb
 import threading
 from send_email import sendMail
 from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
-from constant import jeLimit, sylLimit, jllLimit, shurl, szurl, incomeBaseIncrease, profitBaseIncrease
+from constant import jeLimit, sylLimit, jllLimit, shurl, szurl, incomeBaseIncrease, profitBaseIncrease, jjccPercent
 
 import sys
 
@@ -169,14 +169,17 @@ def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
     holdings = su.getAverageHolding(code)
+    companyHoldingPercent = su.getCompanyShareHoldingPercent(code)
     sdPercent = su.sdgdTotalPercent(code)
     commentCount = su.getCommentNumberIn3MonthsForCode(code)
-    fundInfo = su.fundInfoOfStock(code)
+    # fundInfo = su.fundInfoOfStock(code)
+
     developPercentHigh = su.getDevelopPercentOfCost(code)
     prepareIncrease = su.prepareToIncreaseLastWeek(code)
     cashIncrease = su.getCashDetail(code)
     prepareJieJinPercent = su.PrePareToJieJin(code)
     bill = su.getCompanyBill(code)[1]
+
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
     try:
@@ -197,12 +200,12 @@ def multiThradExector(code, lock):
                     'syl': companyDetail['syl'],
                     'sdPercent': sdPercent,  # 十大股东占比,
                     'commentCount': commentCount,  # 券商评级数量,
-                    'percentOfFund': fundInfo[0],  # 基金流通股占比
-                    'countOfFund': fundInfo[1],  # 机构数量
+
                     'count': holdings[0],  # 最近的持股金额
                     'je': holdings[1],  # 人均总额
                     'counts': holdings[2],  # 人均持股数据,
                     'holdingsCount': holdings[3],  # 股东人数
+                    'companyHoldingPercent': companyHoldingPercent,  # 机构流通股持仓占比(基金+公司自身)
 
                     'roe': roe,
                     'jll':  companyDetail['jll'],
@@ -253,8 +256,7 @@ def itemIsGood(item):
     holdingsCount = item['holdingsCount']  # 股东数
     sdPercent = item['sdPercent']
     commentCount = item['commentCount']
-    percentOfFund = item['percentOfFund']
-    countOfFund = item['countOfFund']
+
     je = item['je']
     counts = item['counts']  # 人均持股数
     jll = item['jll']
@@ -272,6 +274,7 @@ def itemIsGood(item):
     profit = item['profit']
 
     billPercent = item['billPercent']
+    companyHoldingPercent = item['companyHoldingPercent']
 
     incodeIncremnt = item['incodeIncremnt']
     profitIncrment = item['profitIncrment']
@@ -329,9 +332,9 @@ def itemIsGood(item):
         if not increaseHight and round(jll) < 20:
             return False
 
-    # 次新股有90天的缓冲期，90天后，如果连一家基金都看不上，得多垃圾啊
+    # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
     if onlineDays > 90:
-        if countOfFund <= 0:
+        if companyHoldingPercent < jjccPercent:
             return False
 
     # 业绩差的直接过滤
@@ -384,7 +387,7 @@ def itemIsGood(item):
         elif incodeIncremnt >= 30 and profitIncrment >= 30 and billPercent <= 0.2:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下
-        elif jll >= 20 and billPercent <= 0.2 and countOfFund >= 15 and commentCount >= 5:
+        elif jll >= 20 and billPercent <= 0.2 and companyHoldingPercent >= jjccPercent:
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
@@ -407,8 +410,9 @@ def printInfo(item):
     holdingsCount = item['holdingsCount']  # 股东数
     sdPercent = item['sdPercent']
     commentCount = item['commentCount']
-    percentOfFund = item['percentOfFund']
-    countOfFund = item['countOfFund']
+
+    companyHoldingPercent = item['companyHoldingPercent']
+
     je = item['je']
     counts = item['counts']  # 人均持股数
     jll = item['jll']
@@ -441,8 +445,7 @@ def printInfo(item):
         ('当季高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
     currentHodingCount = holdingsCount[0] if holdingsCount and len(holdingsCount) > 0 else 0
     sdPercentDesc = '十大股东总计:%.0f' % sdPercent
-    fundPercentDesc = '基金流通股占比:' + str(percentOfFund) if percentOfFund > 5 else ''
-    fundCountDesc = '机构数量:%d' % countOfFund
+    companyHoldingPercent = '机构流通股占比:%.2f' % companyHoldingPercent
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
     prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
     billDesc = '应收款:%.fW|%%%.f' % (float(bill)/10000, billPercent * 100)
@@ -450,7 +453,7 @@ def printInfo(item):
 
     print code, name, '市盈率:', sylDesc, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
     income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
-        fundPercentDesc, fundCountDesc, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
+        companyHoldingPercent, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
 
 def formatStock(arr):
     for item in arr:
@@ -531,12 +534,8 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
 
-    print '\n基金占比排行[%.0f]:' % count
-    ret = sorted(values, key=lambda x: float(x['percentOfFund']), reverse=True)
-    formatStock(ret)
-
-    print '\n基金数量排行[%.0f]:' % count
-    ret = sorted(values, key=lambda x: x['countOfFund'], reverse=True)
+    print '\n机构流通股占比排行[%.0f]:' % count
+    ret = sorted(values, key=lambda x: float(x['companyHoldingPercent']), reverse=True)
     formatStock(ret)
 
     print '\n券商推荐排行[%.0f]:' % count

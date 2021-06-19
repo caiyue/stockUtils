@@ -95,6 +95,9 @@ bussinessDetailUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/CoreConcept
 companyBussinessPercentUrl = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code=%s'
 companyNameUrl = 'http://suggest.eastmoney.com/SuggestData/Default.aspx?name=sData_1510989642587&input=%s&type=1,2,3'
 
+#机构持仓分析
+companyShareHoldingPercentUrl = 'http://f10.eastmoney.com/ShareholderResearch/PageAjax?code=%s'
+
 #公司市值下限
 companySzDownLimit = 50
 companyHslDownLimit = 1.0
@@ -106,12 +109,12 @@ def getStockCodeFromHtmlString(string):
         return string[16:22]
 
 def getNumFromStr(income):
-    if income == '--' or income == '-':
+    if isinstance(income, float) or isinstance(income, int):
+        return income
+    elif income == '--' or income == '-':
         return 0
-    if income:
-        if isinstance(income, float):
-            return income
-        elif u'万' in income:
+    elif income:
+        if u'万' in income:
             return float(income[0: -1]) * 10000
         elif u'亿' in income:
             return float(income[0: -1]) * 10000 * 10000
@@ -703,6 +706,16 @@ class StockUtils(object):
                 c = int(count)
             return p, c
         return 0, 0
+
+    def getCompanyShareHoldingPercent(self, code):
+        url = companyShareHoldingPercentUrl % getMarketCode(code, prefix=True)
+        res = getHtmlFromUrl(url)
+        obj = getJsonObjOrigin(res)
+        if obj:
+            jjccList = obj.get('jgcc')
+            if jjccList and len(jjccList) > 0:
+                percent = jjccList[0].get('TOTAL_SHARES_RATIO')
+                return getNumFromStr(percent)
 
     def find_all(self, s2, s):
         index_list = []
