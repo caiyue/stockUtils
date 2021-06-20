@@ -28,12 +28,14 @@ conn = MySQLdb.connect(host='localhost',
                        charset='utf8'
                        )
 
+
 def mysql_init():
     cur = conn.cursor()
     if cur:
         return cur
     else:
         return cur.cursor()
+
 
 def executeSQL(sql):
     if sql:
@@ -43,12 +45,14 @@ def executeSQL(sql):
     else:
         return
 
+
 def savePercent(code, name, total, percent, hold_date):
     if code and name and total and percent and hold_date:
         sql = 'insert into %s(code,name,total,percent,date) value (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % \
               ('stock', code, name, total, percent, hold_date)
         print sql
         executeSQL(sql)
+
 
 def stripString(res):
     if not res:
@@ -59,6 +63,7 @@ def stripString(res):
         return li[0]
     else:
         return None
+
 
 def sendReq(startDate, endDate):
     headers = {
@@ -110,11 +115,13 @@ def saveValueFromJson(json):
     else:
         return
 
+
 def returnPercent(tu):
     if len(tu) == 5:
         return tu[3]
     else:
         return 0
+
 
 def getSortedValue():
     sql = 'select code, name, total, percent, date from stock order by name, date asc'
@@ -133,6 +140,7 @@ def getSortedValue():
         codeNum = code
     return filterGood(ret)
 
+
 def filterGood(ret):
     outArray = []
     for item in ret:
@@ -150,6 +158,7 @@ def filterGood(ret):
                 outArray.append(lastDataItem)
     return outArray
 
+
 def descForCode(ret):
     code = ret[0]
     percent = ret[1]
@@ -161,10 +170,13 @@ def descForCode(ret):
         return '研发占比很高%.5s' % percent
     return ''
 
+
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
 pool_sema = threading.BoundedSemaphore(value=20)
+
+
 def multiThradExector(code, lock):
     su = StockUtils()
     companyDetail = su.getHslSylAndJlvForCode(code)
@@ -210,7 +222,7 @@ def multiThradExector(code, lock):
                     'countOfFund': fundInfo[1],  # 机构数量
 
                     'roe': roe,
-                    'jll':  companyDetail['jll'],
+                    'jll': companyDetail['jll'],
                     'income': income,
                     'profit': profit,
                     'incodeIncremnt': companyDetail['incomeIncrement'],
@@ -234,6 +246,7 @@ def multiThradExector(code, lock):
     finally:
         lock.release()
 
+
 def holdingRank(code):
     if code not in ranks:
         # 如果能拿到锁就启动线程，在线程结束后释放锁
@@ -242,14 +255,17 @@ def holdingRank(code):
         cachedThreads.append(thread)
         thread.start()
 
+
 def prepareIncreaseFunc(prepareIncrease):
     if prepareIncrease and prepareIncrease[0]:
-        return '连续3天上涨[%s]' %  prepareIncrease[1]
+        return '连续3天上涨[%s]' % prepareIncrease[1]
     else:
         return ''
 
+
 def incomeIs2Small(income):
     return getNumFromStr(income) < 12000 * 10000
+
 
 def itemIsGood(item):
     code = item['code']
@@ -342,7 +358,7 @@ def itemIsGood(item):
     if incodeIncremnt <= 0 or profitIncrment <= 0:
         return False
 
-    #如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
+    # 如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
     if sdPercent < 45:
         return False
 
@@ -404,6 +420,7 @@ def itemIsGood(item):
         return True
     return False
 
+
 def printInfo(item):
     code = item['code']
     name = item['name']
@@ -437,10 +454,9 @@ def printInfo(item):
     cashIncrease = item['cashIncrease']
     prepareJieJinPercent = item['prepareJieJinPercent']
 
-    sylDesc = '%.0f' % syl
     devDesc = '研发占比%.2f' % devPercent
     increaseHight = '近三年高速成长' if increaseHight else ''
-    fuzhaiDesc = '负债率：%.0f' % fzl
+    fuzhaiDesc = '负债率:%.0f' % fzl
     currentIncreaseHight = '当季超高增长:[%.1f/%.1f]' % (
         incodeIncremnt, profitIncrment) if incodeIncremnt >= 40 and profitIncrment >= 40 else \
         ('当季高增长' if incodeIncremnt >= 30 and profitIncrment >= 30 else '')
@@ -449,17 +465,20 @@ def printInfo(item):
     companyHoldingPercent = '机构流通股占比:%.2f' % companyHoldingPercent
     prepareIncreaseDesc = prepareIncreaseFunc(prepareIncrease)
     prepareJieJinDesc = '>=0.5倍数准备解禁' if prepareJieJinPercent >= 0.5 else ''
-    billDesc = '应收款:%.fW|%%%.f' % (float(bill)/10000, billPercent * 100)
+    billDesc = '应收款:%.fW|%%%.f' % (float(bill) / 10000, billPercent * 100)
     roeDesc = 'roe:%.1f' % roe
 
-    print code, name, '市盈率:', sylDesc, '评级数:', commentCount, je, counts, '利润:%s/%s' % (
-    income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
-        companyHoldingPercent, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
+    print code, name, '市盈率:%.0f' % syl, '评级数:%d' % commentCount, je, counts, '利润:%s/%s' % (
+        income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
+        companyHoldingPercent, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, \
+        prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
+
 
 def formatStock(arr):
     for item in arr:
         if itemIsGood(item):
-          printInfo(item)
+            printInfo(item)
+
 
 def princleple():
     print '''
@@ -493,6 +512,7 @@ def princleple():
     1、上涨阶段：天量卖出，表示所有的上扬力量已经出尽，后期上扬没有资金跟进
     '''
 
+
 def mainMethod():
     princleple()
     currentTimeStamp = datetime.now()
@@ -501,9 +521,9 @@ def mainMethod():
     fourMonthAgoTimeStamp = currentTimeStamp - timedelta(days=120)
     fourMonthAgoDate = datetime.strftime(fourMonthAgoTimeStamp, "%Y-%m-%d")
     #
-    #sendReq(fourMonthAgoDate, currentDate)
+    # sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
-    #codes = ['600031', '688139', '600845']
+    #codes = ['688626']
 
     for code in tqdm(codes):
         # 有可能被阻塞所以这里可以加进度条
@@ -527,10 +547,11 @@ def mainMethod():
 
     # 直接结果
     values = ranks.values()
+
     def filter_isGood(n):
         return itemIsGood(n)
-    count = len(filter(filter_isGood, values))
 
+    count = len(filter(filter_isGood, values))
     print '\n人均持股金额排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['count'], reverse=True)
     formatStock(ret)
@@ -567,8 +588,16 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['prepareJieJinPercent'], reverse=True)
     formatStock(ret)
 
+    def filter_newStock(n):
+        return n['onlineDays'] <= 90
+    newStockList = filter(filter_newStock, values)
+    print '\n次新股[%.0f]:' % len(newStockList)
+    ret = sorted(newStockList, key=lambda x: x['onlineDays'], reverse=True)
+    formatStock(ret)
+
     def filter_increase(n):
         return n['prepareIncrease'] and n['prepareIncrease'][0];
+
     increaseList = filter(filter_increase, values)
     s = ''
     for item in increaseList:
@@ -576,7 +605,8 @@ def mainMethod():
             s = s + item['code'] + ' ' + item['name'] + ' ' + str(item['je']) + ' ' \
                 + str(item['incodeIncremnt']) + '/' + str(item['profitIncrment']) + ' ' \
                 + str(item['billPercent']) + '\n'
-    sendMail('筛选列表【W】缩量买入', s)
+    if len(s) > 0: sendMail('筛选列表【W】缩量买入', s)
+
 
 if __name__ == '__main__':
     mainMethod()
