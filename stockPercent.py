@@ -309,8 +309,6 @@ def itemIsGood(item):
         return False
 
     # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
-    if incomeIs2Small(income):
-        return False
 
     # 如果收入出现了非增长，说明公司抗风险能力，太弱了
     if not increase3Years:
