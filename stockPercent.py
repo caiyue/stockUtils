@@ -337,7 +337,7 @@ def itemIsGood(item):
 
     # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
     if onlineDays > 90:
-        if companyHoldingPercent < jjccPercent:
+        if companyHoldingPercent < jjccPercent and not increaseHight:
             return False
 
     # 业绩差的直接过滤
