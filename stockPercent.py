@@ -302,6 +302,7 @@ def itemIsGood(item):
 
     onlineDays = item['onlineDays']
 
+    #  =====================必选区==================================
     # 去除垃圾赛道
     if u'证券' in name \
             or u'银行' in name \
@@ -324,18 +325,12 @@ def itemIsGood(item):
     if sz < 80 * 10000 * 10000:
         return False
 
-    # 如果单个季度收入低于1.5亿，直接忽略，规模小，等待成长太艰难了
-
     # 如果收入出现了非增长，说明公司抗风险能力，太弱了
     if not increase3Years:
         return False
 
     # 一般是地产、银行等不能告诉成长的企业
     if syl <= 10 or syl > sylLimit:
-        return False
-
-    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
-    if round(jll) < jllLimit:
         return False
 
     # 很多公司资产很多，可是不怎么会经营，导致roe很低
@@ -347,11 +342,6 @@ def itemIsGood(item):
     # 规模小，盈利能力再弱，真的就很不好了
     if getNumFromStr(income) < 30000 * 10000:
         if not increaseHight and round(jll) < 20:
-            return False
-
-    # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
-    if onlineDays > 90:
-        if companyHoldingPercent < jjccPercent and not increaseHight:
             return False
 
     # 业绩差的直接过滤
@@ -367,33 +357,50 @@ def itemIsGood(item):
         if not increaseHight:
             if billPercent >= 0.1:
                 return False
+    #  ======================END===================================
+
+    #  =====================可选区==================================
+    def isLargeAndHighIncrease():
+        if getNumFromStr(income) >= 20 * 10000 * 10000:
+            if round(jll) <= 10:
+                return False
+
+            if companyHoldingPercent < 40:
+                return False
+
+            if fzl >= 65:
+                return False
+
+            if billPercent >= 0.35:
+                return False
+
+            if incodeIncremnt < 30 or profitIncrment < 30:
+                return False
+        return False
+
+    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
+    if round(jll) < jllLimit:
+        return isLargeAndHighIncrease()
+
+    # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
+    if onlineDays > 90:
+        if companyHoldingPercent < jjccPercent and not increaseHight:
+            return isLargeAndHighIncrease()
 
     # 负债率太高，说明公司资金经营有风险
     if fzl >= 55:
-        return False
+        return isLargeAndHighIncrease()
     elif fzl >= 45:
         if not increaseHight and billPercent >= 0.2:
-            return False
+            return isLargeAndHighIncrease()
 
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
     # 40%意味卖出100块钱，30块钱暂时收不回来，话语权太弱，一定要找话语权强的
     if billPercent > 0.35:
-        return False
+        return isLargeAndHighIncrease()
     elif billPercent > 0.25:
         if not increaseHight:
-            return False
-
-    # 针对近两年不是高速成长的企业，需要这么过滤下
-    # 针对人均持股较少的股，如果净利率低也就不再关注了,肯定是垃圾股
-    # 针对人均持股较少的股，如果不是资金连续聚集，也不再关注了
-
-    # 当季度业绩至少要达到 incomeBaseIncrease profitBaseIncrease的要求
-    # 或者 资金连续3次递增       x3 >= x2 and x3 >= x1
-    # 或者 人均持股连续3次递增    x3 >= x2 and x3 >= x1
-    # 或者 股东数连续3次递减     x3 <= x2 and x3 <= x1
-    # 或者 过去连续两年业绩很好   increaseHight
-    # 或者 当前季度季度业绩很好   incodeIncremnt >= 30 and profitIncrment >= 30
-    # 或者 人均持股金额 大于100w
+            return isLargeAndHighIncrease()
 
     # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
     isOK = False
@@ -408,17 +415,11 @@ def itemIsGood(item):
             isOK = True
     else:
         isOK = incodeIncremnt >= 5 and profitIncrment >= 5
-
-    # 资金聚集筛选条件
-    # 准备牛逼 /  过去2年牛逼  / 当前牛逼  / 努力牛逼  / 已经很牛逼
-    isCollect = (len(je) >= 3 and je[0] > je[1] and je[0] > je[2]) or \
-                increaseHight or \
-                (incodeIncremnt >= 40 and profitIncrment >= 40) or \
-                (len(je) >= 1 and je[0] >= 80)
-
     if isOK:
         return True
-    return False
+    else:
+        return isLargeAndHighIncrease()
+    #  ==========================END==================================
 
 
 def printInfo(item):
@@ -523,7 +524,7 @@ def mainMethod():
     #
     # sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
-    #codes = ['688626']
+    # codes = ['688626']
 
     for code in tqdm(codes):
         # 有可能被阻塞所以这里可以加进度条
@@ -590,6 +591,7 @@ def mainMethod():
 
     def filter_newStock(n):
         return n['onlineDays'] <= 90
+
     newStockList = filter(filter_newStock, values)
     print '\n次新股[%.0f]:' % len(newStockList)
     ret = sorted(newStockList, key=lambda x: x['onlineDays'], reverse=True)
