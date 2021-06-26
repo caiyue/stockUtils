@@ -571,10 +571,6 @@ def mainMethod():
     ret = sorted(values, key=lambda x: x['holdingsCount'], reverse=False)
     formatStock(ret)
 
-    print '\n公司应收款占比排行[%.0f]:' % count
-    ret = sorted(values, key=lambda x: float(x['billPercent']), reverse=False)
-    formatStock(ret)
-
     print '\nROE排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['roe'], reverse=True)
     formatStock(ret)
@@ -589,6 +585,10 @@ def mainMethod():
 
     print '\n解禁占比占比排行[%.0f]:' % count
     ret = sorted(values, key=lambda x: x['prepareJieJinPercent'], reverse=True)
+    formatStock(ret)
+
+    print '\n公司应收款占比排行[%.0f]:' % count
+    ret = sorted(values, key=lambda x: float(x['billPercent']), reverse=False)
     formatStock(ret)
 
     def filter_newStock(n):
