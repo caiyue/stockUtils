@@ -837,7 +837,7 @@ class StockUtils(object):
                         # 连续4天都在上涨则提示
                         if i + 3 < len(increaseArray) and increaseArray[i] and \
                                 increaseArray[i+1] and increaseArray[i+2] and increaseArray[i+3]:
-                            return True
+                            return True, computeDateArray[i]
                         return False
                     return False
             else:
