@@ -377,6 +377,9 @@ def itemIsGood(item):
             if incodeIncremnt < 30 or profitIncrment < 30:
                 return False
 
+            if commentCount < 10:
+                return False
+
             return True
         return False
 
