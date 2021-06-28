@@ -834,11 +834,11 @@ class StockUtils(object):
                     increaseDealCount = map(lambda x: computeDeal(x), s)
                     computeDateArray = map(lambda x: computeDate(x), s)
                     for i in range(len(increaseArray)):
-                        # 连续3天都在上涨则提示
-                        if i + 2 < len(increaseArray) and increaseArray[i] and increaseArray[i+1] and increaseArray[i+2]:
-                            if i + 2 < len(increaseDealCount) and increaseDealCount[i] >= increaseDealCount[i+1] >= increaseDealCount[i+2]:
-                                return True, computeDateArray[i]
-                            return False
+                        # 连续4天都在上涨则提示
+                        if i + 3 < len(increaseArray) and increaseArray[i] and \
+                                increaseArray[i+1] and increaseArray[i+2] and increaseArray[i+3]:
+                            return True
+                        return False
                     return False
             else:
                 return False
