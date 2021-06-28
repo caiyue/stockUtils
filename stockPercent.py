@@ -152,7 +152,7 @@ def filterGood(ret):
             startCount = allCountArray[0]
             endCount = allCountArray[-1]
             maxCount = max(allCountArray)
-            isOk = endCount >= maxCount * 0.80 > startCount
+            isOk = endCount >= maxCount * 0.80
             # 不再根据外资投资比例筛选股票
             if isOk:
                 outArray.append(lastDataItem)
