@@ -258,7 +258,7 @@ def holdingRank(code):
 
 def prepareIncreaseFunc(prepareIncrease):
     if prepareIncrease and prepareIncrease[0]:
-        return '连续3天上涨[%s]' % prepareIncrease[1]
+        return '连续4天上涨[%s]' % prepareIncrease[1]
     else:
         return ''
 
