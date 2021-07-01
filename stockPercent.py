@@ -321,8 +321,8 @@ def itemIsGood(item):
             or u'媒' in name:
         return False
 
-    # 80亿以下市值直接忽略
-    if sz < 80 * 10000 * 10000:
+    # 80亿以下市值且不是高速增长，直接忽略
+    if sz < 80 * 10000 * 10000 and not increaseHight:
         return False
 
     # 如果收入出现了非增长，说明公司抗风险能力，太弱了
