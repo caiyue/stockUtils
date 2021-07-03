@@ -174,7 +174,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
-pool_sema = threading.BoundedSemaphore(value=10)
+pool_sema = threading.BoundedSemaphore(value=40)
 
 
 def multiThradExector(code, lock):
@@ -190,6 +190,7 @@ def multiThradExector(code, lock):
     cashIncrease = su.getCashDetail(code)
     prepareJieJinPercent = su.PrePareToJieJin(code)
     bill = su.getCompanyBill(code)[1]
+    bussinessDetail = su.getCompanyBussinessDetailString(code)
 
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
@@ -209,9 +210,11 @@ def multiThradExector(code, lock):
                     "onlineDays": companyDetail['onlineDays'],
                     'sz': companyDetail['sz'],
                     'syl': companyDetail['syl'],
-                    'sdPercent': sdPercent,  # 十大股东占比,
-                    'commentCount': commentCount,  # 券商评级数量,
 
+                    'sdPercent': sdPercent,  # 十大股东占比,
+                    'bussinessDetail': bussinessDetail,
+
+                    'commentCount': commentCount,  # 券商评级数量,
                     'count': holdings[0],  # 最近的持股金额
                     'je': holdings[1],  # 人均总额
                     'counts': holdings[2],  # 人均持股数据,
@@ -274,6 +277,7 @@ def itemIsGood(item):
     holdingsCount = item['holdingsCount']  # 股东数
     sdPercent = item['sdPercent']
     commentCount = item['commentCount']
+    bussinessDetail = item['bussinessDetail']
 
     je = item['je']
     counts = item['counts']  # 人均持股数
@@ -319,6 +323,13 @@ def itemIsGood(item):
             or u'泵' in name \
             or u'种' in name \
             or u'媒' in name:
+        return False
+
+    if bussinessDetail and (u'服装' in bussinessDetail or \
+            u'服饰' in bussinessDetail or \
+            u'纺织' in bussinessDetail or \
+            u'农药' in bussinessDetail or \
+            u'杀虫剂' in bussinessDetail):
         return False
 
     # 80亿以下市值且不是高速增长，直接忽略
