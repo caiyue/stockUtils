@@ -326,10 +326,9 @@ def itemIsGood(item):
         return False
 
     if bussinessDetail and (u'服装' in bussinessDetail or \
-            u'服饰' in bussinessDetail or \
-            u'纺织' in bussinessDetail or \
-            u'农药' in bussinessDetail or \
-            u'杀虫剂' in bussinessDetail):
+                            u'服饰' in bussinessDetail or \
+                            u'纺织' in bussinessDetail or \
+                            u'杀虫剂' in bussinessDetail):
         return False
 
     # 80亿以下市值且不是高速增长，直接忽略
@@ -369,6 +368,7 @@ def itemIsGood(item):
         if not increaseHight:
             if billPercent >= 0.1:
                 return False
+
     #  ======================END===================================
 
     #  =====================可选区==================================
