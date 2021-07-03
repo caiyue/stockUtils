@@ -373,7 +373,7 @@ def itemIsGood(item):
 
     #  =====================可选区==================================
     def isLargeAndHighIncrease():
-        if getNumFromStr(income) >= 20 * 10000 * 10000:
+        if getNumFromStr(income) >= 15 * 10000 * 10000:
             if round(jll) <= 10:
                 return False
 
