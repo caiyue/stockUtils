@@ -837,7 +837,7 @@ class StockUtils(object):
                         if i + 3 < len(increaseArray) and increaseArray[i] and \
                                 increaseArray[i+1] and increaseArray[i+2] and increaseArray[i+3]:
                             return True, computeDateArray[i]
-                        return False
+
                     return False
             else:
                 return False
