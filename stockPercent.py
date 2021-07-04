@@ -174,7 +174,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
-pool_sema = threading.BoundedSemaphore(value=40)
+pool_sema = threading.BoundedSemaphore(value=20)
 
 
 def multiThradExector(code, lock):
@@ -373,7 +373,7 @@ def itemIsGood(item):
 
     #  =====================可选区==================================
     def isLargeAndHighIncrease():
-        if getNumFromStr(income) >= 15 * 10000 * 10000:
+        if getNumFromStr(income) >= 20 * 10000 * 10000:
             if round(jll) <= 10:
                 return False
 
@@ -426,6 +426,8 @@ def itemIsGood(item):
             isOK = True
         # 次新股
         elif incodeIncremnt >= 30 and profitIncrment >= 30 and billPercent <= 0.2:
+            isOK = True
+        elif incodeIncremnt >= 25 and profitIncrment >= 25 and billPercent <= 0.1:
             isOK = True
         # 如果净利率很高，而且待收款很少，说明公司性质不错，可以关注下
         elif jll >= 20 and billPercent <= 0.1 and countOfFund >= 5 and commentCount >= 2:
