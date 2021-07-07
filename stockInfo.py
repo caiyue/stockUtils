@@ -608,9 +608,9 @@ class StockUtils(object):
         res = getHtmlFromUrl(url)
         if res:
             obj = getJsonObjOrigin(res)
+            maxValue = 0
+            total = 0
             if obj and isinstance(obj, list) and len(obj) > 0:
-                maxValue = 0
-                total = 0
                 #最近三个季度平均5500w的在建项目
                 arr = obj[0: 3] if len(obj) >= 3 else obj
                 for item in arr:

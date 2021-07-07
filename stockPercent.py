@@ -364,10 +364,9 @@ def itemIsGood(item):
         return False
 
     # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐，或者实在是太强势了，也可以
-    if commentCount <= 2:
-        if not increaseHight:
-            if billPercent >= 0.1:
-                return False
+    if commentCount == 0:
+        if billPercent > 0.1:
+            return False
 
     #  ======================END===================================
 
