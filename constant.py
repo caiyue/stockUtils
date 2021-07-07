@@ -15,6 +15,8 @@ profitBaseIncrease = 25
 sylLimit = 400
 jeLimit = 15  # 有些新股好公司确定很低
 jllLimit = 15
+jllBottom = 11
+
 jjccPercent = 20
 
 shurl = 'http://quotes.sina.cn/hq/api/openapi.php/XTongService.getTongHoldingRatioList?callback=sina_15618815495718682370855167358&page=%s&num=40&type=sh&start=%s&end=%s'

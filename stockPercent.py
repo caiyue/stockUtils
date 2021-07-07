@@ -13,7 +13,7 @@ import MySQLdb
 import threading
 from send_email import sendMail
 from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
-from constant import jeLimit, sylLimit, jllLimit, shurl, szurl, incomeBaseIncrease, profitBaseIncrease, jjccPercent
+from constant import jeLimit, sylLimit, jllLimit,jllBottom, shurl, szurl, incomeBaseIncrease, profitBaseIncrease, jjccPercent
 
 import sys
 
@@ -372,14 +372,14 @@ def itemIsGood(item):
 
     #  =====================可选区==================================
     def isLargeAndHighIncrease():
-        if getNumFromStr(income) >= 20 * 10000 * 10000:
-            if round(jll) <= 10:
+        if getNumFromStr(income) >= 10 * 10000 * 10000:
+            if round(jll) <= jllBottom:
                 return False
 
             if companyHoldingPercent < 40:
                 return False
 
-            if fzl >= 65:
+            if fzl >= 60:
                 return False
 
             if billPercent >= 0.35:
@@ -388,14 +388,16 @@ def itemIsGood(item):
             if incodeIncremnt < 30 or profitIncrment < 30:
                 return False
 
-            if commentCount < 10:
+            if commentCount < 15:
                 return False
 
             return True
         return False
 
     # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
-    if round(jll) < jllLimit:
+    if round(jll) <= jllBottom:
+        return False
+    elif round(jll) < jllLimit:
         return isLargeAndHighIncrease()
 
     # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
