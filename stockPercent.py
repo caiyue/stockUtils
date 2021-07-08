@@ -368,6 +368,9 @@ def itemIsGood(item):
         if not increaseHight:
             if billPercent >= 0.1:
                 return False
+        else:
+            if billPercent > 0.3:
+                return False
 
     #  ======================END===================================
 
