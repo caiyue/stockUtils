@@ -13,7 +13,7 @@ import MySQLdb
 import threading
 from send_email import sendMail
 from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
-from constant import jeLimit, sylLimit, jllLimit,jllBottom, shurl, szurl, incomeBaseIncrease, profitBaseIncrease, jjccPercent
+from constant import jeLimit, sylLimit, jllLimit,jllBottom, onlineDayLimit, shurl, szurl, incomeBaseIncrease, profitBaseIncrease, jjccPercent
 
 import sys
 
@@ -365,6 +365,8 @@ def itemIsGood(item):
 
     # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐，或者实在是太强势了，也可以
     if commentCount <= 2:
+        if onlineDays > onlineDayLimit:
+            return False
         if not increaseHight:
             if billPercent >= 0.1:
                 return False
@@ -405,7 +407,7 @@ def itemIsGood(item):
         return isLargeAndHighIncrease()
 
     # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
-    if onlineDays > 180:
+    if onlineDays > onlineDayLimit:
         if companyHoldingPercent < jjccPercent and not increaseHight:
             return isLargeAndHighIncrease()
 
@@ -525,7 +527,7 @@ def princleple():
       c)或者产品竞争力强支撑订单增长，或者各种签约，支持做大做强
       d)或者知名品牌，品牌影响力很强，支持继续做大
       
-    4 朝阳行业，未来有无限可能
+    4 朝阳行业，未来有无限可能，行业需求有爆发的可能性。
       
      ==============================================
                     1 && 2 && 3

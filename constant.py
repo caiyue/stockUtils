@@ -16,6 +16,7 @@ sylLimit = 400
 jeLimit = 15  # 有些新股好公司确定很低
 jllLimit = 15
 jllBottom = 11
+onlineDayLimit = 180
 
 jjccPercent = 20
 
