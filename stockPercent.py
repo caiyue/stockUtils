@@ -331,9 +331,9 @@ def itemIsGood(item):
                             u'杀虫剂' in bussinessDetail):
         return False
 
-    # 80亿以下市值且不是高速增长，直接忽略
-    if sz < 80 * 10000 * 10000:
-        if billPercent >= 0.15 and not increaseHight:
+    # 规模小，盈利能力再弱，真的就很不好了
+    if getNumFromStr(income) < 30000 * 10000:
+        if not increaseHight and round(jll) < 20:
             return False
 
     # 如果收入&利润出现了非增长，说明公司抗风险能力，太弱了
@@ -349,11 +349,6 @@ def itemIsGood(item):
         return False
     elif round(roe) < 3.0 and not increaseHight:
         return False
-
-    # 规模小，盈利能力再弱，真的就很不好了
-    if getNumFromStr(income) < 30000 * 10000:
-        if not increaseHight and round(jll) < 20:
-            return False
 
     # 业绩差的直接过滤
     if incodeIncremnt <= 0 or profitIncrment <= 0:
@@ -550,7 +545,7 @@ def mainMethod():
     #
     # sendReq(fourMonthAgoDate, currentDate)
     codes = su.getAllStockList()
-    # codes = ['688626']
+    #codes = ['300327']
 
     for code in tqdm(codes):
         # 有可能被阻塞所以这里可以加进度条
