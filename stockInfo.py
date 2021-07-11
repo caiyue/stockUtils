@@ -492,7 +492,7 @@ class StockUtils(object):
                         increaseHight = increaseHight and increaseStable
 
                         # 符合3年业绩递增要求
-                        if getNumFromStr(incomeIncreaseByYear) > 0:
+                        if getNumFromStr(incomeIncreaseByYear) > 0 and getNumFromStr(profileIncreaseByYear) > 0:
                             increase3Years = increase3Years and True
                         else:
                             increase3Years = increase3Years and False

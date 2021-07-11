@@ -336,7 +336,7 @@ def itemIsGood(item):
         if billPercent >= 0.15 and not increaseHight:
             return False
 
-    # 如果收入出现了非增长，说明公司抗风险能力，太弱了
+    # 如果收入&利润出现了非增长，说明公司抗风险能力，太弱了
     if not increase3Years:
         return False
 
