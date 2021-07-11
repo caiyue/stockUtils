@@ -522,9 +522,9 @@ class StockUtils(object):
                         # 满足3年业绩稳定增长
                         increaseStable = (incomeIncreaseByYear >= 25 and profileIncreaseByYear >= 20) or \
                                          (
-                                                 incomeIncreaseByYear >= 20 and profileIncreaseByYear >= 20 and profit >= 400000000) or \
+                                                 incomeIncreaseByYear >= 20 and profileIncreaseByYear >= 20 and profit >= 500000000) or \
                                          (
-                                                 incomeIncreaseByYear >= 15 and profileIncreaseByYear >= 15 and profit >= 800000000) or \
+                                                 incomeIncreaseByYear >= 15 and profileIncreaseByYear >= 15 and profit >= 1000000000) or \
                                          (
                                                  incomeIncreaseByYear >= 10 and profileIncreaseByYear >= 10 and profit >= 2000000000) or \
                                          (
