@@ -522,17 +522,17 @@ class StockUtils(object):
                         # 满足3年业绩稳定增长
                         increaseStable = (incomeIncreaseByYear >= 25 and profileIncreaseByYear >= 20) or \
                                          (
-                                                 incomeIncreaseByYear >= 20 and profileIncreaseByYear >= 20 and profit >= 500000000) or \
+                                                 incomeIncreaseByYear >= 20 and profileIncreaseByYear >= 20 and profit >= 400000000) or \
                                          (
-                                                 incomeIncreaseByYear >= 15 and profileIncreaseByYear >= 15 and profit >= 1000000000) or \
+                                                 incomeIncreaseByYear >= 15 and profileIncreaseByYear >= 15 and profit >= 800000000) or \
                                          (
                                                  incomeIncreaseByYear >= 10 and profileIncreaseByYear >= 10 and profit >= 2000000000) or \
                                          (
                                                  incomeIncreaseByYear >= 5 and profileIncreaseByYear >= 5 and profit >= 3000000000)
                         increaseHight = increaseHight and increaseStable
 
-                        # 符合3年业绩递增要求
-                        if getNumFromStr(incomeIncreaseByYear) > 0 and getNumFromStr(profileIncreaseByYear) > 0:
+                        # 符合3年业绩递增要求,利润可以滞后，规模必须持续扩大
+                        if getNumFromStr(incomeIncreaseByYear) > 0 and getNumFromStr(profileIncreaseByYear) > -15:
                             increase3Years = increase3Years and True
                         else:
                             increase3Years = increase3Years and False

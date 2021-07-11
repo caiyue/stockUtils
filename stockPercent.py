@@ -174,7 +174,7 @@ def descForCode(ret):
 ranks = {}
 cachedThreads = []
 # 最多同时发100个线程
-pool_sema = threading.BoundedSemaphore(value=20)
+pool_sema = threading.BoundedSemaphore(value=40)
 
 
 def multiThradExector(code, lock):
