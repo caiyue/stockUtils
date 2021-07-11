@@ -13,7 +13,9 @@ import MySQLdb
 import threading
 from send_email import sendMail
 from stockInfo import StockUtils, getHtmlFromUrl, getNumFromStr
-from constant import jeLimit, sylLimit, jllLimit,jllBottom, onlineDayLimit, shurl, szurl, incomeBaseIncrease, profitBaseIncrease, jjccPercent
+from constant import jeLimit, sylLimit, jllLimit,jllBottom, \
+    onlineDayLimit, shurl, szurl, \
+    incomeBaseIncrease, profitBaseIncrease, jjccPercent
 
 import sys
 
