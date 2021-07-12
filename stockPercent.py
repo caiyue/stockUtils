@@ -330,6 +330,8 @@ def itemIsGood(item):
     if bussinessDetail and (u'服装' in bussinessDetail or \
                             u'服饰' in bussinessDetail or \
                             u'纺织' in bussinessDetail or \
+                            u'首饰' in bussinessDetail or \
+                            u'珠宝' in bussinessDetail or \
                             u'杀虫剂' in bussinessDetail):
         return False
 
@@ -340,7 +342,7 @@ def itemIsGood(item):
 
     # 如果收入&利润出现了非增长，说明公司抗风险能力，太弱了
     if not increase3Years:
-        if billPercent > 0.08:
+        if billPercent > 0.05:
             return False
 
     # 一般是地产、银行等不能告诉成长的企业
@@ -371,9 +373,9 @@ def itemIsGood(item):
     # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐，或者实在是太强势了，也可以
     if commentCount <= 2:
         if not increaseHight:
-            if onlineDays > onlineDayLimit and billPercent >= 0.09:
+            if onlineDays > onlineDayLimit:
                 return False
-            if billPercent >= 0.09:
+            if billPercent >= 0.08:
                 return False
         else:
             if billPercent > 0.3:
@@ -405,19 +407,22 @@ def itemIsGood(item):
             return True
         return False
 
+    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
+    isLargeOK = False
+    if round(jll) <= jllBottom:
+        return False
+    elif round(jll) < jllLimit:
+        isLargeOK = isLargeAndHighIncrease()
+        if not isLargeOK:
+            return
+
     # 如果预收账款比较大，说明话语权较小，可以忽律(这里设置是40%，整体的待收账款/4/单个季度收入)
     # 40%意味卖出100块钱，30块钱暂时收不回来，话语权太弱，一定要找话语权强的
     if billPercent > 0.35:
         return False
     elif billPercent > 0.25:
-        if not increaseHight:
-            return isLargeAndHighIncrease()
-
-    # 如果净利率太低，肯定是苦逼行业，或者经营不咋地的公司，伟大的企业都是能赚钱的
-    if round(jll) <= jllBottom:
-        return False
-    elif round(jll) < jllLimit:
-        return isLargeAndHighIncrease()
+        if not increaseHight and not isLargeOK:
+            return False
 
     # 筛选财务指标：企业增长不能太差, >= 20 && >= 10,但是茅台，海天不可能增速那么快，所以也需要特殊处理下,或者最近两年高速成长
     isOK = False
