@@ -360,9 +360,9 @@ def itemIsGood(item):
     if sdPercent < 45:
         return False
 
-    # 次新股有90天的缓冲期，90天后，如果机构占比还很低，得多垃圾啊
+    # 次新股有180天的缓冲期，180天后，如果机构占比还很低，得多垃圾啊
     if onlineDays > onlineDayLimit:
-        if companyHoldingPercent < jjccPercent:
+        if companyHoldingPercent < jjccPercent and not increaseHight:
             return False
 
     # 再牛逼的公司也得有个认可的过程，所以必须要有券商推荐，或者实在是太强势了，也可以
