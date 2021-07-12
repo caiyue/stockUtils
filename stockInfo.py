@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 import os.path as fpath
 from bs4 import BeautifulSoup
 import pickle, pprint
-
+from constant import jllBottom
 # from mysqlOperation import mysqlOp
 
 reload(sys)
@@ -505,7 +505,8 @@ class StockUtils(object):
                 count = 0
 
                 # 收入必须要递增，利润可以不要求，因为公司调整、成本、疫情
-                increase3Years = True
+                incomeIncrease3Years = 0
+                profitIncrease3Years = 0
                 for item in obj:
                     # 最近两年成长
                     count += 1
@@ -529,13 +530,15 @@ class StockUtils(object):
                                                  incomeIncreaseByYear >= 10 and profileIncreaseByYear >= 10 and profit >= 2000000000) or \
                                          (
                                                  incomeIncreaseByYear >= 5 and profileIncreaseByYear >= 5 and profit >= 3000000000)
-                        increaseHight = increaseHight and increaseStable
+                        increaseHight = increaseHight and increaseStable and (profit * 1.0/income > jllBottom/100.0)
 
                         # 符合3年业绩递增要求,利润可以滞后，规模必须持续扩大
-                        if getNumFromStr(incomeIncreaseByYear) > 0 and getNumFromStr(profileIncreaseByYear) > -15:
-                            increase3Years = increase3Years and True
+                        if incomeIncreaseByYear > 0 and profileIncreaseByYear > -15:
+                            incomeIncrease3Years += incomeIncreaseByYear
+                            profitIncrease3Years += profileIncreaseByYear
                         else:
-                            increase3Years = increase3Years and False
+                            incomeIncrease3Years -= 1000
+                            profitIncrease3Years -= 1000
 
                         if count == 3:
                             break
@@ -547,20 +550,22 @@ class StockUtils(object):
                 item = obj[0]
                 allExpense = item['TOTALOPERATEEXP']
                 RDExpense = item['RDEXP']
+                increase3YearsOk = incomeIncrease3Years/3.0 >= 10 and profitIncrease3Years/3.0 >= 10
+
                 if not RDExpense or len(RDExpense) == 0 or RDExpense == '--':
-                    return 0, 0, increaseHight, increase3Years
+                    return 0, 0, increaseHight, increase3YearsOk
                 if not allExpense or len(allExpense) == 0 or allExpense == '--':
-                    return 0, 0, increaseHight, increase3Years
+                    return 0, 0, increaseHight, increase3YearsOk
 
                 percent = float(RDExpense) * 1.0 / float(allExpense)
                 if percent >= 0.2:
-                    return 3, percent, increaseHight, increase3Years
+                    return 3, percent, increaseHight, increase3YearsOk
                 elif percent >= 0.08:
-                    return 2, percent, increaseHight, increase3Years
+                    return 2, percent, increaseHight, increase3YearsOk
                 elif percent >= 0.05:
-                    return 1, percent, increaseHight, increase3Years
+                    return 1, percent, increaseHight, increase3YearsOk
                 else:
-                    return 0, percent, increaseHight, increase3Years
+                    return 0, percent, increaseHight, increase3YearsOk
         return 0, 0, 0, 0
 
     @classmethod

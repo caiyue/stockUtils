@@ -342,8 +342,7 @@ def itemIsGood(item):
 
     # 如果收入&利润出现了非增长，说明公司抗风险能力，太弱了
     if not increase3Years:
-        if billPercent > 0.05:
-            return False
+        return False
 
     # 一般是地产、银行等不能告诉成长的企业
     if syl <= 10 or syl > sylLimit:
