@@ -432,19 +432,24 @@ class StockUtils(object):
         return None
 
     def getCompanyBussinessPercentDetailForCode(self, code):
-        bussinessList = []
         res = getHtmlFromUrl(companyBussinessPercentUrl % getMarketCode(code))
         obj = getJsonObjOrigin(res)
+        busDesc = ''
         if obj and len(obj['zygcfx']) > 0:
             o = obj['zygcfx'][0]
             if o:
-                li = o['hy']
+                li = o['cp']
                 if li and len(li) > 0:
                     for d in li:
-                        m = CompanyBussinessPercentDetailModel(code, None, d['rq'], d['zygc'], d['zysr'], d['zylr'],
-                                                               d['srbl'], d['lrbl'])
-                        if m: bussinessList.append(m)
-        return bussinessList
+                        # m = CompanyBussinessPercentDetailModel(code, None, d['rq'], d['zygc'], d['zysr'], d['zylr'],
+                        #                                        d['srbl'], d['lrbl'])
+                        desc = d['zygc']
+                        if '其中:' in desc:
+                            continue
+                        busDesc = busDesc + ('%s:%s\n' % (desc, d['srbl']))
+            return busDesc
+        else:
+            return None
 
     @classmethod
     def getMostValueableStockList(self):

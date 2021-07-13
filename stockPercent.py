@@ -193,6 +193,7 @@ def multiThradExector(code, lock):
     prepareJieJinPercent = su.PrePareToJieJin(code)
     bill = su.getCompanyBill(code)[1]
     bussinessDetail = su.getCompanyBussinessDetailString(code)
+    bussinessPercent = su.getCompanyBussinessPercentDetailForCode(code)
 
     # 净利率
     roe = su.roeStringForCode(code, returnData=True)
@@ -233,6 +234,7 @@ def multiThradExector(code, lock):
                     'incodeIncremnt': companyDetail['incomeIncrement'],
                     'profitIncrment': companyDetail['profitIncrment'],
                     'fzl': companyDetail['fzl'],
+                    'bussinessPercent': bussinessPercent,
 
                     'bill': bill,
                     'billPercent': billPercent,  # 应收款占比
@@ -462,6 +464,7 @@ def printInfo(item):
 
     devPercent = item['devPercent']
     devHigh = item['devHigh']
+    bussinessPercent = item['bussinessPercent']
 
     increaseHight = item['increaseHight']
 
@@ -494,7 +497,7 @@ def printInfo(item):
     print code, name, '市盈率:%.0f' % syl, '评级数:%d' % commentCount, je, counts, '利润:%s/%s' % (
         income, profit), devDesc, increaseHight, currentIncreaseHight, sdPercentDesc, \
         companyHoldingPercent, '股东数:%.0f' % currentHodingCount, prepareIncreaseDesc, \
-        prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc
+        prepareJieJinDesc, fuzhaiDesc, billDesc, roeDesc, '\n', bussinessPercent
 
 
 def formatStock(arr):
@@ -504,8 +507,7 @@ def formatStock(arr):
 
 
 def princleple():
-    print
-    '''
+    print '''
     买入类型
     1、业绩好：(公司经营和管理层都不错)
         a)过去两年高速增长或者当前业绩&利润 增幅 >=40%
