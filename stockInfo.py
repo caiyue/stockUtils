@@ -930,18 +930,18 @@ class StockUtils(object):
         return 0
 
     def sdgdTotalPercent(self, code):
-        percent = 0
+        percent = -1
         res = getHtmlFromUrl(sdltgd % getMarketCode(code))
         obj = getJsonObjOrigin(res)
         try:
             if not obj:
-                return percent
+                return 0
             li = obj['gdrs']
             if li and len(li) > 0:
                 for item in li:
                     o = item['qsdgdcghj']
                     if '--' in o or '-' in o:
-                        percent = 0
+                        continue
                     else:
                         percent = float(o)
                         break

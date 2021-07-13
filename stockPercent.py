@@ -357,7 +357,7 @@ def itemIsGood(item):
         return False
 
     # 如果筹码太散，股价不容易拉升(无论过去是否告诉成长)
-    if sdPercent < 45:
+    if 0 <= sdPercent < 45:
         return False
 
     # 次新股有180天的缓冲期，180天后，如果机构占比还很低，得多垃圾啊
